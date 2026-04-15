@@ -74,9 +74,55 @@ Professional sidebar navigation on desktop (1024px+). Bottom tab bar on mobile. 
 
 ## Architecture
 
-<p align="center">
-  <img src="docs/architecture.svg" alt="Protocol Architecture" width="100%"/>
-</p>
+```
+                            ┌─────────────────────┐
+                            │   USER (Athlete)     │
+                            └──────────┬──────────┘
+                                       │
+                            ┌──────────▼──────────┐
+                            │   FRONTEND (PWA)     │
+                            │  Desktop Sidebar +   │
+                            │  Mobile Bottom Tabs  │
+                            │  Obsidian Dark UI    │
+                            └──────────┬──────────┘
+                                       │
+                            ┌──────────▼──────────┐
+                            │   AUTH LAYER         │
+                            │  PBKDF2 + Sessions   │
+                            └──────────┬──────────┘
+                                       │
+                ┌──────────────────────▼──────────────────────┐
+                │            API SERVER (Node.js)              │
+                │              85+ Routes                      │
+                │              Port 3888                        │
+                └──┬────────┬────────┬────────┬────────┬──────┘
+                   │        │        │        │        │
+          ┌────────▼──┐ ┌───▼────┐ ┌─▼──────┐ ┌▼──────┐ ┌▼──────────┐
+          │ COMPOUNDS  │ │ HEALTH │ │TRAINING│ │ BODY  │ │COMPETITION │
+          │            │ │        │ │        │ │& DIET │ │            │
+          │ 103 drugs  │ │49 marks│ │121 exer│ │12 meas│ │16 feds     │
+          │ PK engine  │ │auto-flg│ │8 templs│ │photos │ │17 divs     │
+          │ drug check │ │lab OCR │ │AI sgest│ │macros │ │peak week   │
+          │ PCT calc   │ │readines│ │rest tmr│ │water  │ │Wilks/DOTS  │
+          │ reminders  │ │side fx │ │volume  │ │       │ │20 SM events│
+          └────────┬───┘ └───┬────┘ └─┬──────┘ └┬──────┘ └┬───────────┘
+                   │         │        │         │         │
+                   └─────────┴────────┴─────┬───┴─────────┘
+                                            │
+                            ┌───────────────▼───────────────┐
+                            │       SQLite DATABASE          │
+                            │    24 Tables · protocol.db     │
+                            └───────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │  CROSS-CUTTING: Auth · Export · Achievements · Interactions ·   │
+  │  Coach Sharing · 9 Calculators · AI Suggestions · Gamification  │
+  └──────────────────────────────────────────────────────────────────┘
+
+  85+ API Routes · 24 Tables · 103 Compounds · 121 Exercises
+  49 Blood Markers · 16 Federations · 20 Strongman Events
+  1 npm Dependency · Zero External Services
+```
 
 ## Screenshots
 
