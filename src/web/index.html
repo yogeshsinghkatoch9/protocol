@@ -220,6 +220,63 @@ input[type="range"]:focus{box-shadow:none}
       <div id="home-wellness-scores" class="grid-4"></div>
     </div>
 
+    <!-- Readiness Gauge -->
+    <div id="home-readiness" class="card mt-12" style="display:none">
+      <div class="flex items-center justify-between mb-8">
+        <div class="section-hdr" style="font-size:15px;margin-bottom:0">Readiness</div>
+        <div id="home-readiness-rec" class="text-xs text-muted" style="max-width:55%;text-align:right"></div>
+      </div>
+      <div style="text-align:center">
+        <canvas id="readiness-gauge" width="120" height="70" style="display:inline-block"></canvas>
+        <div id="home-readiness-score" style="font-family:var(--font-display);font-size:36px;letter-spacing:2px;margin-top:-8px">--</div>
+      </div>
+    </div>
+
+    <!-- Streak & Achievement -->
+    <div id="home-gamification" class="flex gap-8 mt-12" style="display:none">
+      <div class="card" style="flex:1;text-align:center;padding:12px">
+        <div id="home-streak-icon" style="font-size:24px">--</div>
+        <div id="home-streak-val" style="font-family:var(--font-display);font-size:28px;letter-spacing:1px;color:var(--accent)">0</div>
+        <div class="text-xs text-muted">DAY STREAK</div>
+      </div>
+      <div class="card" style="flex:1;text-align:center;padding:12px;cursor:pointer" onclick="switchTab('achievements')">
+        <div id="home-achieve-icon" style="font-size:24px">--</div>
+        <div id="home-achieve-text" class="text-xs" style="margin-top:4px;font-weight:600;color:var(--teal)">--</div>
+        <div class="text-xs text-muted">LATEST UNLOCK</div>
+      </div>
+    </div>
+
+    <!-- AI Suggestion -->
+    <div id="home-ai-suggest" class="card mt-12" style="display:none;border-color:rgba(45,212,168,.2)">
+      <div class="flex items-center gap-8 mb-8">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--teal)" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div class="section-hdr" style="font-size:15px;margin-bottom:0">Today's Recommendation</div>
+      </div>
+      <div id="home-ai-workout" style="font-weight:600;font-size:14px"></div>
+      <div id="home-ai-reason" class="text-xs text-muted mt-4"></div>
+      <button class="btn btn-sm btn-teal mt-8" onclick="startSuggestedWorkout()">Start This</button>
+    </div>
+
+    <!-- Deload Warning -->
+    <div id="home-deload-warn" class="card mt-12" style="display:none;border-color:rgba(245,158,11,.3)">
+      <div class="flex items-center gap-8">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--amber)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div>
+          <div class="text-sm" style="font-weight:600;color:var(--amber)">Deload Recommended</div>
+          <div id="home-deload-reason" class="text-xs text-muted"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reminders -->
+    <div id="home-reminders" class="mt-12" style="display:none">
+      <div class="flex items-center justify-between mb-8">
+        <div class="section-hdr" style="font-size:15px;margin-bottom:0">Reminders</div>
+        <button class="btn btn-sm btn-primary" onclick="openAddReminderModal()">+ Add</button>
+      </div>
+      <div id="home-reminders-list"></div>
+    </div>
+
     <!-- Interaction Warnings -->
     <div id="home-warnings" class="mt-12"></div>
 
@@ -295,6 +352,17 @@ input[type="range"]:focus{box-shadow:none}
 
     <!-- Start Workout or Active Workout -->
     <div id="train-start">
+      <!-- AI Workout Suggestion -->
+      <div id="train-ai-suggest" class="card mb-12" style="display:none;border-color:rgba(45,212,168,.15)">
+        <div class="flex items-center gap-8 mb-4">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--teal)" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <div class="text-xs text-teal" style="font-weight:600;text-transform:uppercase;letter-spacing:1px">Suggested Workout</div>
+        </div>
+        <div id="train-ai-name" style="font-weight:600"></div>
+        <div id="train-ai-reason" class="text-xs text-muted mt-4"></div>
+        <button class="btn btn-sm btn-teal mt-8" onclick="startSuggestedWorkout()">Start This</button>
+      </div>
+
       <button class="btn btn-primary btn-block" style="padding:16px;font-size:16px" onclick="startWorkout()">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         Start Workout
@@ -349,7 +417,10 @@ input[type="range"]:focus{box-shadow:none}
   <div id="page-blood" class="tab-page">
     <div class="flex items-center justify-between mb-12">
       <div class="section-hdr" style="font-size:24px;margin-bottom:0">Blood Work</div>
-      <button class="btn btn-sm btn-primary" onclick="openAddBloodPanel()">+ Panel</button>
+      <div class="flex gap-8">
+        <button class="btn btn-sm btn-secondary" onclick="openParseLabResults()">Paste Labs</button>
+        <button class="btn btn-sm btn-primary" onclick="openAddBloodPanel()">+ Panel</button>
+      </div>
     </div>
     <div id="blood-panel-list"></div>
 
@@ -369,7 +440,10 @@ input[type="range"]:focus{box-shadow:none}
 
   <!-- TAB: BODY -->
   <div id="page-body" class="tab-page">
-    <div class="section-hdr" style="font-size:24px">Body</div>
+    <div class="flex items-center justify-between mb-12">
+      <div class="section-hdr" style="font-size:24px;margin-bottom:0">Body</div>
+      <button class="btn btn-sm btn-secondary" onclick="shareProgress()">Share Progress</button>
+    </div>
 
     <!-- Weight Chart -->
     <div class="section-hdr" style="font-size:15px">Weight Trend</div>
@@ -447,6 +521,14 @@ input[type="range"]:focus{box-shadow:none}
     <div id="wellness-today" class="card mt-16" style="display:none">
       <div class="section-hdr" style="font-size:15px">Today's Scores</div>
       <div id="wellness-today-scores" class="grid-4"></div>
+    </div>
+
+    <!-- Readiness History -->
+    <div id="wellness-readiness-history" class="mt-16" style="display:none">
+      <div class="section-hdr" style="font-size:15px">Readiness History (7 Days)</div>
+      <div class="chart-wrap" style="height:160px">
+        <canvas id="readiness-history-chart"></canvas>
+      </div>
     </div>
 
     <!-- 7-Day Trends -->
@@ -653,6 +735,225 @@ input[type="range"]:focus{box-shadow:none}
     </div>
   </div>
 
+  <!-- TAB: SUPPLEMENTS -->
+  <div id="page-supplements" class="tab-page">
+    <div class="flex items-center justify-between mb-12">
+      <div class="section-hdr" style="font-size:24px;margin-bottom:0">Supplements</div>
+      <button class="btn btn-sm btn-primary" onclick="openAddSupplementModal()">+ Add</button>
+    </div>
+
+    <!-- Today's Compliance -->
+    <div class="card mb-12">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:1px">Today's Compliance</div>
+          <div id="supp-compliance" style="font-family:var(--font-display);font-size:28px;letter-spacing:1px;color:var(--teal);margin-top:4px">0 / 0</div>
+        </div>
+        <div id="supp-compliance-pct" style="font-family:var(--font-display);font-size:36px;letter-spacing:2px;color:var(--accent)">--%</div>
+      </div>
+      <div class="progress-wrap mt-8"><div class="progress-fill" id="supp-compliance-bar" style="width:0%;background:var(--teal)"></div></div>
+    </div>
+
+    <div id="supp-list"></div>
+  </div>
+
+  <!-- TAB: ACHIEVEMENTS -->
+  <div id="page-achievements" class="tab-page">
+    <div class="section-hdr" style="font-size:24px">Achievements</div>
+
+    <!-- Streak Card -->
+    <div class="card mb-12">
+      <div class="grid-3 gap-8" style="text-align:center">
+        <div>
+          <div class="text-xs text-muted">CURRENT</div>
+          <div id="ach-current-streak" style="font-family:var(--font-display);font-size:28px;letter-spacing:2px;color:var(--accent)">0</div>
+          <div class="text-xs text-muted">DAY STREAK</div>
+        </div>
+        <div>
+          <div class="text-xs text-muted">LONGEST</div>
+          <div id="ach-longest-streak" style="font-family:var(--font-display);font-size:28px;letter-spacing:2px;color:var(--teal)">0</div>
+          <div class="text-xs text-muted">DAYS</div>
+        </div>
+        <div>
+          <div class="text-xs text-muted">TOTAL</div>
+          <div id="ach-total-actions" style="font-family:var(--font-display);font-size:28px;letter-spacing:2px;color:var(--amber)">0</div>
+          <div class="text-xs text-muted">ACTIONS</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="card mb-12">
+      <div class="flex items-center justify-between mb-8">
+        <div class="text-sm" style="font-weight:600">Progress</div>
+        <div id="ach-progress-text" class="text-xs text-muted">0 / 20 unlocked</div>
+      </div>
+      <div class="progress-wrap"><div class="progress-fill" id="ach-progress-bar" style="width:0%;background:var(--accent)"></div></div>
+    </div>
+
+    <!-- Achievement Grid -->
+    <div id="ach-grid" class="grid-2 gap-8"></div>
+  </div>
+
+  <!-- TAB: ANALYTICS -->
+  <div id="page-analytics" class="tab-page">
+    <div class="section-hdr" style="font-size:24px">Analytics</div>
+
+    <!-- Training Section -->
+    <div class="section-hdr" style="font-size:15px">Training</div>
+    <div class="grid-3 gap-8 mb-12">
+      <div class="card" style="text-align:center;padding:12px">
+        <div id="an-total-workouts" style="font-family:var(--font-display);font-size:28px;letter-spacing:1px;color:var(--accent)">--</div>
+        <div class="text-xs text-muted">WORKOUTS</div>
+      </div>
+      <div class="card" style="text-align:center;padding:12px">
+        <div id="an-avg-duration" style="font-family:var(--font-display);font-size:28px;letter-spacing:1px;color:var(--teal)">--</div>
+        <div class="text-xs text-muted">AVG MIN</div>
+      </div>
+      <div class="card" style="text-align:center;padding:12px">
+        <div id="an-this-week" style="font-family:var(--font-display);font-size:28px;letter-spacing:1px;color:var(--amber)">--</div>
+        <div class="text-xs text-muted">THIS WEEK</div>
+      </div>
+    </div>
+
+    <!-- Weekly Volume Chart -->
+    <div class="chart-wrap mb-12" style="height:180px">
+      <canvas id="an-volume-chart"></canvas>
+    </div>
+
+    <!-- Top Exercises -->
+    <div id="an-top-exercises" class="mb-12"></div>
+
+    <!-- Muscle Balance -->
+    <div class="section-hdr" style="font-size:15px">Muscle Balance</div>
+    <div id="an-muscle-balance" class="mb-12"></div>
+
+    <!-- Body Section -->
+    <div class="section-hdr" style="font-size:15px">Body</div>
+    <div class="grid-2 gap-8 mb-12">
+      <div class="card" style="text-align:center;padding:12px">
+        <div class="text-xs text-muted">30-DAY CHANGE</div>
+        <div id="an-weight-30d" style="font-family:var(--font-display);font-size:24px;letter-spacing:1px">--</div>
+      </div>
+      <div class="card" style="text-align:center;padding:12px">
+        <div class="text-xs text-muted">90-DAY CHANGE</div>
+        <div id="an-weight-90d" style="font-family:var(--font-display);font-size:24px;letter-spacing:1px">--</div>
+      </div>
+    </div>
+    <div class="grid-3 gap-8 mb-12">
+      <div class="card" style="text-align:center;padding:12px">
+        <div id="an-current-weight" style="font-family:var(--font-display);font-size:22px;letter-spacing:1px">--</div>
+        <div class="text-xs text-muted">WEIGHT</div>
+      </div>
+      <div class="card" style="text-align:center;padding:12px">
+        <div id="an-current-bf" style="font-family:var(--font-display);font-size:22px;letter-spacing:1px">--</div>
+        <div class="text-xs text-muted">BF%</div>
+      </div>
+      <div class="card" style="text-align:center;padding:12px">
+        <div id="an-lean-mass" style="font-family:var(--font-display);font-size:22px;letter-spacing:1px">--</div>
+        <div class="text-xs text-muted">LEAN</div>
+      </div>
+    </div>
+
+    <!-- Compounds Section -->
+    <div class="section-hdr" style="font-size:15px">Compounds</div>
+    <div id="an-compounds-section" class="card mb-12">
+      <div class="text-sm text-muted">No active cycle</div>
+    </div>
+
+    <!-- Health Section -->
+    <div class="section-hdr" style="font-size:15px">Health</div>
+    <div class="grid-2 gap-8 mb-12">
+      <div class="card" style="text-align:center;padding:12px">
+        <div id="an-days-blood" style="font-family:var(--font-display);font-size:28px;letter-spacing:1px;color:var(--amber)">--</div>
+        <div class="text-xs text-muted">DAYS SINCE BLOOD</div>
+      </div>
+      <div class="card" style="text-align:center;padding:12px">
+        <div id="an-readiness-avg" style="font-family:var(--font-display);font-size:28px;letter-spacing:1px;color:var(--teal)">--</div>
+        <div class="text-xs text-muted">AVG READINESS</div>
+      </div>
+    </div>
+    <div id="an-flagged-markers" class="mb-12"></div>
+
+    <!-- Achievements Section -->
+    <div class="section-hdr" style="font-size:15px">Achievements</div>
+    <div class="card">
+      <div class="flex items-center justify-between mb-8">
+        <div id="an-ach-progress" class="text-sm" style="font-weight:600">0 / 20 unlocked</div>
+        <div id="an-ach-streak" class="pill pill-accent">0 day streak</div>
+      </div>
+      <div class="progress-wrap"><div class="progress-fill" id="an-ach-bar" style="width:0%;background:var(--accent)"></div></div>
+    </div>
+  </div>
+
+  <!-- TAB: TOOLS -->
+  <div id="page-tools" class="tab-page">
+    <div class="section-hdr" style="font-size:24px">Tools</div>
+
+    <!-- Unit Converter -->
+    <div class="card">
+      <div class="section-hdr" style="font-size:15px">Unit Converter</div>
+      <div class="flex flex-col gap-12">
+        <div><label>Value</label><input type="number" id="conv-value" placeholder="250" oninput="doConversion()"></div>
+        <div class="grid-2 gap-8">
+          <div><label>From</label>
+            <select id="conv-from" onchange="onConvUnitChange();doConversion()">
+              <option value="mg">mg</option>
+              <option value="mcg">mcg</option>
+              <option value="ml">mL</option>
+              <option value="iu">IU</option>
+            </select>
+          </div>
+          <div><label>To</label>
+            <select id="conv-to" onchange="onConvUnitChange();doConversion()">
+              <option value="mcg">mcg</option>
+              <option value="mg">mg</option>
+              <option value="ml">mL</option>
+              <option value="iu">IU</option>
+            </select>
+          </div>
+        </div>
+        <div id="conv-concentration-wrap" style="display:none">
+          <label>Concentration (mg/mL)</label>
+          <input type="number" id="conv-concentration" placeholder="250" oninput="doConversion()">
+        </div>
+        <div id="conv-compound-wrap" style="display:none">
+          <label>Compound</label>
+          <select id="conv-compound" onchange="doConversion()">
+            <option value="">Select...</option>
+            <option value="hgh">HGH</option>
+            <option value="hcg">HCG</option>
+            <option value="insulin">Insulin</option>
+          </select>
+        </div>
+        <div id="conv-result" style="text-align:center;display:none">
+          <div id="conv-result-val" style="font-family:var(--font-display);font-size:42px;letter-spacing:3px;color:var(--teal)">--</div>
+          <div id="conv-result-note" class="text-xs text-muted"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pinning Calculator -->
+    <div class="card mt-12">
+      <div class="section-hdr" style="font-size:15px">Pinning Calculator</div>
+      <div class="grid-2 gap-8">
+        <div><label>Dose (mg)</label><input type="number" id="tool-pin-dose" placeholder="250" oninput="calcToolPin()"></div>
+        <div><label>Concentration (mg/mL)</label><input type="number" id="tool-pin-conc" placeholder="250" oninput="calcToolPin()"></div>
+      </div>
+      <div id="tool-pin-result" class="mt-8" style="text-align:center;font-family:var(--font-display);font-size:28px;letter-spacing:2px;color:var(--teal);display:none"></div>
+    </div>
+
+    <!-- 1RM Calculator -->
+    <div class="card mt-12">
+      <div class="section-hdr" style="font-size:15px">1RM Calculator</div>
+      <div class="grid-2 gap-8">
+        <div><label>Weight</label><input type="number" id="tool-1rm-weight" placeholder="225" oninput="calcTool1RM()"></div>
+        <div><label>Reps</label><input type="number" id="tool-1rm-reps" placeholder="5" oninput="calcTool1RM()"></div>
+      </div>
+      <div id="tool-1rm-result" class="mt-8" style="text-align:center;font-family:var(--font-display);font-size:28px;letter-spacing:2px;color:var(--accent);display:none"></div>
+    </div>
+  </div>
+
   <!-- TAB: PROFILE -->
   <div id="page-profile" class="tab-page">
     <div class="section-hdr" style="font-size:24px">Sport Profile</div>
@@ -724,6 +1025,24 @@ input[type="range"]:focus{box-shadow:none}
       <div id="wc-result" class="mt-8" style="text-align:center;display:none">
         <div class="text-xs text-muted">YOUR CLASS</div>
         <div style="font-family:var(--font-display);font-size:28px;letter-spacing:2px;color:var(--teal)" id="wc-class-display">--</div>
+      </div>
+    </div>
+
+    <!-- Coach Sharing -->
+    <div class="card mt-16">
+      <div class="section-hdr" style="font-size:15px">Share with Coach</div>
+      <button class="btn btn-sm btn-primary mb-12" onclick="generateCoachShare()">Generate Share Link</button>
+      <div id="coach-share-link" style="display:none" class="mb-12">
+        <div class="text-xs text-muted mb-4">SHARE LINK</div>
+        <div class="flex items-center gap-8">
+          <input type="text" id="coach-share-url" readonly style="font-size:11px;padding:8px">
+          <button class="btn btn-sm btn-teal" onclick="copyCoachLink()">Copy</button>
+        </div>
+      </div>
+      <div id="coach-shares-list"></div>
+      <div id="coach-notes-display" class="mt-12" style="display:none">
+        <div class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Coach Notes</div>
+        <div id="coach-notes-list"></div>
       </div>
     </div>
 
@@ -888,6 +1207,10 @@ function switchTab(tab) {
   else if (tab === 'powerlifting') loadPowerlifting();
   else if (tab === 'strongman') loadStrongman();
   else if (tab === 'profile') loadProfile();
+  else if (tab === 'supplements') loadSupplements();
+  else if (tab === 'achievements') loadAchievements();
+  else if (tab === 'analytics') loadAnalytics();
+  else if (tab === 'tools') {} // static, no data load needed
 }
 
 function openMoreMenu() {
@@ -927,9 +1250,27 @@ function openMoreMenu() {
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--amber)" stroke-width="1.8"><circle cx="12" cy="5" r="3"/><path d="M6.5 8a2 2 0 012-2h7a2 2 0 012 2l-1 6H7.5l-1-6z"/><path d="M5 21l2-7"/><path d="M19 21l-2-7"/><path d="M9 21h6"/></svg>
         <div><div style="font-weight:600">Strongman</div><div class="text-xs text-muted">Events, PRs, training log</div></div>
       </button>
+      <div class="divider"></div>
+      <button class="list-item" onclick="closeModal();switchTab('supplements')">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--teal)" stroke-width="1.8"><path d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-6 18h9"/></svg>
+        <div><div style="font-weight:600">Supplements</div><div class="text-xs text-muted">Track daily supplement intake</div></div>
+      </button>
+      <button class="list-item" onclick="closeModal();switchTab('achievements')">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--accent)" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <div><div style="font-weight:600">Achievements</div><div class="text-xs text-muted">Streaks, badges, milestones</div></div>
+      </button>
+      <button class="list-item" onclick="closeModal();switchTab('analytics')">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--accent2)" stroke-width="1.8"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+        <div><div style="font-weight:600">Analytics</div><div class="text-xs text-muted">Full dashboard, stats, trends</div></div>
+      </button>
+      <button class="list-item" onclick="closeModal();switchTab('tools')">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--text2)" stroke-width="1.8"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+        <div><div style="font-weight:600">Tools</div><div class="text-xs text-muted">Unit converter, calculators</div></div>
+      </button>
+      <div class="divider"></div>
       <button class="list-item" onclick="closeModal();switchTab('profile')">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--text2)" stroke-width="1.8"><path d="M12 15a7 7 0 100-14 7 7 0 000 14z"/><path d="M8 21v-1a4 4 0 018 0v1"/><path d="M12 11V9"/><path d="M12 15h.01"/></svg>
-        <div><div style="font-weight:600">Profile</div><div class="text-xs text-muted">Sport profile, calculators, export</div></div>
+        <div><div style="font-weight:600">Profile</div><div class="text-xs text-muted">Sport profile, coach sharing, export</div></div>
       </button>
     </div>
   `);
@@ -947,6 +1288,10 @@ async function init() {
 
   // Load diet data from localStorage
   try { S.dietData = JSON.parse(localStorage.getItem('protocol_diet') || '{}'); } catch(e) { S.dietData = {}; }
+
+  // Update streaks and check achievements on load
+  try { await api('/api/streaks/update', { method: 'POST' }); } catch(e) {}
+  try { await api('/api/achievements/check', { method: 'POST' }); } catch(e) {}
 
   loadHome();
 }
@@ -1060,6 +1405,96 @@ async function loadHome() {
         </div>
       `).join('');
     }
+
+    // Readiness score
+    try {
+      const readiness = await api('/api/readiness');
+      if (readiness && readiness.score != null) {
+        document.getElementById('home-readiness').style.display = 'block';
+        const score = readiness.score;
+        const color = score >= 80 ? 'var(--teal)' : score >= 60 ? 'var(--amber)' : 'var(--red)';
+        document.getElementById('home-readiness-score').style.color = color;
+        document.getElementById('home-readiness-score').textContent = Math.round(score);
+        document.getElementById('home-readiness-rec').textContent = readiness.recommendation || '';
+        drawReadinessGauge(document.getElementById('readiness-gauge'), score);
+      }
+    } catch(e) {}
+
+    // Streak & achievements
+    try {
+      const streaks = await api('/api/streaks');
+      const achRes = await api('/api/achievements');
+      if (streaks || achRes) {
+        document.getElementById('home-gamification').style.display = 'flex';
+        if (streaks) {
+          const cs = streaks.current_streak || 0;
+          document.getElementById('home-streak-val').textContent = cs;
+          document.getElementById('home-streak-icon').textContent = cs >= 7 ? String.fromCodePoint(0x1F525) : cs >= 1 ? String.fromCodePoint(0x2B50) : '--';
+        }
+        if (achRes && achRes.length > 0) {
+          const unlocked = achRes.filter(a => a.unlocked_at).sort((a,b) => (b.unlocked_at || '').localeCompare(a.unlocked_at || ''));
+          if (unlocked.length > 0) {
+            document.getElementById('home-achieve-icon').textContent = unlocked[0].icon || String.fromCodePoint(0x1F3C6);
+            document.getElementById('home-achieve-text').textContent = unlocked[0].name || 'Achievement';
+          } else {
+            document.getElementById('home-achieve-icon').textContent = String.fromCodePoint(0x1F512);
+            document.getElementById('home-achieve-text').textContent = 'None yet';
+          }
+        }
+      }
+    } catch(e) {}
+
+    // AI suggestion
+    try {
+      const suggest = await api('/api/suggest/workout');
+      if (suggest && suggest.suggestion) {
+        document.getElementById('home-ai-suggest').style.display = 'block';
+        document.getElementById('home-ai-workout').textContent = suggest.suggestion;
+        document.getElementById('home-ai-reason').textContent = suggest.reason || '';
+        S._aiSuggestion = suggest;
+      }
+    } catch(e) {}
+
+    // Deload check
+    try {
+      const deload = await api('/api/suggest/deload');
+      if (deload && deload.needs_deload) {
+        document.getElementById('home-deload-warn').style.display = 'block';
+        document.getElementById('home-deload-reason').textContent = deload.reason || '';
+      } else {
+        document.getElementById('home-deload-warn').style.display = 'none';
+      }
+    } catch(e) {}
+
+    // Reminders
+    try {
+      const reminders = await api('/api/reminders');
+      const dueReminders = await api('/api/reminders/due');
+      const dueIds = new Set((dueReminders || []).map(r => r.id));
+      if (reminders && reminders.length > 0) {
+        document.getElementById('home-reminders').style.display = 'block';
+        document.getElementById('home-reminders-list').innerHTML = reminders.map(r => {
+          const c = S.compoundsById[r.compound_id];
+          const isDue = dueIds.has(r.id);
+          return `
+            <div class="card" style="padding:12px;${isDue ? 'border-color:var(--amber);background:var(--amber-glow)' : ''}">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div style="font-weight:600">${r.label}${isDue ? ' <span class="text-amber text-xs">(DUE)</span>' : ''}</div>
+                  <div class="text-xs text-muted">${c ? c.name : r.compound_id} &bull; Every ${r.frequency_hours}h${r.time_of_day ? ' at ' + r.time_of_day : ''}</div>
+                </div>
+                <div class="flex items-center gap-8">
+                  <div class="toggle ${r.enabled !== 0 ? 'on' : ''}" onclick="toggleReminder(${r.id}, ${r.enabled ? 0 : 1})"></div>
+                  <button class="text-red text-xs" onclick="deleteReminder(${r.id})">x</button>
+                </div>
+              </div>
+            </div>`;
+        }).join('');
+      } else {
+        document.getElementById('home-reminders').style.display = 'none';
+      }
+    } catch(e) {}
+
   } catch(e) { console.error('Home load error', e); }
 }
 
@@ -1497,6 +1932,17 @@ function getExName(id) { return EXERCISE_NAMES[id] || id.replace(/-/g, ' ').repl
 async function loadTraining() {
   if (S.activeWorkout) return; // Don't reload if workout active
 
+  // Load AI suggestion for train tab
+  try {
+    const suggest = await api('/api/suggest/workout');
+    if (suggest && suggest.suggestion) {
+      document.getElementById('train-ai-suggest').style.display = 'block';
+      document.getElementById('train-ai-name').textContent = suggest.suggestion;
+      document.getElementById('train-ai-reason').textContent = suggest.reason || '';
+      S._aiSuggestion = suggest;
+    }
+  } catch(e) {}
+
   // Templates
   const tmplEl = document.getElementById('template-list');
   tmplEl.innerHTML = TEMPLATES.map(t => `
@@ -1814,7 +2260,10 @@ async function viewWorkout(id) {
           `).join('')}
         </div>
       `).join('')}
-      <button class="btn btn-red btn-block mt-12" onclick="deleteWorkout(${w.id})">Delete Workout</button>
+      <div class="flex gap-8 mt-12">
+        <button class="btn btn-secondary btn-block" onclick="shareWorkout(${w.id})">Share Workout</button>
+        <button class="btn btn-red btn-block" onclick="deleteWorkout(${w.id})">Delete</button>
+      </div>
     `);
   } catch(e) { alert(e.message); }
 }
@@ -2495,6 +2944,19 @@ async function loadWellness() {
     if (S.wellness.length >= 3 && S.activeCycle && S.cycleCompounds.length > 0) {
       const insightsEl = document.getElementById('wellness-insight-cards');
       const insights = [];
+
+      // Readiness history chart
+      try {
+        const readHist = await api('/api/readiness/history?days=7');
+        if (readHist && readHist.length > 1) {
+          document.getElementById('wellness-readiness-history').style.display = 'block';
+          const scores = readHist.map(r => r.score).reverse();
+          const labels = readHist.map(r => r.date ? r.date.slice(5) : '').reverse();
+          drawChart(document.getElementById('readiness-history-chart'), [{
+            data: scores, color: '#2dd4a8', fill: true
+          }], { labels, height: 160, yLabel: 'score' });
+        }
+      } catch(e) {}
 
       // Check for energy dips
       const energyVals = S.wellness.filter(w => w.energy != null).map(w => w.energy);
@@ -3441,6 +3903,7 @@ async function loadPowerlifting() {
             <div><div class="text-xs text-muted">DL</div><div style="font-weight:600">${m.best_deadlift || '--'}</div></div>
           </div>
           ${m.total ? `<div class="text-sm mt-4" style="text-align:center"><span class="text-muted">Total:</span> <span style="font-weight:700;color:var(--teal)">${m.total}</span>${m.wilks ? ` &bull; Wilks: ${m.wilks}` : ''}${m.dots ? ` &bull; DOTS: ${m.dots}` : ''}</div>` : ''}
+          <button class="btn btn-sm btn-secondary btn-block mt-8" onclick="shareMeet(${m.id})">Share Results</button>
         </div>
       `).join('');
     }
@@ -3811,6 +4274,9 @@ async function loadProfile() {
         if (profile.division) document.getElementById('prof-division').value = profile.division;
       }
     }
+
+    // Load coach shares
+    loadCoachShares();
   } catch(e) { console.error('Profile load error', e); }
 }
 
@@ -3900,6 +4366,729 @@ function calcWeightClass() {
 
   resultEl.style.display = 'block';
   displayEl.textContent = cls;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   READINESS GAUGE
+   ───────────────────────────────────────────────────────────────────────── */
+function drawReadinessGauge(canvas, score) {
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const w = 120, h = 70;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, w, h);
+
+  const cx = 60, cy = 60, r = 50;
+  // Background arc
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, Math.PI, 0);
+  ctx.lineWidth = 8;
+  ctx.strokeStyle = 'rgba(255,255,255,.06)';
+  ctx.stroke();
+  // Score arc
+  const pct = Math.min(1, Math.max(0, score / 100));
+  const endAngle = Math.PI + pct * Math.PI;
+  const color = score >= 80 ? '#2dd4a8' : score >= 60 ? '#f59e0b' : '#ef4444';
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, Math.PI, endAngle);
+  ctx.lineWidth = 8;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = color;
+  ctx.stroke();
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   REMINDERS
+   ───────────────────────────────────────────────────────────────────────── */
+function openAddReminderModal() {
+  const compOptions = S.cycleCompounds.map(cc => {
+    const c = S.compoundsById[cc.compound_id];
+    return `<option value="${cc.compound_id}">${c ? c.name : cc.compound_id}</option>`;
+  }).join('');
+
+  openModal(`
+    <div class="modal-title">Add Reminder</div>
+    <div class="flex flex-col gap-12">
+      <div><label>Compound</label><select id="rem-compound">${compOptions || '<option value="">No active cycle compounds</option>'}</select></div>
+      <div><label>Label</label><input type="text" id="rem-label" placeholder="e.g. Morning Test injection"></div>
+      <div class="grid-2 gap-8">
+        <div><label>Frequency (hours)</label><input type="number" id="rem-freq" placeholder="84" value="84"></div>
+        <div><label>Time of Day</label><input type="time" id="rem-time" value="08:00"></div>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="saveReminder()">Add Reminder</button>
+    </div>
+  `);
+}
+
+async function saveReminder() {
+  const compound_id = document.getElementById('rem-compound').value;
+  const label = document.getElementById('rem-label').value.trim();
+  const frequency_hours = parseInt(document.getElementById('rem-freq').value);
+  const time_of_day = document.getElementById('rem-time').value || null;
+
+  if (!compound_id || !label || !frequency_hours) return alert('Fill all required fields');
+
+  try {
+    await api('/api/reminders', { method: 'POST', body: { compound_id, label, frequency_hours, time_of_day, enabled: 1 } });
+    closeModal();
+    loadHome();
+  } catch(e) { alert(e.message); }
+}
+
+async function toggleReminder(id, enabled) {
+  try {
+    await api(`/api/reminders/${id}`, { method: 'PUT', body: { enabled } });
+    loadHome();
+  } catch(e) { alert(e.message); }
+}
+
+async function deleteReminder(id) {
+  if (!confirm('Delete reminder?')) return;
+  try {
+    await api(`/api/reminders/${id}`, { method: 'DELETE' });
+    loadHome();
+  } catch(e) { alert(e.message); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   UNIT CONVERTER (Tools page)
+   ───────────────────────────────────────────────────────────────────────── */
+function onConvUnitChange() {
+  const from = document.getElementById('conv-from').value;
+  const to = document.getElementById('conv-to').value;
+  const needConc = (from === 'mg' && to === 'ml') || (from === 'ml' && to === 'mg') || (from === 'mcg' && to === 'ml') || (from === 'ml' && to === 'mcg');
+  const needComp = from === 'iu' || to === 'iu';
+  document.getElementById('conv-concentration-wrap').style.display = needConc ? 'block' : 'none';
+  document.getElementById('conv-compound-wrap').style.display = needComp ? 'block' : 'none';
+}
+
+async function doConversion() {
+  const value = document.getElementById('conv-value').value;
+  const from = document.getElementById('conv-from').value;
+  const to = document.getElementById('conv-to').value;
+  if (!value || from === to) {
+    document.getElementById('conv-result').style.display = 'none';
+    return;
+  }
+
+  let url = `/api/calc/convert?value=${value}&from=${from}&to=${to}`;
+  const conc = document.getElementById('conv-concentration').value;
+  const comp = document.getElementById('conv-compound').value;
+  if (conc) url += `&concentration=${conc}`;
+  if (comp) url += `&compound=${comp}`;
+
+  try {
+    const res = await api(url);
+    document.getElementById('conv-result').style.display = 'block';
+    document.getElementById('conv-result-val').textContent = res.result + ' ' + to.toUpperCase();
+    document.getElementById('conv-result-note').textContent = res.notes || '';
+  } catch(e) {
+    document.getElementById('conv-result').style.display = 'block';
+    document.getElementById('conv-result-val').textContent = '--';
+    document.getElementById('conv-result-note').textContent = e.message;
+  }
+}
+
+function calcToolPin() {
+  const dose = parseFloat(document.getElementById('tool-pin-dose').value);
+  const conc = parseFloat(document.getElementById('tool-pin-conc').value);
+  const el = document.getElementById('tool-pin-result');
+  if (dose > 0 && conc > 0) {
+    el.textContent = (dose / conc).toFixed(2) + ' mL';
+    el.style.display = 'block';
+  } else { el.style.display = 'none'; }
+}
+
+async function calcTool1RM() {
+  const weight = parseFloat(document.getElementById('tool-1rm-weight').value);
+  const reps = parseInt(document.getElementById('tool-1rm-reps').value);
+  const el = document.getElementById('tool-1rm-result');
+  if (weight > 0 && reps >= 1) {
+    if (reps === 1) {
+      el.textContent = weight + ' lbs (actual)';
+      el.style.display = 'block';
+    } else {
+      try {
+        const res = await api(`/api/calc/1rm?weight=${weight}&reps=${reps}`);
+        el.textContent = res.estimated_1rm + ' lbs e1RM';
+        el.style.display = 'block';
+      } catch(e) { el.style.display = 'none'; }
+    }
+  } else { el.style.display = 'none'; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BLOOD WORK OCR PARSER
+   ───────────────────────────────────────────────────────────────────────── */
+function openParseLabResults() {
+  openModal(`
+    <div class="modal-title">Paste Lab Results</div>
+    <div class="flex flex-col gap-12">
+      <div><label>Paste your lab results text below</label>
+        <textarea id="parse-text" rows="8" placeholder="Total Testosterone: 850 ng/dL\nEstradiol (E2): 32 pg/mL\nHematocrit: 48.5 %\nAST: 28 U/L\n..."></textarea>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="parseLabText()">Parse Results</button>
+      <div id="parse-results" style="display:none">
+        <div class="flex items-center justify-between mb-8">
+          <div class="section-hdr" style="font-size:14px;margin-bottom:0">Parsed Markers</div>
+          <div id="parse-count" class="text-xs text-muted"></div>
+        </div>
+        <div id="parse-markers" style="max-height:40vh;overflow-y:auto"></div>
+        <div id="parse-unparsed" class="mt-8"></div>
+        <div class="grid-2 gap-8 mt-12">
+          <div><label>Panel Date</label><input type="date" id="parse-date" value="${todayStr()}"></div>
+          <div><label>Lab Name</label><input type="text" id="parse-lab" placeholder="Quest"></div>
+        </div>
+        <button class="btn btn-teal btn-block mt-12" onclick="saveFromParsed()">Save to Panel</button>
+      </div>
+    </div>
+  `);
+}
+
+async function parseLabText() {
+  const text = document.getElementById('parse-text').value.trim();
+  if (!text) return alert('Paste lab results first');
+
+  try {
+    const res = await api('/api/bloodwork/parse', { method: 'POST', body: { text } });
+    const resultsEl = document.getElementById('parse-results');
+    resultsEl.style.display = 'block';
+
+    document.getElementById('parse-count').textContent = `${res.parsed.length} parsed, ${res.unparsed.length} unparsed`;
+
+    document.getElementById('parse-markers').innerHTML = res.parsed.map((m, i) => `
+      <div class="flex items-center gap-8" style="padding:6px 0;border-bottom:1px solid var(--card-border)">
+        <input type="checkbox" checked data-idx="${i}" style="width:18px;height:18px;flex-shrink:0;accent-color:var(--accent)">
+        <div class="flex-1">
+          <div class="text-sm" style="font-weight:500">${m.marker}</div>
+          <div class="text-xs text-muted">${m.value} ${m.unit}</div>
+        </div>
+        <input type="number" value="${m.value}" data-marker="${m.marker}" data-unit="${m.unit}" style="width:70px;padding:6px;font-size:12px">
+      </div>
+    `).join('');
+
+    if (res.unparsed.length > 0) {
+      document.getElementById('parse-unparsed').innerHTML = `
+        <details style="margin-top:8px">
+          <summary class="text-xs text-muted" style="cursor:pointer">Unparsed lines (${res.unparsed.length})</summary>
+          <div class="text-xs text-muted mt-4" style="white-space:pre-wrap;background:var(--bg3);padding:8px;border-radius:var(--radius-sm);max-height:120px;overflow-y:auto">${res.unparsed.join('\n')}</div>
+        </details>`;
+    }
+
+    // Store parsed data for saving
+    S._parsedLabResults = res.parsed;
+  } catch(e) { alert(e.message); }
+}
+
+async function saveFromParsed() {
+  const date = document.getElementById('parse-date').value;
+  const lab_name = document.getElementById('parse-lab').value.trim() || null;
+  if (!date) return alert('Date required');
+
+  const markers = [];
+  const checkboxes = document.querySelectorAll('#parse-markers input[type="checkbox"]');
+  const inputs = document.querySelectorAll('#parse-markers input[type="number"]');
+
+  inputs.forEach((inp, i) => {
+    const checkbox = checkboxes[i];
+    if (checkbox && checkbox.checked && inp.value) {
+      const r = MARKER_RANGES[inp.dataset.marker];
+      let flag = null;
+      if (r) {
+        if (parseFloat(inp.value) < r.low) flag = 'low';
+        else if (parseFloat(inp.value) > r.high) flag = 'high';
+      }
+      markers.push({ marker: inp.dataset.marker, value: parseFloat(inp.value), unit: inp.dataset.unit || null, flag });
+    }
+  });
+
+  if (markers.length === 0) return alert('No markers selected');
+
+  try {
+    await api('/api/bloodwork', { method: 'POST', body: { date, lab_name, markers } });
+    closeModal();
+    loadBlood();
+  } catch(e) { alert(e.message); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SUPPLEMENTS
+   ───────────────────────────────────────────────────────────────────────── */
+async function loadSupplements() {
+  try {
+    const supps = await api('/api/supplements');
+    const todayLog = await api(`/api/supplement-log?date=${todayStr()}`);
+    const loggedIds = new Set((todayLog || []).map(l => l.supplement_id));
+
+    const takenCount = supps.filter(s => loggedIds.has(s.id)).length;
+    const total = supps.length;
+    const pct = total > 0 ? Math.round((takenCount / total) * 100) : 0;
+
+    document.getElementById('supp-compliance').textContent = `${takenCount} / ${total}`;
+    document.getElementById('supp-compliance-pct').textContent = pct + '%';
+    document.getElementById('supp-compliance-bar').style.width = pct + '%';
+
+    const listEl = document.getElementById('supp-list');
+    if (supps.length === 0) {
+      listEl.innerHTML = '<div class="empty-state"><p class="text-muted">No supplements tracked</p><p class="text-xs text-muted mt-8">Add your daily supplements to track compliance</p></div>';
+      return;
+    }
+
+    listEl.innerHTML = supps.map(s => {
+      const taken = loggedIds.has(s.id);
+      return `
+        <div class="card" style="padding:12px;${taken ? 'border-color:var(--teal);background:var(--teal-glow)' : ''}">
+          <div class="flex items-center justify-between">
+            <div style="flex:1">
+              <div class="flex items-center gap-8">
+                <div style="font-weight:600">${s.name}</div>
+                <span class="pill" style="font-size:9px">${s.category || 'other'}</span>
+              </div>
+              <div class="text-xs text-muted mt-2">${s.dose || ''} ${s.frequency || ''} ${s.time_of_day ? '@ ' + s.time_of_day : ''}</div>
+              ${s.purpose ? `<div class="text-xs text-muted">${s.purpose}</div>` : ''}
+            </div>
+            <div class="flex items-center gap-8">
+              ${taken
+                ? '<span class="pill pill-teal" style="font-size:9px">TAKEN</span>'
+                : `<button class="btn btn-sm btn-teal" onclick="logSupplementTaken(${s.id})">Log</button>`
+              }
+              <button class="text-red text-xs" onclick="deleteSupplement(${s.id})">x</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) { console.error('Supplements load error', e); }
+}
+
+function openAddSupplementModal() {
+  openModal(`
+    <div class="modal-title">Add Supplement</div>
+    <div class="flex flex-col gap-12">
+      <div><label>Name</label><input type="text" id="sup-name" placeholder="e.g. Vitamin D3"></div>
+      <div><label>Category</label>
+        <select id="sup-category">
+          <option value="vitamin">Vitamin</option>
+          <option value="mineral">Mineral</option>
+          <option value="amino">Amino Acid</option>
+          <option value="herb">Herb</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="grid-2 gap-8">
+        <div><label>Dose</label><input type="text" id="sup-dose" placeholder="5000 IU"></div>
+        <div><label>Frequency</label>
+          <select id="sup-freq">
+            <option value="daily">Daily</option>
+            <option value="2x daily">2x Daily</option>
+            <option value="3x daily">3x Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="as needed">As Needed</option>
+          </select>
+        </div>
+      </div>
+      <div><label>Time of Day</label>
+        <select id="sup-time">
+          <option value="morning">Morning</option>
+          <option value="afternoon">Afternoon</option>
+          <option value="evening">Evening</option>
+          <option value="with meals">With Meals</option>
+          <option value="bedtime">Bedtime</option>
+          <option value="">Any Time</option>
+        </select>
+      </div>
+      <div><label>Purpose</label><input type="text" id="sup-purpose" placeholder="e.g. Immune support"></div>
+      <button class="btn btn-primary btn-block" onclick="saveSupplement()">Add Supplement</button>
+    </div>
+  `);
+}
+
+async function saveSupplement() {
+  const name = document.getElementById('sup-name').value.trim();
+  if (!name) return alert('Name required');
+
+  try {
+    await api('/api/supplements', {
+      method: 'POST',
+      body: {
+        name,
+        category: document.getElementById('sup-category').value,
+        dose: document.getElementById('sup-dose').value.trim() || null,
+        frequency: document.getElementById('sup-freq').value,
+        time_of_day: document.getElementById('sup-time').value || null,
+        purpose: document.getElementById('sup-purpose').value.trim() || null,
+        active: 1
+      }
+    });
+    closeModal();
+    loadSupplements();
+  } catch(e) { alert(e.message); }
+}
+
+async function logSupplementTaken(id) {
+  try {
+    await api('/api/supplement-log', {
+      method: 'POST',
+      body: { supplement_id: id, taken_at: new Date().toISOString() }
+    });
+    loadSupplements();
+  } catch(e) { alert(e.message); }
+}
+
+async function deleteSupplement(id) {
+  if (!confirm('Delete supplement?')) return;
+  try {
+    await api(`/api/supplements/${id}`, { method: 'DELETE' });
+    loadSupplements();
+  } catch(e) { alert(e.message); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   ACHIEVEMENTS
+   ───────────────────────────────────────────────────────────────────────── */
+async function loadAchievements() {
+  try {
+    // Check for new achievements
+    const checkRes = await api('/api/achievements/check', { method: 'POST' });
+    const achievements = checkRes.achievements || [];
+    const streaks = await api('/api/streaks');
+
+    // Streak card
+    if (streaks) {
+      document.getElementById('ach-current-streak').textContent = streaks.current_streak || 0;
+      document.getElementById('ach-longest-streak').textContent = streaks.longest_streak || 0;
+      const total = (streaks.total_workouts || 0) + (streaks.total_doses || 0) + (streaks.total_checkins || 0);
+      document.getElementById('ach-total-actions').textContent = total;
+    }
+
+    // Progress
+    const unlocked = achievements.filter(a => a.unlocked_at).length;
+    const totalAch = achievements.length;
+    document.getElementById('ach-progress-text').textContent = `${unlocked} / ${totalAch} unlocked`;
+    document.getElementById('ach-progress-bar').style.width = (totalAch > 0 ? Math.round(unlocked / totalAch * 100) : 0) + '%';
+
+    // Grid
+    const gridEl = document.getElementById('ach-grid');
+    gridEl.innerHTML = achievements.map(a => {
+      const isUnlocked = !!a.unlocked_at;
+      return `
+        <div class="card" style="padding:14px;text-align:center;${isUnlocked ? '' : 'opacity:.4;filter:grayscale(1)'}">
+          <div style="font-size:28px;margin-bottom:6px">${isUnlocked ? (a.icon || String.fromCodePoint(0x1F3C6)) : String.fromCodePoint(0x1F512)}</div>
+          <div class="text-sm" style="font-weight:600">${a.name}</div>
+          <div class="text-xs text-muted mt-2">${a.description || ''}</div>
+          ${isUnlocked ? `<div class="text-xs text-teal mt-4">${formatDate(a.unlocked_at)}</div>` : '<div class="text-xs text-muted mt-4">Locked</div>'}
+        </div>`;
+    }).join('');
+  } catch(e) { console.error('Achievements load error', e); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   ANALYTICS DASHBOARD
+   ───────────────────────────────────────────────────────────────────────── */
+async function loadAnalytics() {
+  try {
+    const data = await api('/api/analytics');
+
+    // Training
+    document.getElementById('an-total-workouts').textContent = data.training.totalWorkouts || 0;
+    document.getElementById('an-avg-duration').textContent = data.training.avgDuration || '--';
+    document.getElementById('an-this-week').textContent = data.training.workoutsThisWeek || 0;
+
+    // Volume chart
+    if (data.training.volumeTrend && data.training.volumeTrend.length > 0) {
+      const vols = data.training.volumeTrend.map(v => v.volume);
+      const labels = data.training.volumeTrend.map(v => v.week_start ? v.week_start.slice(5) : '');
+      drawChart(document.getElementById('an-volume-chart'), [{
+        data: vols, color: '#2dd4a8', fill: true, type: 'bar'
+      }], { labels, height: 180, yLabel: 'volume' });
+    }
+
+    // Top exercises
+    if (data.training.topExercises && data.training.topExercises.length > 0) {
+      document.getElementById('an-top-exercises').innerHTML = `
+        <div class="section-hdr" style="font-size:14px">Top Exercises</div>
+        ${data.training.topExercises.slice(0, 5).map(e => `
+          <div class="flex items-center justify-between" style="padding:5px 0;border-bottom:1px solid var(--card-border)">
+            <div class="text-sm">${getExName(e.exercise)}</div>
+            <div class="flex items-center gap-8">
+              <span class="text-xs text-muted">${e.totalSets} sets</span>
+              <span class="text-xs text-accent">${(e.totalVolume / 1000).toFixed(1)}k</span>
+            </div>
+          </div>
+        `).join('')}`;
+    }
+
+    // Muscle balance
+    if (data.training.muscleGroupBalance) {
+      const muscles = Object.entries(data.training.muscleGroupBalance).sort((a, b) => b[1] - a[1]);
+      const maxSets = muscles.length > 0 ? muscles[0][1] : 1;
+      document.getElementById('an-muscle-balance').innerHTML = muscles.map(([group, sets]) => `
+        <div class="flex items-center gap-8 mb-4">
+          <div class="text-xs text-muted" style="width:65px">${group}</div>
+          <div class="progress-wrap" style="flex:1"><div class="progress-fill" style="width:${Math.round(sets / maxSets * 100)}%;background:var(--accent)"></div></div>
+          <div class="text-xs" style="width:30px;text-align:right">${sets}</div>
+        </div>
+      `).join('');
+    }
+
+    // Body
+    const w30 = data.body.weightChange30d;
+    const w90 = data.body.weightChange90d;
+    document.getElementById('an-weight-30d').textContent = w30 != null ? (w30 > 0 ? '+' : '') + w30 + ' lbs' : '--';
+    document.getElementById('an-weight-30d').style.color = w30 > 0 ? 'var(--teal)' : w30 < 0 ? 'var(--red)' : 'var(--text)';
+    document.getElementById('an-weight-90d').textContent = w90 != null ? (w90 > 0 ? '+' : '') + w90 + ' lbs' : '--';
+    document.getElementById('an-weight-90d').style.color = w90 > 0 ? 'var(--teal)' : w90 < 0 ? 'var(--red)' : 'var(--text)';
+    document.getElementById('an-current-weight').textContent = data.body.currentWeight ? data.body.currentWeight + ' lbs' : '--';
+    document.getElementById('an-current-bf').textContent = data.body.currentBF ? data.body.currentBF + '%' : '--';
+    document.getElementById('an-lean-mass').textContent = data.body.leanMass ? data.body.leanMass + ' lbs' : '--';
+
+    // Compounds
+    const compEl = document.getElementById('an-compounds-section');
+    if (data.compounds.activeCycle) {
+      compEl.innerHTML = `
+        <div class="flex items-center justify-between mb-4">
+          <div style="font-weight:600">${data.compounds.activeCycle}</div>
+          <span class="pill pill-accent">Week ${data.compounds.weeksIn}</span>
+        </div>
+        <div class="grid-3 gap-8 text-xs" style="text-align:center">
+          <div><div style="font-family:var(--font-display);font-size:20px;color:var(--accent)">${data.compounds.compoundsRunning}</div>Compounds</div>
+          <div><div style="font-family:var(--font-display);font-size:20px;color:var(--teal)">${data.compounds.totalWeeklyMg}</div>mg/week</div>
+          <div><div style="font-family:var(--font-display);font-size:20px;color:${data.compounds.doseCompliance >= 80 ? 'var(--teal)' : 'var(--amber)'}">${data.compounds.doseCompliance != null ? data.compounds.doseCompliance + '%' : '--'}</div>Compliance</div>
+        </div>`;
+    } else {
+      compEl.innerHTML = '<div class="text-sm text-muted">No active cycle</div>';
+    }
+
+    // Health
+    document.getElementById('an-days-blood').textContent = data.health.daysSinceBloodWork != null ? data.health.daysSinceBloodWork : '--';
+    document.getElementById('an-readiness-avg').textContent = data.health.readinessAvg7d != null ? Math.round(data.health.readinessAvg7d) : '--';
+
+    if (data.health.flaggedMarkers && data.health.flaggedMarkers.length > 0) {
+      document.getElementById('an-flagged-markers').innerHTML = data.health.flaggedMarkers.map(m => `
+        <div class="flex items-center justify-between" style="padding:5px 0;border-bottom:1px solid var(--card-border)">
+          <div class="text-sm">${m.marker}</div>
+          <div><span style="font-weight:600">${m.value}</span> <span class="text-xs" style="color:${m.status === 'high' ? 'var(--red)' : 'var(--amber)'};font-weight:600">${m.status}</span></div>
+        </div>
+      `).join('');
+    }
+
+    // Achievements
+    document.getElementById('an-ach-progress').textContent = `${data.achievements.totalUnlocked} / ${data.achievements.totalAvailable} unlocked`;
+    document.getElementById('an-ach-streak').textContent = (data.achievements.currentStreak || 0) + ' day streak';
+    document.getElementById('an-ach-bar').style.width = (data.achievements.totalAvailable > 0 ? Math.round(data.achievements.totalUnlocked / data.achievements.totalAvailable * 100) : 0) + '%';
+
+  } catch(e) { console.error('Analytics load error', e); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   COACH SHARING (Profile tab)
+   ───────────────────────────────────────────────────────────────────────── */
+async function generateCoachShare() {
+  openModal(`
+    <div class="modal-title">Share with Coach</div>
+    <div class="flex flex-col gap-12">
+      <div><label>Coach Name</label><input type="text" id="cs-name" placeholder="Optional"></div>
+      <div><label>Permissions</label>
+        <select id="cs-perms">
+          <option value="read">Read Only</option>
+          <option value="read_write">Read + Write Notes</option>
+        </select>
+      </div>
+      <div>
+        <label>Sections to Share</label>
+        <div class="flex flex-col gap-8 mt-4">
+          ${['cycles','blood','body','training','wellness'].map(s => `
+            <label class="flex items-center gap-8" style="font-size:13px;font-weight:400;text-transform:none;letter-spacing:0">
+              <input type="checkbox" checked value="${s}" class="cs-section" style="width:18px;height:18px;accent-color:var(--accent)">
+              ${s.charAt(0).toUpperCase() + s.slice(1)}
+            </label>
+          `).join('')}
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="createCoachShare()">Generate Link</button>
+    </div>
+  `);
+}
+
+async function createCoachShare() {
+  const coach_name = document.getElementById('cs-name').value.trim() || null;
+  const permissions = document.getElementById('cs-perms').value;
+  const sections = [];
+  document.querySelectorAll('.cs-section:checked').forEach(cb => sections.push(cb.value));
+
+  try {
+    const share = await api('/api/coach/share', { method: 'POST', body: { coach_name, permissions, sections } });
+    closeModal();
+    const linkEl = document.getElementById('coach-share-link');
+    linkEl.style.display = 'block';
+    document.getElementById('coach-share-url').value = window.location.origin + '/api/coach/view/' + share.share_token;
+    loadCoachShares();
+  } catch(e) { alert(e.message); }
+}
+
+function copyCoachLink() {
+  const inp = document.getElementById('coach-share-url');
+  inp.select();
+  navigator.clipboard.writeText(inp.value).then(() => alert('Link copied!'));
+}
+
+async function loadCoachShares() {
+  try {
+    const shares = await api('/api/coach/shares');
+    const listEl = document.getElementById('coach-shares-list');
+    if (!shares || shares.length === 0) {
+      listEl.innerHTML = '<div class="text-xs text-muted">No active shares</div>';
+      return;
+    }
+
+    listEl.innerHTML = shares.map(s => {
+      const sections = s.sections ? JSON.parse(s.sections) : [];
+      return `
+        <div class="flex items-center justify-between" style="padding:8px 0;border-bottom:1px solid var(--card-border)">
+          <div>
+            <div class="text-sm" style="font-weight:500">${s.coach_name || 'Coach'}</div>
+            <div class="text-xs text-muted">${s.permissions} &bull; ${sections.join(', ')}</div>
+          </div>
+          <button class="btn btn-sm btn-red" onclick="revokeCoachShare(${s.id})">Revoke</button>
+        </div>`;
+    }).join('');
+
+    // Load coach notes if any
+    if (shares.length > 0) {
+      const notesRes = await api(`/api/coach/notes/${shares[0].id}`);
+      if (notesRes && notesRes.length > 0) {
+        document.getElementById('coach-notes-display').style.display = 'block';
+        document.getElementById('coach-notes-list').innerHTML = notesRes.map(n => `
+          <div class="card" style="padding:10px;border-left:3px solid var(--teal)">
+            <div class="text-xs text-muted">${formatDate(n.date)}</div>
+            <div class="text-sm mt-4">${n.note}</div>
+          </div>
+        `).join('');
+      }
+    }
+  } catch(e) {}
+}
+
+async function revokeCoachShare(id) {
+  if (!confirm('Revoke this share link?')) return;
+  try {
+    await api(`/api/coach/shares/${id}`, { method: 'DELETE' });
+    loadCoachShares();
+  } catch(e) { alert(e.message); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SOCIAL SHARING
+   ───────────────────────────────────────────────────────────────────────── */
+async function shareWorkout(id) {
+  try {
+    const data = await api(`/api/share/workout/${id}`);
+    let text = `PROTOCOL WORKOUT\n${'='.repeat(25)}\n`;
+    text += `${data.name || 'Workout'} - ${formatDate(data.date)}\n`;
+    if (data.duration_min) text += `Duration: ${data.duration_min} min\n`;
+    text += `Sets: ${data.total_sets} | Reps: ${data.total_reps} | Volume: ${(data.total_volume / 1000).toFixed(1)}k lbs\n`;
+    text += `\nExercises:\n`;
+    data.exercises.forEach(e => { text += `  - ${getExName(e)}\n`; });
+    if (data.prs && data.prs.length > 0) {
+      text += `\nPRs:\n`;
+      data.prs.forEach(pr => { text += `  * ${getExName(pr.exercise)}: ${pr.weight} lbs\n`; });
+    }
+    text += `\n#Protocol #Training`;
+
+    openModal(`
+      <div class="modal-title">Share Workout</div>
+      <textarea id="share-text" rows="10" style="font-family:monospace;font-size:11px">${text}</textarea>
+      <button class="btn btn-teal btn-block mt-12" onclick="copyShareText()">Copy to Clipboard</button>
+    `);
+  } catch(e) { alert(e.message); }
+}
+
+async function shareProgress() {
+  try {
+    const data = await api('/api/share/progress');
+    let text = `PROTOCOL PROGRESS\n${'='.repeat(25)}\n`;
+    if (data.current_weight) text += `Current Weight: ${data.current_weight} lbs\n`;
+    if (data.current_bf) text += `Body Fat: ${data.current_bf}%\n`;
+    if (data.weight_change != null) text += `Weight Change: ${data.weight_change > 0 ? '+' : ''}${data.weight_change} lbs\n`;
+    if (data.cycle) text += `Cycle: ${data.cycle.name} (${data.cycle.type}) - Week ${data.cycle.weeks_in}\n`;
+    if (data.measurement_changes && Object.keys(data.measurement_changes).length > 0) {
+      text += `\nMeasurement Changes:\n`;
+      Object.entries(data.measurement_changes).forEach(([part, change]) => {
+        text += `  ${part}: ${change > 0 ? '+' : ''}${change}"\n`;
+      });
+    }
+    text += `\n#Protocol #Progress`;
+
+    openModal(`
+      <div class="modal-title">Share Progress</div>
+      <textarea id="share-text" rows="10" style="font-family:monospace;font-size:11px">${text}</textarea>
+      <button class="btn btn-teal btn-block mt-12" onclick="copyShareText()">Copy to Clipboard</button>
+    `);
+  } catch(e) { alert(e.message); }
+}
+
+async function shareMeet(id) {
+  try {
+    const data = await api(`/api/share/meet/${id}`);
+    let text = `PROTOCOL MEET RESULTS\n${'='.repeat(25)}\n`;
+    text += `${data.name || 'Meet'}`;
+    if (data.federation) text += ` - ${data.federation}`;
+    text += `\n${formatDate(data.date)}\n`;
+    if (data.weight_class) text += `Weight Class: ${data.weight_class}kg\n`;
+    if (data.body_weight) text += `Body Weight: ${data.body_weight}kg\n`;
+    text += `\nLifts:\n`;
+    if (data.squat_best) text += `  Squat: ${data.squat_best}kg\n`;
+    if (data.bench_best) text += `  Bench: ${data.bench_best}kg\n`;
+    if (data.deadlift_best) text += `  Deadlift: ${data.deadlift_best}kg\n`;
+    if (data.total) text += `\nTotal: ${data.total}kg\n`;
+    if (data.wilks) text += `Wilks: ${data.wilks}\n`;
+    if (data.dots) text += `DOTS: ${data.dots}\n`;
+    if (data.placement) text += `Placement: #${data.placement}\n`;
+    text += `\n#Protocol #Powerlifting`;
+
+    openModal(`
+      <div class="modal-title">Share Meet Results</div>
+      <textarea id="share-text" rows="12" style="font-family:monospace;font-size:11px">${text}</textarea>
+      <button class="btn btn-teal btn-block mt-12" onclick="copyShareText()">Copy to Clipboard</button>
+    `);
+  } catch(e) { alert(e.message); }
+}
+
+function copyShareText() {
+  const text = document.getElementById('share-text').value;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('#modal-box .btn-teal');
+    if (btn) { btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy to Clipboard', 1500); }
+  });
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   AI WORKOUT SUGGESTION HELPER
+   ───────────────────────────────────────────────────────────────────────── */
+function startSuggestedWorkout() {
+  if (!S._aiSuggestion || !S._aiSuggestion.exercises) {
+    switchTab('train');
+    return;
+  }
+  closeModal();
+  S.activeWorkout = {
+    name: S._aiSuggestion.suggestion || 'AI Workout',
+    exercises: S._aiSuggestion.exercises.map(e => {
+      const reps = e.reps || '8-10';
+      return {
+        exerciseId: (e.exercise || '').toLowerCase().replace(/\s+/g, '-'),
+        name: e.exercise || 'Exercise',
+        sets: Array.from({length: e.sets || 3}, (_, i) => ({
+          setNum: i + 1, weight: '', reps: reps, rpe: '', type: 'working', completed: false
+        }))
+      };
+    }),
+    startTime: Date.now()
+  };
+  switchTab('train');
+  showActiveWorkout();
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
