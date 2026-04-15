@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#1c1b1b",
+                    "on-secondary": "#303032",
+                    "on-surface-variant": "#c1c6d7",
+                    "surface-container": "#201f1f",
+                    "on-secondary-fixed": "#1b1b1d",
+                    "tertiary-fixed": "#ffdbcc",
+                    "on-tertiary-fixed-variant": "#7c2e00",
+                    "tertiary-container": "#ef6719",
+                    "surface": "#131313",
+                    "primary": "#adc6ff",
+                    "on-secondary-container": "#b6b4b7",
+                    "surface-variant": "#353534",
+                    "surface-bright": "#3a3939",
+                    "error-container": "#93000a",
+                    "secondary-fixed": "#e4e2e4",
+                    "tertiary": "#ffb595",
+                    "surface-container-lowest": "#0e0e0e",
+                    "on-tertiary-fixed": "#351000",
+                    "surface-container-highest": "#353534",
+                    "surface-tint": "#adc6ff",
+                    "on-primary-fixed": "#001a41",
+                    "primary-fixed": "#d8e2ff",
+                    "surface-dim": "#131313",
+                    "on-tertiary-container": "#4c1a00",
+                    "on-background": "#e5e2e1",
+                    "on-primary-fixed-variant": "#004493",
+                    "on-surface": "#e5e2e1",
+                    "background": "#131313",
+                    "secondary-container": "#474649",
+                    "on-error": "#690005",
+                    "primary-container": "#4b8eff",
+                    "tertiary-fixed-dim": "#ffb595",
+                    "on-tertiary": "#571e00",
+                    "surface-container-high": "#2a2a2a",
+                    "secondary-fixed-dim": "#c8c6c8",
+                    "primary-fixed-dim": "#adc6ff",
+                    "outline-variant": "#414755",
+                    "on-error-container": "#ffdad6",
+                    "on-primary-container": "#00285c",
+                    "inverse-on-surface": "#313030",
+                    "error": "#ffb4ab",
+                    "inverse-primary": "#005bc1",
+                    "on-secondary-fixed-variant": "#474649",
+                    "inverse-surface": "#e5e2e1",
+                    "secondary": "#c8c6c8",
+                    "outline": "#8b90a0",
+                    "on-primary": "#002e69"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(19, 19, 19, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .obsidian-gradient {
+            background: linear-gradient(145deg, #adc6ff 0%, #4b8eff 100%);
+        }
+        body {
+            background-color: #131313;
+            color: #e5e2e1;
+            font-family: 'Inter', sans-serif;
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="antialiased select-none">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 bg-[#131313]/70 backdrop-blur-[20px] flex justify-between items-center px-6 h-20 w-full">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full obsidian-gradient flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-sm" style="font-variation-settings: 'FILL' 1;">diamond</span>
+</div>
+<span class="text-xl font-bold tracking-tighter text-[#E5E2E1]">Obsidian Health</span>
+</div>
+<div class="flex gap-4">
+<button class="text-[#E5E2E1]/60 hover:text-[#ADC6FF] transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-[#E5E2E1]/60 hover:text-[#ADC6FF] transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 space-y-10">
+<!-- Hero Readiness Score Section -->
+<section class="relative overflow-hidden">
+<div class="flex flex-col items-center justify-center py-8 space-y-4">
+<div class="relative flex items-center justify-center">
+<svg class="w-56 h-56 transform -rotate-90">
+<circle class="text-surface-container-highest" cx="112" cy="112" fill="transparent" r="100" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-primary" cx="112" cy="112" fill="transparent" r="100" stroke="currentColor" stroke-dasharray="628" stroke-dashoffset="120" stroke-linecap="round" stroke-width="6"></circle>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="text-6xl font-black tracking-tighter text-on-surface">88</span>
+<span class="text-sm font-medium tracking-widest uppercase text-on-surface-variant">Readiness</span>
+</div>
+</div>
+<div class="text-center space-y-1">
+<h2 class="text-lg font-semibold text-on-surface">Optimal Condition</h2>
+<p class="text-sm text-on-surface-variant leading-relaxed opacity-70">Central nervous system recovered.<br/>High performance window open.</p>
+</div>
+</div>
+</section>
+<!-- Quick Action Pills -->
+<section class="flex gap-3 overflow-x-auto pb-2 -mx-6 px-6 no-scrollbar">
+<button class="flex-none flex items-center gap-2 bg-surface-container-high border border-outline-variant/10 px-5 py-3 rounded-full hover:bg-surface-variant transition-colors active:scale-95">
+<span class="material-symbols-outlined text-primary text-lg">medical_services</span>
+<span class="text-sm font-medium text-on-surface">Log Dose</span>
+</button>
+<button class="flex-none flex items-center gap-2 bg-surface-container-high border border-outline-variant/10 px-5 py-3 rounded-full hover:bg-surface-variant transition-colors active:scale-95">
+<span class="material-symbols-outlined text-primary text-lg">scale</span>
+<span class="text-sm font-medium text-on-surface">Log Weight</span>
+</button>
+<button class="flex-none flex items-center gap-2 bg-surface-container-high border border-outline-variant/10 px-5 py-3 rounded-full hover:bg-surface-variant transition-colors active:scale-95">
+<span class="material-symbols-outlined text-primary text-lg">water_drop</span>
+<span class="text-sm font-medium text-on-surface">Hydration</span>
+</button>
+</section>
+<!-- Bento Grid Insights -->
+<section class="grid grid-cols-2 gap-4">
+<!-- Body Map Preview -->
+<div class="col-span-2 bg-surface-container rounded-xl overflow-hidden relative group h-64">
+<img class="w-full h-full object-cover opacity-40 grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="3D medical anatomical visualization of a human muscular system glowing with blue neural pathways in a dark studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3m7SCFmZg7QZ9Y7CFZY8002GstWnB--dmZDf9U0qIg78es3dHQbpdgUX8BO4IH8RQtYvwSpAepmrC641vbrfnSHG66J9Kzvr_4PpqBc6TCKJIA75ukImrsVjIQ1KlZkRFQwmPPrxZbpkzkvLwlLy5ynZA2BzRM8ch--RVGSSqWJHDametwOliE1wsLj3MDE_Us338Eibw1GhR-bVn8IrXRKOpJoWuyTgt-17MpC2HOAguuQpz0dygQEJ3XNhkOjFA5q371ZtR0fGF"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
+<div class="absolute bottom-6 left-6 right-6 flex justify-between items-end">
+<div>
+<span class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary mb-1 block">Muscle Recovery</span>
+<h3 class="text-xl font-bold text-on-surface">Body Map</h3>
+</div>
+<div class="bg-primary/20 backdrop-blur-md px-3 py-1 rounded-full border border-primary/20">
+<span class="text-xs font-bold text-primary">Active Recovery</span>
+</div>
+</div>
+</div>
+<!-- Biometrics Card -->
+<div class="bg-surface-container-high p-6 rounded-xl space-y-4">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">monitor_heart</span>
+<span class="text-[10px] font-bold text-on-surface-variant">HRV</span>
+</div>
+<div>
+<div class="text-2xl font-bold text-on-surface">74<span class="text-sm ml-1 text-on-surface-variant">ms</span></div>
+<p class="text-xs text-on-surface-variant/60 mt-1">+4% from avg</p>
+</div>
+</div>
+<!-- Sleep Card -->
+<div class="bg-surface-container-high p-6 rounded-xl space-y-4">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">bedtime</span>
+<span class="text-[10px] font-bold text-on-surface-variant">Sleep</span>
+</div>
+<div>
+<div class="text-2xl font-bold text-on-surface">8h 12m</div>
+<p class="text-xs text-on-surface-variant/60 mt-1">92% efficiency</p>
+</div>
+</div>
+</section>
+<!-- Training Focus Section -->
+<section class="space-y-6">
+<div class="flex justify-between items-end">
+<h3 class="text-2xl font-bold tracking-tight text-on-surface">Today's Protocol</h3>
+<span class="text-sm font-medium text-primary">View Plan</span>
+</div>
+<div class="relative p-8 rounded-xl bg-surface-container border border-outline-variant/10 overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-8xl">fitness_center</span>
+</div>
+<div class="relative z-10 space-y-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Strength &amp; Power</span>
+</div>
+<h4 class="text-3xl font-black text-on-surface">Hypertrophy B</h4>
+<p class="text-on-surface-variant/80 max-w-[240px]">Focus on posterior chain and explosive movements. Rest intervals: 90s.</p>
+<button class="w-full py-4 rounded-full obsidian-gradient text-on-primary font-bold text-sm mt-4 active:scale-95 transition-transform">
+                        Start Session
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar (Mobile Destination Rule) -->
+<nav class="fixed bottom-0 w-full glass-panel h-20 px-6 flex justify-between items-center z-50 md:hidden">
+<button class="flex flex-col items-center gap-1 text-[#ADC6FF] font-medium">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">speed</span>
+<span class="text-[10px] font-medium">Performance</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-[#E5E2E1]/40 hover:text-[#E5E2E1]">
+<span class="material-symbols-outlined">monitor_heart</span>
+<span class="text-[10px] font-medium">Biometrics</span>
+</button>
+<div class="relative -top-8">
+<button class="w-16 h-16 rounded-full obsidian-gradient shadow-[0_0_20px_rgba(173,198,255,0.3)] flex items-center justify-center active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-on-primary text-3xl">add</span>
+</button>
+</div>
+<button class="flex flex-col items-center gap-1 text-[#E5E2E1]/40 hover:text-[#E5E2E1]">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="text-[10px] font-medium">Training</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-[#E5E2E1]/40 hover:text-[#E5E2E1]">
+<span class="material-symbols-outlined">restaurant</span>
+<span class="text-[10px] font-medium">Nutrition</span>
+</button>
+</nav>
+</body></html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Obsidian Health | Protocol Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#1c1b1b",
+                    "on-secondary": "#303032",
+                    "on-surface-variant": "#c1c6d7",
+                    "surface-container": "#201f1f",
+                    "on-secondary-fixed": "#1b1b1d",
+                    "tertiary-fixed": "#ffdbcc",
+                    "on-tertiary-fixed-variant": "#7c2e00",
+                    "tertiary-container": "#ef6719",
+                    "surface": "#131313",
+                    "primary": "#adc6ff",
+                    "on-secondary-container": "#b6b4b7",
+                    "surface-variant": "#353534",
+                    "surface-bright": "#3a3939",
+                    "error-container": "#93000a",
+                    "secondary-fixed": "#e4e2e4",
+                    "tertiary": "#ffb595",
+                    "surface-container-lowest": "#0e0e0e",
+                    "on-tertiary-fixed": "#351000",
+                    "surface-container-highest": "#353534",
+                    "surface-tint": "#adc6ff",
+                    "on-primary-fixed": "#001a41",
+                    "primary-fixed": "#d8e2ff",
+                    "surface-dim": "#131313",
+                    "on-tertiary-container": "#4c1a00",
+                    "on-background": "#e5e2e1",
+                    "on-primary-fixed-variant": "#004493",
+                    "on-surface": "#e5e2e1",
+                    "background": "#131313",
+                    "secondary-container": "#474649",
+                    "on-error": "#690005",
+                    "primary-container": "#4b8eff",
+                    "tertiary-fixed-dim": "#ffb595",
+                    "on-tertiary": "#571e00",
+                    "surface-container-high": "#2a2a2a",
+                    "secondary-fixed-dim": "#c8c6c8",
+                    "primary-fixed-dim": "#adc6ff",
+                    "outline-variant": "#414755",
+                    "on-error-container": "#ffdad6",
+                    "on-primary-container": "#00285c",
+                    "inverse-on-surface": "#313030",
+                    "error": "#ffb4ab",
+                    "inverse-primary": "#005bc1",
+                    "on-secondary-fixed-variant": "#474649",
+                    "inverse-surface": "#e5e2e1",
+                    "secondary": "#c8c6c8",
+                    "outline": "#8b90a0",
+                    "on-primary": "#002e69"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #131313;
+            color: #E5E2E1;
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(32, 31, 31, 0.7);
+            backdrop-filter: blur(20px);
+            border: 0.5px solid rgba(65, 71, 85, 0.2);
+        }
+        .hero-gradient {
+            background: linear-gradient(145deg, #ADC6FF 0%, #4B8EFF 100%);
+        }
+        .obsidian-glow {
+            box-shadow: 0 0 40px 0 rgba(173, 198, 255, 0.04);
+        }
+        .inner-well {
+            background-color: #0E0E0E;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary/30">
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 w-full z-50 bg-[#131313]/70 backdrop-blur-[20px] flex justify-between items-center px-8 h-20 w-full">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tighter text-[#E5E2E1]">Obsidian Health</span>
+<nav class="hidden md:flex gap-6 items-center">
+<a class="text-[#ADC6FF] font-medium font-['Inter'] tracking-[-0.02em] leading-[1.2x] transition-all duration-300" href="#">Performance</a>
+<a class="text-[#E5E2E1]/60 font-['Inter'] tracking-[-0.02em] leading-[1.2x] hover:text-[#ADC6FF] transition-all duration-300" href="#">Biometrics</a>
+<a class="text-[#E5E2E1]/60 font-['Inter'] tracking-[-0.02em] leading-[1.2x] hover:text-[#ADC6FF] transition-all duration-300" href="#">Recovery</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex items-center bg-surface-container-lowest px-4 py-2 rounded-full border border-outline-variant/10">
+<span class="material-symbols-outlined text-on-surface-variant text-sm mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm text-on-surface w-48" placeholder="Search biometrics..." type="text"/>
+</div>
+<button class="p-2 text-[#E5E2E1]/60 hover:text-[#ADC6FF] transition-transform duration-200 active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-[#E5E2E1]/60 hover:text-[#ADC6FF] transition-transform duration-200 active:scale-95">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<!-- Side Navigation Shell -->
+<aside class="fixed left-0 top-0 h-screen w-72 bg-[#0E0E0E] border-r border-[#414755]/20 hidden lg:flex flex-col py-8 z-40">
+<div class="px-8 mb-12 mt-20">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high border border-primary/20">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of an athletic man looking forward with intense focus, studio lighting, high contrast obsidian background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlV0aV5dOHYwdjNQYZ3mvYqTblzNHNZFsvyOaiFWYYAVM2pwOUltSZV6ro1lklvAYJyyej4I50uu0ui27CWXJ__tPABIMHUlD_zph6RBX92UZ-9MVKQmIiKbyx_oi3fsh1PPIzJtIsEZLHT8gE-UdxmA-MBQgEnjCbvlcShqGLHECchv2SFwamh5Rjp1tPr72X0E8JL73tLOwoHHxuHE46SY6gKj0rXmWxR347_wkhSSDqYfBHVrdErmdQoPnXDkSoAPXD5GZsnrVf"/>
+</div>
+<div>
+<h3 class="text-lg font-black text-[#E5E2E1] leading-none">Health OS</h3>
+<p class="text-[0.875rem] text-[#E5E2E1]/40 tracking-tight">Elite Performance</p>
+</div>
+</div>
+</div>
+<nav class="flex flex-col gap-y-2 flex-grow">
+<a class="bg-gradient-to-br from-[#ADC6FF]/20 to-[#4B8EFF]/10 backdrop-blur-xl text-[#ADC6FF] rounded-full mx-4 px-6 py-3 border border-[#ADC6FF]/20 flex items-center gap-3 font-['Inter'] text-[0.875rem] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined">speed</span> Performance
+            </a>
+<a class="text-[#E5E2E1]/40 mx-4 px-6 py-3 hover:text-[#E5E2E1] hover:bg-[#353534]/50 rounded-full transition-colors flex items-center gap-3 font-['Inter'] text-[0.875rem] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined">monitor_heart</span> Biometrics
+            </a>
+<a class="text-[#E5E2E1]/40 mx-4 px-6 py-3 hover:text-[#E5E2E1] hover:bg-[#353534]/50 rounded-full transition-colors flex items-center gap-3 font-['Inter'] text-[0.875rem] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined">bedtime</span> Recovery
+            </a>
+<a class="text-[#E5E2E1]/40 mx-4 px-6 py-3 hover:text-[#E5E2E1] hover:bg-[#353534]/50 rounded-full transition-colors flex items-center gap-3 font-['Inter'] text-[0.875rem] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined">fitness_center</span> Training
+            </a>
+<a class="text-[#E5E2E1]/40 mx-4 px-6 py-3 hover:text-[#E5E2E1] hover:bg-[#353534]/50 rounded-full transition-colors flex items-center gap-3 font-['Inter'] text-[0.875rem] font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined">restaurant</span> Nutrition
+            </a>
+</nav>
+<div class="px-4 flex flex-col gap-2">
+<button class="mx-4 py-4 bg-primary text-on-primary rounded-full font-bold text-sm tracking-tight obsidian-glow hover:opacity-90 transition-all active:scale-95">
+                Log Vitals
+            </button>
+<div class="mt-8 border-t border-outline-variant/10 pt-4">
+<a class="text-[#E5E2E1]/40 mx-4 px-6 py-3 hover:text-[#E5E2E1] flex items-center gap-3 text-sm font-medium" href="#">
+<span class="material-symbols-outlined">help_outline</span> Support
+                </a>
+<a class="text-[#E5E2E1]/40 mx-4 px-6 py-3 hover:text-[#E5E2E1] flex items-center gap-3 text-sm font-medium" href="#">
+<span class="material-symbols-outlined">logout</span> Logout
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="lg:ml-72 pt-28 px-8 pb-16 min-h-screen">
+<!-- Dashboard Header -->
+<header class="mb-12 max-w-7xl">
+<h1 class="text-4xl md:text-5xl font-extrabold tracking-[-0.03em] text-on-surface mb-2">Protocol Status</h1>
+<p class="text-on-surface-variant text-lg max-w-2xl leading-relaxed">System optimization active. Your biometric data indicates peak neurological recovery today.</p>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8 max-w-7xl">
+<!-- Hero Card: Readiness Gauge -->
+<section class="md:col-span-8 glass-card rounded-xl p-8 relative overflow-hidden flex flex-col justify-between min-h-[440px]">
+<div class="relative z-10">
+<span class="px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-widest uppercase">Readiness</span>
+<h2 class="text-6xl font-black mt-6 tracking-tighter">94%</h2>
+<p class="text-on-surface-variant text-lg mt-2">Optimal System State</p>
+</div>
+<!-- 3D Readiness Gauge Visualization -->
+<div class="absolute right-0 top-0 h-full w-1/2 flex items-center justify-center opacity-60 pointer-events-none">
+<div class="relative w-64 h-64">
+<!-- Simulated 3D gauge rings -->
+<div class="absolute inset-0 rounded-full border-[12px] border-primary/5 rotate-[-15deg]"></div>
+<div class="absolute inset-2 rounded-full border-[2px] border-primary/20 border-t-primary/80 border-r-primary/80 rotate-[45deg]"></div>
+<div class="absolute inset-8 rounded-full bg-gradient-to-tr from-primary/20 to-transparent blur-xl"></div>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-7xl opacity-40">bolt</span>
+</div>
+</div>
+</div>
+<div class="relative z-10 flex gap-12 items-end mt-12">
+<div class="flex flex-col gap-1">
+<span class="text-xs text-on-surface-variant uppercase tracking-wider font-bold">Strain Goal</span>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-bold">14.2</span>
+<span class="text-xs text-on-surface-variant">/ 18.0</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-xs text-on-surface-variant uppercase tracking-wider font-bold">Recovery</span>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-bold text-primary">High</span>
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+</div>
+</div>
+<button class="ml-auto hero-gradient text-on-primary-container px-8 py-3 rounded-full font-bold text-sm tracking-tight active:scale-95 transition-transform">
+                        Start Workout
+                    </button>
+</div>
+</section>
+<!-- Body Stats Widget -->
+<section class="md:col-span-4 bg-surface-container-low rounded-xl p-8 flex flex-col obsidian-glow border border-outline-variant/5">
+<div class="flex justify-between items-start mb-8">
+<h3 class="text-lg font-bold">Body Stats</h3>
+<span class="material-symbols-outlined text-on-surface-variant">accessibility_new</span>
+</div>
+<div class="flex-grow flex items-center justify-center relative py-4">
+<!-- 3D Model placeholder -->
+<div class="w-full aspect-square max-w-[180px] bg-gradient-to-b from-primary/5 to-transparent rounded-full flex items-center justify-center relative">
+<img class="w-full h-full object-contain mix-blend-screen opacity-80" data-alt="High-resolution medical 3D rendering of a human silhouette showing glowing muscle groups in soft blue light, digital obsidian background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrXDP3BimnVae-yOEovnjQS8Fv0Y_qCEY9C6EuNqcgpDd2gDhqIfVsbn-vRTLD7EZcPJnnFwToXZJIzjAdLhlIRFs_B680teRdxApNqP0NXkmgIbcXkoiFXvg9FBJdq2Nl2Dg8LEBge_DzRi_eSjKomA8M2hvH-wW9neU11ZPvxdIrdwKTi5wKwvJ9B0TDSin5HTjX6Qfl8ane34LYVdQHJD8u9rZgEPh5_xEqNb_X66ISAtMPmTIhqcSgSznn_2pWFuOIIqLUiNB9"/>
+<!-- Micro-charts overlapping model -->
+<div class="absolute -top-4 -right-4 glass-card p-3 rounded-lg flex flex-col items-center">
+<span class="text-[10px] uppercase font-bold text-on-surface-variant">Fat %</span>
+<span class="text-sm font-bold text-primary">12.4</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mt-8">
+<div class="inner-well p-4 rounded-lg">
+<span class="text-[10px] uppercase font-bold text-on-surface-variant block mb-1">Weight</span>
+<span class="text-lg font-bold">182.4 <span class="text-xs font-normal opacity-40">lbs</span></span>
+</div>
+<div class="inner-well p-4 rounded-lg">
+<span class="text-[10px] uppercase font-bold text-on-surface-variant block mb-1">Lean Mass</span>
+<span class="text-lg font-bold">158.2 <span class="text-xs font-normal opacity-40">lbs</span></span>
+</div>
+</div>
+</section>
+<!-- Mini Chart: HRV -->
+<section class="md:col-span-6 glass-card rounded-xl p-8 h-64 flex flex-col justify-between">
+<div class="flex justify-between items-center">
+<div>
+<h3 class="text-lg font-bold">Heart Rate Var.</h3>
+<p class="text-sm text-on-surface-variant">Last 7 days avg</p>
+</div>
+<div class="text-right">
+<span class="text-3xl font-black text-primary">82</span>
+<span class="text-xs text-on-surface-variant block uppercase tracking-tighter">ms</span>
+</div>
+</div>
+<!-- SVG Mini Chart -->
+<div class="h-24 w-full flex items-end gap-1 mt-4">
+<div class="flex-1 bg-primary/10 rounded-t-sm h-[60%] hover:bg-primary/40 transition-colors"></div>
+<div class="flex-1 bg-primary/10 rounded-t-sm h-[45%] hover:bg-primary/40 transition-colors"></div>
+<div class="flex-1 bg-primary/10 rounded-t-sm h-[75%] hover:bg-primary/40 transition-colors"></div>
+<div class="flex-1 bg-primary/10 rounded-t-sm h-[90%] hover:bg-primary/40 transition-colors"></div>
+<div class="flex-1 bg-primary/10 rounded-t-sm h-[65%] hover:bg-primary/40 transition-colors"></div>
+<div class="flex-1 bg-primary/10 rounded-t-sm h-[85%] hover:bg-primary/40 transition-colors"></div>
+<div class="flex-1 bg-primary rounded-t-sm h-[95%]"></div>
+</div>
+</section>
+<!-- Mini Chart: Sleep Performance -->
+<section class="md:col-span-6 glass-card rounded-xl p-8 h-64 flex flex-col justify-between">
+<div class="flex justify-between items-center">
+<div>
+<h3 class="text-lg font-bold">Sleep Quality</h3>
+<p class="text-sm text-on-surface-variant">Last Night: Deep Recovery</p>
+</div>
+<div class="text-right">
+<span class="text-3xl font-black text-on-surface">8:42</span>
+<span class="text-xs text-on-surface-variant block uppercase tracking-tighter">hrs</span>
+</div>
+</div>
+<!-- Gradient Wave Chart -->
+<div class="h-24 w-full relative mt-4 overflow-hidden rounded-lg">
+<div class="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent"></div>
+<svg class="absolute inset-0 w-full h-full preserve-3d" viewbox="0 0 400 100">
+<path d="M0 80 Q 50 20 100 70 T 200 60 T 300 30 T 400 50 L 400 100 L 0 100 Z" fill="url(#grad1)" fill-opacity="0.3" stroke="#ADC6FF" stroke-width="2"></path>
+<defs>
+<lineargradient id="grad1" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" style="stop-color:#ADC6FF;stop-opacity:1"></stop>
+<stop offset="100%" style="stop-color:#131313;stop-opacity:0"></stop>
+</lineargradient>
+</defs>
+</svg>
+</div>
+</section>
+<!-- Protocol Log Table -->
+<section class="md:col-span-12 mt-12">
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-2xl font-bold tracking-tight">Daily Protocol Log</h2>
+<button class="text-primary text-sm font-bold flex items-center gap-1">
+                        View Full History <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="border-b border-outline-variant/10 text-on-surface-variant text-xs font-bold uppercase tracking-widest">
+<th class="pb-4 px-4">Activity</th>
+<th class="pb-4 px-4">Intensity</th>
+<th class="pb-4 px-4">Duration</th>
+<th class="pb-4 px-4">Impact</th>
+<th class="pb-4 px-4 text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<tr class="group hover:bg-surface-container/30 transition-colors">
+<td class="py-6 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">fitness_center</span>
+</div>
+<div>
+<span class="font-bold block">Hypertrophy Session</span>
+<span class="text-xs text-on-surface-variant">Anabolic Window 08:30 AM</span>
+</div>
+</div>
+</td>
+<td class="py-6 px-4">
+<span class="px-3 py-1 rounded-full bg-error-container/20 text-error text-[10px] font-bold uppercase tracking-wider">High</span>
+</td>
+<td class="py-6 px-4 font-medium">1h 12m</td>
+<td class="py-6 px-4">
+<div class="flex gap-1">
+<div class="h-1 w-4 bg-primary rounded-full"></div>
+<div class="h-1 w-4 bg-primary rounded-full"></div>
+<div class="h-1 w-4 bg-primary rounded-full"></div>
+<div class="h-1 w-4 bg-outline-variant/20 rounded-full"></div>
+</div>
+</td>
+<td class="py-6 px-4 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<tr class="group hover:bg-surface-container/30 transition-colors">
+<td class="py-6 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-[#ffb595]">ac_unit</span>
+</div>
+<div>
+<span class="font-bold block">Contrast Therapy</span>
+<span class="text-xs text-on-surface-variant">Nervous System Regulation</span>
+</div>
+</div>
+</td>
+<td class="py-6 px-4">
+<span class="px-3 py-1 rounded-full bg-surface-container-highest text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">Moderate</span>
+</td>
+<td class="py-6 px-4 font-medium">15m</td>
+<td class="py-6 px-4">
+<div class="flex gap-1">
+<div class="h-1 w-4 bg-primary rounded-full"></div>
+<div class="h-1 w-4 bg-primary rounded-full"></div>
+<div class="h-1 w-4 bg-outline-variant/20 rounded-full"></div>
+<div class="h-1 w-4 bg-outline-variant/20 rounded-full"></div>
+</div>
+</td>
+<td class="py-6 px-4 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</main>
+<!-- Mobile Navigation Shell -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-[#131313]/90 backdrop-blur-xl flex justify-around items-center h-20 px-4 z-50 border-t border-outline-variant/10">
+<a class="flex flex-col items-center gap-1 text-[#ADC6FF]" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#E5E2E1]/40" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Stats</span>
+</a>
+<div class="bg-primary p-3 rounded-full -translate-y-4 obsidian-glow active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-on-primary">add</span>
+</div>
+<a class="flex flex-col items-center gap-1 text-[#E5E2E1]/40" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Log</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#E5E2E1]/40" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
+</a>
+</nav>
+</body></html>

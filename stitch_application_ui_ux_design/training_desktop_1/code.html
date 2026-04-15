@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#e1e0ff",
+                        "on-primary": "#1000a9",
+                        "on-error": "#690005",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffdcc5",
+                        "primary-fixed": "#e1e0ff",
+                        "inverse-primary": "#494bd6",
+                        "primary-container": "#8083ff",
+                        "tertiary": "#ffb783",
+                        "secondary": "#c0c1ff",
+                        "on-primary-fixed": "#07006c",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "surface-container-low": "#1a1c20",
+                        "surface-container-high": "#282a2e",
+                        "tertiary-fixed-dim": "#ffb783",
+                        "on-secondary-fixed": "#13144a",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "on-tertiary-container": "#452000",
+                        "surface-container-lowest": "#0c0e12",
+                        "on-tertiary": "#4f2500",
+                        "surface": "#111317",
+                        "surface-container-highest": "#333539",
+                        "background": "#111317",
+                        "outline": "#908fa0",
+                        "on-surface-variant": "#c7c4d7",
+                        "outline-variant": "#464554",
+                        "on-tertiary-fixed-variant": "#703700",
+                        "inverse-surface": "#e2e2e8",
+                        "surface-bright": "#37393e",
+                        "on-surface": "#e2e2e8",
+                        "on-tertiary-fixed": "#301400",
+                        "on-background": "#e2e2e8",
+                        "surface-variant": "#333539",
+                        "on-secondary-fixed-variant": "#404178",
+                        "surface-dim": "#111317",
+                        "surface-container": "#1e2024",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "on-secondary": "#292a60",
+                        "on-primary-container": "#0d0096",
+                        "surface-tint": "#c0c1ff",
+                        "tertiary-container": "#d97721",
+                        "secondary-container": "#42447b",
+                        "inverse-on-surface": "#2f3035",
+                        "error": "#ffb4ab",
+                        "error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"],
+                        "mono": ["JetBrains Mono"]
+                    }
+                },
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tonal-shift { background-color: #1a1c20; }
+        .glass-panel {
+            backdrop-filter: blur(20px);
+            background-color: rgba(40, 42, 46, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary selection:text-on-primary">
+<!-- Mobile TopNavBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 w-full lg:hidden bg-[#111317] dark:bg-[#111317] tonal-shift">
+<div class="text-lg font-black tracking-tighter text-[#c0c1ff]">Elite Performance</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-slate-400">notifications</span>
+<span class="material-symbols-outlined text-slate-400">settings</span>
+</div>
+</header>
+<!-- SideNavBar (Desktop) -->
+<aside class="h-screen w-72 fixed left-0 top-0 hidden lg:flex flex-col p-6 bg-[#1a1c20] dark:bg-[#1a1c20] border-r border-[#333539]/15">
+<div class="text-xl font-black uppercase tracking-[0.1em] text-[#c0c1ff] mb-8">Clinical Vanguard</div>
+<div class="flex items-center gap-3 mb-10 px-2">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="Athlete Profile" class="w-full h-full object-cover" data-alt="Intense close-up portrait of a professional athlete with focused expression, cinematic dramatic lighting with blue and slate tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBl6SIk6kmQP3EKf1i7PBeBW1W08VilWs7QU-EowwaHQ2uUACK8lZD_lD2U_DDHOxzcP71vet2AjJArlGIN0Ff-iArSbcm6K-vsV7PhgMQJcyVBEL9g5ThEQOBokoCKHuBKiuTSWJokaJ4r5pkIRHoT1RB3TtES1DhKYqKCQCcR1V4izYd5MnqjxIR84AjDHax7c1qjDCMMrCWWKsdAqh48RnC4uoG9VL3MJD4mNvLGwERmDH2y79ySRAJydL1ZHrnDKuUwJwTQ8mDx"/>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Athlete Profile</p>
+<p class="text-[10px] text-slate-500 uppercase tracking-widest">Elite Tier</p>
+</div>
+</div>
+<nav class="flex-1 font-['Inter'] text-sm tracking-wide">
+<div class="text-slate-400 px-4 py-3 mb-2 flex items-center gap-3 hover:text-white hover:bg-[#333539]/50 transition-all cursor-pointer">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </div>
+<div class="text-[#c0c1ff] bg-[#333539] font-semibold border-l-4 border-[#6366F1] px-4 py-3 mb-2 flex items-center gap-3 cursor-pointer">
+<span class="material-symbols-outlined">clinical_notes</span> Protocols
+            </div>
+<div class="text-slate-400 px-4 py-3 mb-2 flex items-center gap-3 hover:text-white hover:bg-[#333539]/50 transition-all cursor-pointer">
+<span class="material-symbols-outlined">monitoring</span> Biometrics
+            </div>
+<div class="text-slate-400 px-4 py-3 mb-2 flex items-center gap-3 hover:text-white hover:bg-[#333539]/50 transition-all cursor-pointer">
+<span class="material-symbols-outlined">speed</span> Performance
+            </div>
+<div class="text-slate-400 px-4 py-3 mb-2 flex items-center gap-3 hover:text-white hover:bg-[#333539]/50 transition-all cursor-pointer">
+<span class="material-symbols-outlined">science</span> Lab Results
+            </div>
+</nav>
+<button class="bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 mb-8 active:scale-95 transition-all">
+<span class="material-symbols-outlined">add</span> Log Session
+        </button>
+<div class="mt-auto pt-6 border-t border-outline-variant/20">
+<div class="text-slate-400 px-4 py-2 mb-1 flex items-center gap-3 hover:text-white transition-all cursor-pointer">
+<span class="material-symbols-outlined">help</span> Support
+            </div>
+<div class="text-slate-400 px-4 py-2 flex items-center gap-3 hover:text-white transition-all cursor-pointer">
+<span class="material-symbols-outlined">person</span> Account
+            </div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="lg:ml-72 min-h-screen p-6 lg:p-10 pt-24 lg:pt-10">
+<!-- Header Section -->
+<header class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<h1 class="text-slate-500 text-xs font-black uppercase tracking-[0.2em] mb-2">Training Ecosystem</h1>
+<h2 class="text-4xl font-black text-on-surface tracking-tighter">Protocols &amp; Load</h2>
+</div>
+<div class="flex gap-4">
+<div class="bg-surface-container-low px-4 py-2 rounded-lg">
+<p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Weekly Readiness</p>
+<p class="font-mono text-2xl text-primary font-bold">94%</p>
+</div>
+<div class="bg-surface-container-low px-4 py-2 rounded-lg">
+<p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Strain Index</p>
+<p class="font-mono text-2xl text-tertiary font-bold">14.2</p>
+</div>
+</div>
+</header>
+<!-- Training Templates Grid -->
+<section class="mb-12">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-sm font-bold text-on-surface uppercase tracking-widest">Active Templates</h3>
+<span class="text-xs text-primary font-medium cursor-pointer">View Library</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+<!-- Template Card 1 -->
+<div class="bg-surface-container-low p-6 rounded-lg group hover:bg-surface-container-high transition-all cursor-pointer relative overflow-hidden">
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-8">
+<span class="material-symbols-outlined text-primary text-3xl">fitness_center</span>
+<div class="bg-surface-container-highest px-3 py-1 rounded-full text-[10px] font-bold text-tertiary">STRENGTH</div>
+</div>
+<h4 class="text-xl font-bold mb-1">Hypertrophy Block A</h4>
+<p class="text-slate-500 text-sm mb-6">4 Sessions / Week • 75m Average</p>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="text-xs font-mono text-slate-300 uppercase tracking-tighter">Next: Lower Body Push</span>
+</div>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-[120px]">exercise</span>
+</div>
+</div>
+<!-- Template Card 2 -->
+<div class="bg-surface-container-low p-6 rounded-lg group hover:bg-surface-container-high transition-all cursor-pointer relative overflow-hidden">
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-8">
+<span class="material-symbols-outlined text-primary text-3xl">bolt</span>
+<div class="bg-surface-container-highest px-3 py-1 rounded-full text-[10px] font-bold text-primary">POWER</div>
+</div>
+<h4 class="text-xl font-bold mb-1">CNS Acceleration</h4>
+<p class="text-slate-500 text-sm mb-6">2 Sessions / Week • 45m Average</p>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-slate-600"></span>
+<span class="text-xs font-mono text-slate-300 uppercase tracking-tighter">Scheduled: Wed 08:00</span>
+</div>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-[120px]">speed</span>
+</div>
+</div>
+<!-- Create New -->
+<div class="border-2 border-dashed border-outline-variant/30 flex flex-col items-center justify-center p-6 rounded-lg hover:border-primary/50 transition-all group cursor-pointer">
+<span class="material-symbols-outlined text-slate-500 group-hover:text-primary transition-colors mb-2">add_circle</span>
+<span class="text-sm font-bold text-slate-500 group-hover:text-slate-300">New Protocol</span>
+</div>
+</div>
+</section>
+<!-- Analytics Section (Bento Style) -->
+<section class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-12">
+<!-- Large Distribution Chart -->
+<div class="xl:col-span-2 bg-surface-container-low p-8 rounded-lg">
+<div class="flex justify-between items-center mb-10">
+<div>
+<h3 class="text-sm font-bold text-on-surface uppercase tracking-widest">Volume Distribution</h3>
+<p class="text-xs text-slate-500 font-mono mt-1">TOTAL WORKLOAD: 24,500 KG</p>
+</div>
+<div class="flex gap-2">
+<div class="w-8 h-8 rounded bg-surface-container-highest flex items-center justify-center cursor-pointer">
+<span class="material-symbols-outlined text-xs">calendar_view_week</span>
+</div>
+<div class="w-8 h-8 rounded bg-surface-container-highest flex items-center justify-center cursor-pointer">
+<span class="material-symbols-outlined text-xs">more_vert</span>
+</div>
+</div>
+</div>
+<div class="h-64 flex items-end gap-4">
+<div class="flex-1 flex flex-col items-center gap-4">
+<div class="w-full bg-primary/20 rounded-t-sm relative group">
+<div class="absolute inset-x-0 bottom-0 bg-primary h-[85%] rounded-t-sm group-hover:brightness-125 transition-all"></div>
+</div>
+<span class="text-[10px] font-mono text-slate-500 uppercase">Posterior</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-4">
+<div class="w-full bg-primary/20 rounded-t-sm relative group">
+<div class="absolute inset-x-0 bottom-0 bg-primary h-[60%] rounded-t-sm group-hover:brightness-125 transition-all"></div>
+</div>
+<span class="text-[10px] font-mono text-slate-500 uppercase">Anterior</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-4">
+<div class="w-full bg-primary/20 rounded-t-sm relative group">
+<div class="absolute inset-x-0 bottom-0 bg-primary h-[95%] rounded-t-sm group-hover:brightness-125 transition-all"></div>
+</div>
+<span class="text-[10px] font-mono text-slate-500 uppercase">Pull</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-4">
+<div class="w-full bg-primary/20 rounded-t-sm relative group">
+<div class="absolute inset-x-0 bottom-0 bg-primary h-[40%] rounded-t-sm group-hover:brightness-125 transition-all"></div>
+</div>
+<span class="text-[10px] font-mono text-slate-500 uppercase">Push</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-4">
+<div class="w-full bg-primary/20 rounded-t-sm relative group">
+<div class="absolute inset-x-0 bottom-0 bg-primary h-[70%] rounded-t-sm group-hover:brightness-125 transition-all"></div>
+</div>
+<span class="text-[10px] font-mono text-slate-500 uppercase">Core</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-4">
+<div class="w-full bg-primary/20 rounded-t-sm relative group">
+<div class="absolute inset-x-0 bottom-0 bg-primary h-[30%] rounded-t-sm group-hover:brightness-125 transition-all"></div>
+</div>
+<span class="text-[10px] font-mono text-slate-500 uppercase">Lat</span>
+</div>
+</div>
+</div>
+<!-- Focused Metric -->
+<div class="bg-primary bg-opacity-5 p-8 rounded-lg border border-primary/10 flex flex-col justify-between">
+<div>
+<h3 class="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-6">Intensity Delta</h3>
+<p class="font-mono text-5xl font-black text-on-surface mb-2">+12.4%</p>
+<p class="text-sm text-slate-400">Progression from previous cycle</p>
+</div>
+<div class="pt-6 border-t border-primary/10">
+<p class="text-[10px] font-mono text-primary uppercase mb-3">Key Influencer</p>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary">bedtime</span>
+<span class="text-sm font-bold">Deep Sleep Core (+22m)</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Training History Table -->
+<section class="bg-surface-container-low rounded-lg overflow-hidden">
+<div class="px-8 py-6 border-b border-outline-variant/10 flex items-center justify-between">
+<h3 class="text-sm font-bold text-on-surface uppercase tracking-widest">Protocol Execution History</h3>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 bg-surface-container-lowest px-3 py-1.5 rounded text-xs font-medium text-slate-400">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                        Filter
+                    </div>
+<div class="flex items-center gap-2 bg-surface-container-lowest px-3 py-1.5 rounded text-xs font-medium text-slate-400">
+<span class="material-symbols-outlined text-sm">download</span>
+                        Export
+                    </div>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-container-lowest">
+<th class="px-8 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Timestamp</th>
+<th class="px-8 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Protocol Name</th>
+<th class="px-8 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Duration</th>
+<th class="px-8 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Volume</th>
+<th class="px-8 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">PRs</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/5">
+<tr class="hover:bg-surface-container-highest/50 transition-colors cursor-pointer">
+<td class="px-8 py-5 font-mono text-xs text-slate-400">OCT 24, 08:14</td>
+<td class="px-8 py-5 font-bold text-on-surface">Hypertrophy Block A - Session 4</td>
+<td class="px-8 py-5 text-center font-mono text-sm text-primary">82m</td>
+<td class="px-8 py-5 text-right font-mono text-sm">6,420 KG</td>
+<td class="px-8 py-5 text-right">
+<span class="bg-tertiary/10 text-tertiary px-2 py-0.5 rounded text-[10px] font-black">3 NEW</span>
+</td>
+</tr>
+<tr class="bg-surface-container-lowest/30 hover:bg-surface-container-highest/50 transition-colors cursor-pointer">
+<td class="px-8 py-5 font-mono text-xs text-slate-400">OCT 22, 17:30</td>
+<td class="px-8 py-5 font-bold text-on-surface">Hypertrophy Block A - Session 3</td>
+<td class="px-8 py-5 text-center font-mono text-sm text-primary">74m</td>
+<td class="px-8 py-5 text-right font-mono text-sm">5,880 KG</td>
+<td class="px-8 py-5 text-right">
+<span class="text-slate-600 text-[10px] font-black">—</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-highest/50 transition-colors cursor-pointer">
+<td class="px-8 py-5 font-mono text-xs text-slate-400">OCT 21, 09:00</td>
+<td class="px-8 py-5 font-bold text-on-surface">CNS Acceleration - Session 1</td>
+<td class="px-8 py-5 text-center font-mono text-sm text-primary">45m</td>
+<td class="px-8 py-5 text-right font-mono text-sm">1,200 KG</td>
+<td class="px-8 py-5 text-right">
+<span class="bg-tertiary/10 text-tertiary px-2 py-0.5 rounded text-[10px] font-black">1 NEW</span>
+</td>
+</tr>
+<tr class="bg-surface-container-lowest/30 hover:bg-surface-container-highest/50 transition-colors cursor-pointer">
+<td class="px-8 py-5 font-mono text-xs text-slate-400">OCT 19, 08:22</td>
+<td class="px-8 py-5 font-bold text-on-surface">Hypertrophy Block A - Session 2</td>
+<td class="px-8 py-5 text-center font-mono text-sm text-primary">78m</td>
+<td class="px-8 py-5 text-right font-mono text-sm">6,150 KG</td>
+<td class="px-8 py-5 text-right">
+<span class="bg-tertiary/10 text-tertiary px-2 py-0.5 rounded text-[10px] font-black">2 NEW</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-highest/50 transition-colors cursor-pointer">
+<td class="px-8 py-5 font-mono text-xs text-slate-400">OCT 17, 18:00</td>
+<td class="px-8 py-5 font-bold text-on-surface">Hypertrophy Block A - Session 1</td>
+<td class="px-8 py-5 text-center font-mono text-sm text-primary">88m</td>
+<td class="px-8 py-5 text-right font-mono text-sm">6,600 KG</td>
+<td class="px-8 py-5 text-right">
+<span class="bg-tertiary/10 text-tertiary px-2 py-0.5 rounded text-[10px] font-black">4 NEW</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-8 py-4 bg-surface-container-lowest/50 text-center">
+<span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest cursor-pointer hover:text-primary transition-colors">Load More History</span>
+</div>
+</section>
+</main>
+</body></html>

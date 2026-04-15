@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Elite Performance | Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#e1e0ff",
+                        "on-primary": "#1000a9",
+                        "on-error": "#690005",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffdcc5",
+                        "primary-fixed": "#e1e0ff",
+                        "inverse-primary": "#494bd6",
+                        "primary-container": "#8083ff",
+                        "tertiary": "#ffb783",
+                        "secondary": "#c0c1ff",
+                        "on-primary-fixed": "#07006c",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "surface-container-low": "#1a1c20",
+                        "surface-container-high": "#282a2e",
+                        "tertiary-fixed-dim": "#ffb783",
+                        "on-secondary-fixed": "#13144a",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "on-tertiary-container": "#452000",
+                        "surface-container-lowest": "#0c0e12",
+                        "on-tertiary": "#4f2500",
+                        "surface": "#111317",
+                        "surface-container-highest": "#333539",
+                        "background": "#111317",
+                        "outline": "#908fa0",
+                        "on-secondary-container": "#b2b3f2",
+                        "primary": "#c0c1ff",
+                        "on-surface-variant": "#c7c4d7",
+                        "outline-variant": "#464554",
+                        "on-tertiary-fixed-variant": "#703700",
+                        "inverse-surface": "#e2e2e8",
+                        "surface-bright": "#37393e",
+                        "on-surface": "#e2e2e8",
+                        "on-tertiary-fixed": "#301400",
+                        "on-background": "#e2e2e8",
+                        "surface-variant": "#333539",
+                        "on-secondary-fixed-variant": "#404178",
+                        "surface-dim": "#111317",
+                        "surface-container": "#1e2024",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "on-secondary": "#292a60",
+                        "on-primary-container": "#0d0096",
+                        "surface-tint": "#c0c1ff",
+                        "tertiary-container": "#d97721",
+                        "secondary-container": "#42447b",
+                        "inverse-on-surface": "#2f3035",
+                        "error": "#ffb4ab",
+                        "error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "sans": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    }
+                },
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #111317;
+            color: #e2e2e8;
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tonal-shift {
+            background-color: #1a1c20;
+        }
+    </style>
+</head>
+<body class="flex overflow-hidden">
+<!-- SideNavBar Component -->
+<aside class="hidden lg:flex flex-col p-6 border-r border-[#333539]/15 h-screen w-72 fixed left-0 top-0 bg-[#1a1c20] dark:bg-[#1a1c20] font-['Inter'] text-sm tracking-wide z-50">
+<div class="text-xl font-black uppercase tracking-[0.1em] text-[#c0c1ff] mb-8">Clinical Vanguard</div>
+<div class="flex items-center gap-3 mb-10 px-2">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high border border-outline-variant/20">
+<img alt="Athlete Profile" data-alt="Athlete Profile photo of a determined young woman in athletic gear against a dark studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvG94jlmApmi0cbH3ln_0xeflEMTEyyCG_ZxxK0r40btqk-HlT9fKEeEvPMjYT2Onw1wwWW4H7Q4QshtbaHHnRX9iFuMGNNG3-yq_I0o8lIOapKpk-Tum8fyRGrU49Jxdqbk6CoWjMpllpr77vIAmT9TNvwVJ_arB63SqpOYFjJZkBHwt5-KbD39TNzWzOq6m4ylcdiOXmcX6s1JB3xivrPl4udxbEg3CoyDwJClY1nrLUdBHg0HML_Wc7o6cAkbO9BKmiP6D8dYOL"/>
+</div>
+<div>
+<p class="font-bold text-on-surface leading-tight">Elite Tier</p>
+<p class="text-xs text-slate-400">Athlete #8042</p>
+</div>
+</div>
+<nav class="flex-1">
+<!-- Dashboard is active -->
+<a class="text-[#c0c1ff] bg-[#333539] font-semibold border-l-4 border-[#6366F1] px-4 py-3 mb-2 flex items-center gap-3 hover:text-white transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="text-slate-400 px-4 py-3 mb-2 flex items-center gap-3 hover:text-white hover:bg-[#333539]/50 transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined">clinical_notes</span>
+                Protocols
+            </a>
+<a class="text-slate-400 px-4 py-3 mb-2 flex items-center gap-3 hover:text-white hover:bg-[#333539]/50 transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+                Biometrics
+            </a>
+<a class="text-slate-400 px-4 py-3 mb-2 flex items-center gap-3 hover:text-white hover:bg-[#333539]/50 transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined">speed</span>
+                Performance
+            </a>
+<a class="text-slate-400 px-4 py-3 mb-2 flex items-center gap-3 hover:text-white hover:bg-[#333539]/50 transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined">science</span>
+                Lab Results
+            </a>
+</nav>
+<div class="mt-auto">
+<button class="w-full mb-6 bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold py-3 rounded-lg flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined">add</span>
+                Log Session
+            </button>
+<div class="border-t border-outline-variant/10 pt-4">
+<a class="text-slate-400 px-4 py-2 mb-1 flex items-center gap-3 hover:text-white transition-all text-xs uppercase tracking-widest font-semibold" href="#">
+<span class="material-symbols-outlined">help</span>
+                    Support
+                </a>
+<a class="text-slate-400 px-4 py-2 mb-1 flex items-center gap-3 hover:text-white transition-all text-xs uppercase tracking-widest font-semibold" href="#">
+<span class="material-symbols-outlined">person</span>
+                    Account
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="flex-1 ml-0 lg:ml-72 bg-surface min-h-screen overflow-y-auto">
+<!-- TopNavBar for Mobile/Tablet -->
+<header class="lg:hidden flex justify-between items-center px-6 h-16 w-full fixed top-0 z-50 bg-[#111317] dark:bg-[#111317] border-b border-outline-variant/10">
+<div class="text-lg font-black tracking-tighter text-[#c0c1ff]">Elite Performance</div>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-slate-400">notifications</span>
+<span class="material-symbols-outlined text-slate-400">settings</span>
+</div>
+</header>
+<div class="p-6 lg:p-10 pt-24 lg:pt-10 max-w-[1600px] mx-auto">
+<!-- Hero Metric Header -->
+<section class="flex flex-col lg:flex-row justify-between items-end gap-8 mb-12">
+<div class="w-full lg:w-2/3">
+<span class="text-[0.6875rem] font-semibold tracking-[0.1em] text-tertiary uppercase mb-2 block">System Readiness</span>
+<h1 class="text-5xl lg:text-7xl font-bold tracking-tighter text-on-surface mb-4">OPTIMAL</h1>
+<p class="text-slate-400 max-w-lg leading-relaxed font-medium">Biological markers indicate peak recovery. High-intensity CNS loading is recommended for the next 4-hour window.</p>
+</div>
+<div class="w-full lg:w-1/3 flex flex-col items-end">
+<div class="bg-surface-container-low p-6 rounded-xl w-full border border-outline-variant/5">
+<div class="flex justify-between items-center mb-2">
+<span class="text-[0.6875rem] font-bold tracking-widest uppercase text-slate-500">Sleep Score</span>
+<span class="text-primary font-mono font-bold">98/100</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[98%]"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Grid Content -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- Primary Protocol Overview -->
+<div class="md:col-span-8 lg:col-span-8 flex flex-col gap-6">
+<!-- Protocol Card -->
+<div class="bg-surface-container-low rounded-xl p-8 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-24 -mt-24 blur-3xl transition-all group-hover:bg-primary/10"></div>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-10">
+<div>
+<h2 class="text-2xl font-bold mb-1">Hypertrophy V4.2</h2>
+<p class="text-sm text-slate-400">Week 6 of 12 • Mesocycle: Accumulation</p>
+</div>
+<div class="bg-primary-container/20 text-primary px-3 py-1 rounded text-[0.6875rem] font-bold tracking-widest uppercase">Active Protocol</div>
+</div>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
+<div>
+<span class="text-[0.6875rem] font-bold text-slate-500 uppercase tracking-widest block mb-1">Strain Load</span>
+<span class="text-3xl font-mono font-bold text-on-surface">18.4</span>
+</div>
+<div>
+<span class="text-[0.6875rem] font-bold text-slate-500 uppercase tracking-widest block mb-1">Recovery</span>
+<span class="text-3xl font-mono font-bold text-primary">92%</span>
+</div>
+<div>
+<span class="text-[0.6875rem] font-bold text-slate-500 uppercase tracking-widest block mb-1">Next Session</span>
+<span class="text-xl font-bold text-on-surface">Lower B</span>
+</div>
+<div>
+<span class="text-[0.6875rem] font-bold text-slate-500 uppercase tracking-widest block mb-1">Focus</span>
+<span class="text-xl font-bold text-on-surface">Fast-Twitch</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Performance Chart -->
+<div class="bg-surface-container-low rounded-xl p-8">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h3 class="text-lg font-bold mb-1">Biometric Trend</h3>
+<p class="text-xs text-slate-500 uppercase tracking-widest">7-Day Heart Rate Variability (ms)</p>
+</div>
+<div class="flex gap-2">
+<button class="px-3 py-1 text-[0.6875rem] font-bold bg-surface-container-highest text-slate-300 rounded">1W</button>
+<button class="px-3 py-1 text-[0.6875rem] font-bold text-slate-500 hover:text-slate-300 transition-colors">1M</button>
+<button class="px-3 py-1 text-[0.6875rem] font-bold text-slate-500 hover:text-slate-300 transition-colors">6M</button>
+</div>
+</div>
+<div class="h-64 flex items-end justify-between gap-2 px-2">
+<div class="flex-1 flex flex-col items-center gap-3 group">
+<div class="w-full bg-surface-container-highest rounded-t-sm h-[60%] group-hover:bg-outline-variant transition-colors"></div>
+<span class="text-[10px] font-mono text-slate-500 uppercase">Mon</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-3 group">
+<div class="w-full bg-surface-container-highest rounded-t-sm h-[75%] group-hover:bg-outline-variant transition-colors"></div>
+<span class="text-[10px] font-mono text-slate-500 uppercase">Tue</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-3 group">
+<div class="w-full bg-surface-container-highest rounded-t-sm h-[85%] group-hover:bg-outline-variant transition-colors"></div>
+<span class="text-[10px] font-mono text-slate-500 uppercase">Wed</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-3 group">
+<div class="w-full bg-primary/40 rounded-t-sm h-[95%] group-hover:bg-primary transition-colors"></div>
+<span class="text-[10px] font-mono text-primary font-bold uppercase">Thu</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-3 group">
+<div class="w-full bg-surface-container-highest rounded-t-sm h-[70%] group-hover:bg-outline-variant transition-colors"></div>
+<span class="text-[10px] font-mono text-slate-500 uppercase">Fri</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-3 group">
+<div class="w-full bg-surface-container-highest rounded-t-sm h-[65%] group-hover:bg-outline-variant transition-colors"></div>
+<span class="text-[10px] font-mono text-slate-500 uppercase">Sat</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-3 group">
+<div class="w-full bg-surface-container-highest rounded-t-sm h-[80%] group-hover:bg-outline-variant transition-colors"></div>
+<span class="text-[10px] font-mono text-slate-500 uppercase">Sun</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Secondary High-Density Column -->
+<div class="md:col-span-4 flex flex-col gap-6">
+<!-- Biological Readiness Gauge -->
+<div class="bg-surface-container-low rounded-xl p-6 border border-outline-variant/5">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-sm font-bold uppercase tracking-widest text-slate-400">Bio-Readiness</h3>
+<span class="material-symbols-outlined text-primary text-sm">bolt</span>
+</div>
+<div class="flex justify-center mb-6">
+<div class="relative w-40 h-40 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90">
+<circle class="text-surface-container-highest" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-primary" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" stroke-dasharray="440" stroke-dashoffset="44" stroke-width="8"></circle>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="text-4xl font-mono font-bold">92</span>
+<span class="text-[10px] text-slate-500 font-bold uppercase">Optimal</span>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center text-xs">
+<span class="text-slate-400">HRV Baseline</span>
+<span class="font-mono text-on-surface">+12ms</span>
+</div>
+<div class="flex justify-between items-center text-xs">
+<span class="text-slate-400">RHR Variance</span>
+<span class="font-mono text-on-surface">-2 bpm</span>
+</div>
+<div class="flex justify-between items-center text-xs">
+<span class="text-slate-400">Body Temp</span>
+<span class="font-mono text-on-surface">36.6°C</span>
+</div>
+</div>
+</div>
+<!-- Recent Activity Feed -->
+<div class="bg-surface-container-low rounded-xl p-6 flex-1">
+<h3 class="text-sm font-bold uppercase tracking-widest text-slate-400 mb-6">Activity Feed</h3>
+<div class="space-y-6">
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary text-lg" data-weight="fill">fitness_center</span>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Lower Body Hypertrophy</p>
+<p class="text-xs text-slate-500">Yesterday • 14,200kg Volume</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded bg-tertiary/10 flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-tertiary text-lg" data-weight="fill">science</span>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Blood Panel Update</p>
+<p class="text-xs text-slate-500">2 days ago • Biomarker sync complete</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded bg-outline-variant/10 flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-slate-400 text-lg">bedtime</span>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Deep Sleep Deficit</p>
+<p class="text-xs text-slate-500">3 days ago • REM normal, Deep -22m</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary text-lg" data-weight="fill">speed</span>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Vo2 Max Assessment</p>
+<p class="text-xs text-slate-500">4 days ago • New PR: 58.2</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Data Cluster -->
+<section class="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="bg-surface-container-lowest p-6 border-l-2 border-primary">
+<span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Serum Testosterone</span>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-mono font-bold">842</span>
+<span class="text-[10px] text-slate-500">ng/dL</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 border-l-2 border-outline-variant">
+<span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Cortisol (AM)</span>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-mono font-bold">14.2</span>
+<span class="text-[10px] text-slate-500">μg/dL</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 border-l-2 border-tertiary">
+<span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Strain Balance</span>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-mono font-bold">Optimal</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 border-l-2 border-outline-variant">
+<span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Hydration Index</span>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-mono font-bold">96</span>
+<span class="text-[10px] text-slate-500">%</span>
+</div>
+</div>
+</section>
+</div>
+</main>
+</body></html>
