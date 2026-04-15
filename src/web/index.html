@@ -487,6 +487,253 @@ input[type="range"]:focus{box-shadow:none}
     <div id="lib-list"></div>
   </div>
 
+  <!-- TAB: COMPETE -->
+  <div id="page-compete" class="tab-page">
+    <div class="section-hdr" style="font-size:24px">Competition Prep</div>
+
+    <!-- Sport Profile Card -->
+    <div id="compete-profile-card" class="card">
+      <div class="flex items-center justify-between mb-8">
+        <div class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:1px">Sport Profile</div>
+        <button class="btn btn-sm btn-secondary" onclick="switchTab('profile')">Edit Profile</button>
+      </div>
+      <div id="compete-profile-info" class="text-sm text-muted">No profile set up yet</div>
+    </div>
+
+    <!-- Active Competition -->
+    <div id="compete-active" class="card mt-12" style="display:none">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <div class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:1px">Next Show</div>
+          <div id="compete-show-name" style="font-weight:600;font-size:16px;margin-top:2px"></div>
+        </div>
+        <div id="compete-status-pill" class="pill pill-accent"></div>
+      </div>
+      <div id="compete-show-details" class="text-sm text-muted mb-8"></div>
+      <div id="compete-countdown" style="text-align:center;margin:12px 0">
+        <div style="font-family:var(--font-display);font-size:48px;letter-spacing:4px;color:var(--accent)" id="compete-weeks-out">--</div>
+        <div class="text-xs text-muted">WEEKS OUT</div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-block mt-12" onclick="openNewCompetitionModal()">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Competition
+    </button>
+
+    <!-- Peak Week Planner -->
+    <div id="compete-peak-week" class="mt-16" style="display:none">
+      <div class="section-hdr" style="font-size:15px">Peak Week Protocol</div>
+      <div id="compete-peak-cards"></div>
+    </div>
+
+    <!-- Posing Practice -->
+    <div class="mt-16">
+      <div class="flex items-center justify-between mb-8">
+        <div class="section-hdr" style="font-size:15px;margin-bottom:0">Posing Practice</div>
+        <button class="btn btn-sm btn-primary" onclick="openLogPosingModal()">+ Session</button>
+      </div>
+      <div id="compete-posing-log"></div>
+    </div>
+
+    <!-- Mandatory Poses Reference -->
+    <div id="compete-poses-ref" class="mt-16" style="display:none">
+      <div class="section-hdr" style="font-size:15px">Mandatory Poses</div>
+      <div id="compete-poses-list" class="flex gap-8" style="flex-wrap:wrap"></div>
+    </div>
+
+    <!-- Competition History -->
+    <div class="mt-16">
+      <div class="section-hdr" style="font-size:15px">Competition History</div>
+      <div id="compete-history"></div>
+    </div>
+  </div>
+
+  <!-- TAB: POWERLIFTING -->
+  <div id="page-powerlifting" class="tab-page">
+    <div class="section-hdr" style="font-size:24px">Powerlifting</div>
+
+    <!-- Big 3 Display -->
+    <div class="grid-3 gap-8">
+      <div class="card" style="text-align:center">
+        <div class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:1px">Squat</div>
+        <div id="pl-squat-1rm" style="font-family:var(--font-display);font-size:32px;letter-spacing:2px;color:var(--accent);margin-top:4px">--</div>
+        <div class="text-xs text-muted">lbs</div>
+      </div>
+      <div class="card" style="text-align:center">
+        <div class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:1px">Bench</div>
+        <div id="pl-bench-1rm" style="font-family:var(--font-display);font-size:32px;letter-spacing:2px;color:var(--accent);margin-top:4px">--</div>
+        <div class="text-xs text-muted">lbs</div>
+      </div>
+      <div class="card" style="text-align:center">
+        <div class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:1px">Deadlift</div>
+        <div id="pl-dead-1rm" style="font-family:var(--font-display);font-size:32px;letter-spacing:2px;color:var(--accent);margin-top:4px">--</div>
+        <div class="text-xs text-muted">lbs</div>
+      </div>
+    </div>
+
+    <!-- Total + Scores -->
+    <div class="card mt-12">
+      <div class="grid-3 gap-8" style="text-align:center">
+        <div>
+          <div class="text-xs text-muted">TOTAL</div>
+          <div id="pl-total" style="font-family:var(--font-display);font-size:28px;letter-spacing:2px;color:var(--teal)">--</div>
+        </div>
+        <div>
+          <div class="text-xs text-muted">WILKS</div>
+          <div id="pl-wilks" style="font-family:var(--font-display);font-size:28px;letter-spacing:2px;color:var(--amber)">--</div>
+        </div>
+        <div>
+          <div class="text-xs text-muted">DOTS</div>
+          <div id="pl-dots" style="font-family:var(--font-display);font-size:28px;letter-spacing:2px;color:var(--amber)">--</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-block mt-12" onclick="openLog1RMModal()">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Log 1RM
+    </button>
+
+    <!-- 1RM History Chart -->
+    <div class="mt-16">
+      <div class="section-hdr" style="font-size:15px">1RM History</div>
+      <div class="chart-wrap" style="height:200px">
+        <canvas id="pl-1rm-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- 1RM Log -->
+    <div class="mt-16">
+      <div class="section-hdr" style="font-size:15px">Recent Lifts</div>
+      <div id="pl-1rm-list"></div>
+    </div>
+
+    <!-- Meet Tracker -->
+    <div class="mt-16">
+      <div class="flex items-center justify-between mb-8">
+        <div class="section-hdr" style="font-size:15px;margin-bottom:0">Meet History</div>
+        <button class="btn btn-sm btn-primary" onclick="openLogMeetModal()">+ Meet</button>
+      </div>
+      <div id="pl-meet-list"></div>
+    </div>
+
+    <!-- Attempt Calculator -->
+    <div class="mt-16">
+      <div class="section-hdr" style="font-size:15px">Attempt Calculator</div>
+      <div class="card">
+        <div class="grid-3 gap-8">
+          <div><label>Squat Opener</label><input type="number" id="att-squat" placeholder="lbs" oninput="calcAttempts()"></div>
+          <div><label>Bench Opener</label><input type="number" id="att-bench" placeholder="lbs" oninput="calcAttempts()"></div>
+          <div><label>Deadlift Opener</label><input type="number" id="att-dead" placeholder="lbs" oninput="calcAttempts()"></div>
+        </div>
+        <div id="att-results" class="mt-12" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: STRONGMAN -->
+  <div id="page-strongman" class="tab-page">
+    <div class="section-hdr" style="font-size:24px">Strongman</div>
+
+    <!-- Event Buttons -->
+    <div class="section-hdr" style="font-size:15px">Log Event</div>
+    <div id="sm-event-buttons" class="flex gap-8 mb-12" style="flex-wrap:wrap"></div>
+
+    <!-- Personal Records -->
+    <div class="mt-16">
+      <div class="section-hdr" style="font-size:15px">Personal Records</div>
+      <div id="sm-pr-board"></div>
+    </div>
+
+    <!-- Event History -->
+    <div class="mt-16">
+      <div class="section-hdr" style="font-size:15px">Recent Events</div>
+      <div id="sm-event-history"></div>
+    </div>
+  </div>
+
+  <!-- TAB: PROFILE -->
+  <div id="page-profile" class="tab-page">
+    <div class="section-hdr" style="font-size:24px">Sport Profile</div>
+
+    <div class="card">
+      <div class="flex flex-col gap-12">
+        <div><label>Sport</label>
+          <select id="prof-sport" onchange="onProfileSportChange()">
+            <option value="">Select...</option>
+            <option value="bodybuilding">Bodybuilding</option>
+            <option value="powerlifting">Powerlifting</option>
+            <option value="strongman">Strongman</option>
+            <option value="general">General Fitness</option>
+          </select>
+        </div>
+        <div><label>Federation</label>
+          <select id="prof-federation"><option value="">Select...</option></select>
+        </div>
+        <div><label>Division</label>
+          <select id="prof-division"><option value="">Select...</option></select>
+        </div>
+        <div><label>Gender</label>
+          <select id="prof-gender">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+        <div class="grid-2 gap-8">
+          <div><label>Height (inches)</label><input type="number" id="prof-height" placeholder="70"></div>
+          <div><label>Comp Weight (lbs)</label><input type="number" id="prof-comp-weight" placeholder="185"></div>
+        </div>
+        <div class="grid-2 gap-8">
+          <div><label>Off-Season Weight</label><input type="number" id="prof-off-weight" placeholder="210"></div>
+          <div><label>Years Training</label><input type="number" id="prof-years-training" placeholder="5"></div>
+        </div>
+        <div class="grid-2 gap-8">
+          <div><label>Years Enhanced</label><input type="number" id="prof-years-enhanced" placeholder="2"></div>
+          <div><label>Coach Name</label><input type="text" id="prof-coach" placeholder="Optional"></div>
+        </div>
+        <div><label>Coach Contact</label><input type="text" id="prof-coach-contact" placeholder="Phone or email"></div>
+        <button class="btn btn-primary btn-block" onclick="saveProfile()">Save Profile</button>
+      </div>
+    </div>
+
+    <!-- Classic Physique Calculator -->
+    <div class="card mt-16">
+      <div class="section-hdr" style="font-size:15px">Classic Physique Weight Limit</div>
+      <div class="flex items-center gap-8">
+        <div style="flex:1"><label>Height (inches)</label><input type="number" id="classic-height" placeholder="70" oninput="calcClassicLimit()"></div>
+        <div id="classic-result" style="text-align:center;min-width:100px">
+          <div class="text-xs text-muted">MAX WEIGHT</div>
+          <div style="font-family:var(--font-display);font-size:28px;letter-spacing:2px;color:var(--teal)">--</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weight Class Finder -->
+    <div class="card mt-12">
+      <div class="section-hdr" style="font-size:15px">PL Weight Class Finder</div>
+      <div class="grid-2 gap-8">
+        <div><label>Bodyweight (kg)</label><input type="number" id="wc-weight" placeholder="83" oninput="calcWeightClass()"></div>
+        <div><label>Gender</label>
+          <select id="wc-gender" onchange="calcWeightClass()">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+      </div>
+      <div id="wc-result" class="mt-8" style="text-align:center;display:none">
+        <div class="text-xs text-muted">YOUR CLASS</div>
+        <div style="font-family:var(--font-display);font-size:28px;letter-spacing:2px;color:var(--teal)" id="wc-class-display">--</div>
+      </div>
+    </div>
+
+    <!-- Export -->
+    <button class="btn btn-secondary btn-block mt-16" onclick="exportData()">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export All Data (JSON)
+    </button>
+  </div>
+
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════
@@ -637,6 +884,10 @@ function switchTab(tab) {
   else if (tab === 'wellness') loadWellness();
   else if (tab === 'journal') loadJournal();
   else if (tab === 'library') loadLibrary();
+  else if (tab === 'compete') loadCompete();
+  else if (tab === 'powerlifting') loadPowerlifting();
+  else if (tab === 'strongman') loadStrongman();
+  else if (tab === 'profile') loadProfile();
 }
 
 function openMoreMenu() {
@@ -664,9 +915,21 @@ function openMoreMenu() {
         <div><div style="font-weight:600">Library</div><div class="text-xs text-muted">103 compounds database</div></div>
       </button>
       <div class="divider"></div>
-      <button class="list-item" onclick="exportData()">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--text2)" stroke-width="1.8"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        <div><div style="font-weight:600">Export Data</div><div class="text-xs text-muted">Download all data as JSON</div></div>
+      <button class="list-item" onclick="closeModal();switchTab('compete')">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--accent2)" stroke-width="1.8"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 7 7 7 7"/><path d="M18 9h1.5a2.5 2.5 0 000-5C17 4 17 7 17 7"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20 17 22"/><path d="M18 2H6v7a6 6 0 0012 0V2z"/></svg>
+        <div><div style="font-weight:600">Compete</div><div class="text-xs text-muted">Competition prep, peak week, posing</div></div>
+      </button>
+      <button class="list-item" onclick="closeModal();switchTab('powerlifting')">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--teal)" stroke-width="1.8"><path d="M6.5 6.5h11M4 10h16M6.5 17.5h11M4 14h16"/><circle cx="4" cy="12" r="2"/><circle cx="20" cy="12" r="2"/></svg>
+        <div><div style="font-weight:600">Powerlifting</div><div class="text-xs text-muted">1RM, Wilks, DOTS, meets</div></div>
+      </button>
+      <button class="list-item" onclick="closeModal();switchTab('strongman')">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--amber)" stroke-width="1.8"><circle cx="12" cy="5" r="3"/><path d="M6.5 8a2 2 0 012-2h7a2 2 0 012 2l-1 6H7.5l-1-6z"/><path d="M5 21l2-7"/><path d="M19 21l-2-7"/><path d="M9 21h6"/></svg>
+        <div><div style="font-weight:600">Strongman</div><div class="text-xs text-muted">Events, PRs, training log</div></div>
+      </button>
+      <button class="list-item" onclick="closeModal();switchTab('profile')">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--text2)" stroke-width="1.8"><path d="M12 15a7 7 0 100-14 7 7 0 000 14z"/><path d="M8 21v-1a4 4 0 018 0v1"/><path d="M12 11V9"/><path d="M12 15h.01"/></svg>
+        <div><div style="font-weight:600">Profile</div><div class="text-xs text-muted">Sport profile, calculators, export</div></div>
       </button>
     </div>
   `);
@@ -2775,8 +3038,873 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   BOOT
+   COMPETE TAB
    ───────────────────────────────────────────────────────────────────────── */
+const VISUAL_ASSESSMENTS = ['Flat','Full','Spilling','Dry','Watery'];
+
+async function loadCompete() {
+  try {
+    // Load profile info
+    const profile = await api('/api/sport-profile');
+    const profileEl = document.getElementById('compete-profile-info');
+    if (profile && profile.sport) {
+      const parts = [];
+      if (profile.sport) parts.push(profile.sport.charAt(0).toUpperCase() + profile.sport.slice(1));
+      if (profile.division) parts.push(profile.division);
+      if (profile.federation) parts.push(profile.federation);
+      if (profile.comp_weight) parts.push(profile.comp_weight + ' lbs');
+      profileEl.innerHTML = parts.join(' &bull; ') || 'No profile set up yet';
+
+      // Load mandatory poses for division
+      if (profile.division) {
+        try {
+          const poses = await api(`/api/poses/${encodeURIComponent(profile.division)}`);
+          if (poses && poses.length) {
+            document.getElementById('compete-poses-ref').style.display = 'block';
+            document.getElementById('compete-poses-list').innerHTML = poses.map(p => `<span class="pill pill-accent">${p}</span>`).join('');
+          }
+        } catch(e) {}
+      }
+    } else {
+      profileEl.textContent = 'No profile set up yet';
+    }
+
+    // Load competitions
+    const comps = await api('/api/competitions');
+    const now = new Date();
+
+    // Find active/upcoming competition
+    const upcoming = comps.filter(c => new Date(c.show_date) >= now).sort((a,b) => new Date(a.show_date) - new Date(b.show_date));
+    const past = comps.filter(c => new Date(c.show_date) < now).sort((a,b) => new Date(b.show_date) - new Date(a.show_date));
+
+    if (upcoming.length > 0) {
+      const comp = upcoming[0];
+      document.getElementById('compete-active').style.display = 'block';
+      document.getElementById('compete-show-name').textContent = comp.name;
+
+      const showDate = new Date(comp.show_date);
+      const daysOut = Math.ceil((showDate - now) / 86400000);
+      const weeksOut = Math.max(0, (daysOut / 7).toFixed(1));
+      document.getElementById('compete-weeks-out').textContent = weeksOut;
+
+      const details = [];
+      if (comp.federation) details.push(comp.federation);
+      if (comp.division) details.push(comp.division);
+      details.push(formatDate(comp.show_date));
+      if (comp.location) details.push(comp.location);
+      document.getElementById('compete-show-details').textContent = details.join(' / ');
+
+      const statusPill = document.getElementById('compete-status-pill');
+      if (daysOut <= 7) {
+        statusPill.className = 'pill pill-red';
+        statusPill.textContent = 'PEAK WEEK';
+      } else if (daysOut <= 28) {
+        statusPill.className = 'pill pill-amber';
+        statusPill.textContent = daysOut + ' DAYS OUT';
+      } else {
+        statusPill.className = 'pill pill-accent';
+        statusPill.textContent = Math.ceil(daysOut / 7) + ' WEEKS OUT';
+      }
+
+      // Peak Week: show if within 7 days
+      if (daysOut <= 7 && daysOut >= 0) {
+        document.getElementById('compete-peak-week').style.display = 'block';
+        try {
+          const template = await api('/api/peak-week-template');
+          const logged = await api(`/api/competitions/${comp.id}/peak-week`);
+          const loggedByDay = {};
+          (logged || []).forEach(l => loggedByDay[l.day_out] = l);
+
+          document.getElementById('compete-peak-cards').innerHTML = template.days.map(day => {
+            const log = loggedByDay[day.day] || {};
+            const isToday = day.day === daysOut;
+            return `
+              <div class="card mb-8" style="${isToday ? 'border-color:var(--accent)' : ''}">
+                <div class="flex items-center justify-between mb-8">
+                  <div style="font-weight:600;${isToday ? 'color:var(--accent)' : ''}">${day.label}${isToday ? ' (TODAY)' : ''}</div>
+                </div>
+                <div class="grid-2 gap-8 text-xs">
+                  <div><span class="text-muted">Water:</span> ${day.water}</div>
+                  <div><span class="text-muted">Sodium:</span> ${day.sodium}</div>
+                  <div><span class="text-muted">Carbs:</span> ${day.carbs}</div>
+                  <div><span class="text-muted">Training:</span> ${day.training}</div>
+                </div>
+                <div class="text-xs text-muted mt-8">${day.notes}</div>
+                ${isToday ? `
+                  <div class="divider"></div>
+                  <div class="text-xs text-muted mb-4" style="text-transform:uppercase;letter-spacing:1px">Log Actuals</div>
+                  <div class="grid-2 gap-8">
+                    <div><label>Weight</label><input type="number" id="pw-weight-${day.day}" step="0.1" value="${log.weight || ''}" placeholder="lbs"></div>
+                    <div><label>Water (oz)</label><input type="number" id="pw-water-${day.day}" value="${log.water_oz || ''}" placeholder="oz"></div>
+                    <div><label>Sodium (mg)</label><input type="number" id="pw-sodium-${day.day}" value="${log.sodium_mg || ''}" placeholder="mg"></div>
+                    <div><label>Carbs (g)</label><input type="number" id="pw-carbs-${day.day}" value="${log.carbs_g || ''}" placeholder="g"></div>
+                  </div>
+                  <div class="mt-8">
+                    <label>Visual Assessment</label>
+                    <div class="flex gap-8" style="flex-wrap:wrap">
+                      ${VISUAL_ASSESSMENTS.map(v => `<button class="pill ${log.visual === v ? 'pill-accent' : ''}" onclick="this.parentElement.querySelectorAll('.pill').forEach(p=>p.classList.remove('pill-accent'));this.classList.add('pill-accent');this.dataset.selected='true'" data-va="${v}">${v}</button>`).join('')}
+                    </div>
+                  </div>
+                  <div class="mt-8"><label>Notes</label><textarea id="pw-notes-${day.day}" rows="1" placeholder="How do you look?">${log.notes || ''}</textarea></div>
+                  <button class="btn btn-sm btn-primary btn-block mt-8" onclick="savePeakWeekDay(${comp.id},${day.day})">Save Day ${day.day}</button>
+                ` : ''}
+              </div>`;
+          }).join('');
+        } catch(e) { console.error('Peak week error', e); }
+      }
+    } else {
+      document.getElementById('compete-active').style.display = 'none';
+      document.getElementById('compete-peak-week').style.display = 'none';
+    }
+
+    // Posing log
+    try {
+      const posing = await api('/api/posing');
+      const posingEl = document.getElementById('compete-posing-log');
+      if (!posing || posing.length === 0) {
+        posingEl.innerHTML = '<div class="text-sm text-muted" style="padding:8px">No posing sessions logged</div>';
+      } else {
+        posingEl.innerHTML = posing.slice(0, 10).map(p => `
+          <div class="card" style="padding:12px">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-xs text-muted">${formatDate(p.date)}</div>
+                <div class="text-sm" style="margin-top:2px">${p.duration_min ? p.duration_min + ' min' : ''}${p.coach_session ? ' &bull; Coach Session' : ''}</div>
+              </div>
+              <div class="flex gap-4" style="flex-wrap:wrap;max-width:50%">
+                ${(p.poses_practiced || []).slice(0,3).map(pose => `<span class="pill" style="font-size:9px">${pose}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+    } catch(e) {}
+
+    // Competition history
+    const histEl = document.getElementById('compete-history');
+    if (past.length === 0) {
+      histEl.innerHTML = '<div class="text-sm text-muted" style="padding:8px">No past competitions</div>';
+    } else {
+      histEl.innerHTML = past.map(c => `
+        <div class="card" style="padding:12px">
+          <div class="flex items-center justify-between">
+            <div>
+              <div style="font-weight:600">${c.name}</div>
+              <div class="text-xs text-muted">${formatDate(c.show_date)}${c.federation ? ' &bull; ' + c.federation : ''}${c.division ? ' &bull; ' + c.division : ''}</div>
+            </div>
+            ${c.placement ? `<div class="pill pill-teal">#${c.placement}</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+  } catch(e) { console.error('Compete load error', e); }
+}
+
+async function savePeakWeekDay(compId, dayOut) {
+  const weight = parseFloat(document.getElementById(`pw-weight-${dayOut}`).value) || null;
+  const water_oz = parseFloat(document.getElementById(`pw-water-${dayOut}`).value) || null;
+  const sodium_mg = parseFloat(document.getElementById(`pw-sodium-${dayOut}`).value) || null;
+  const carbs_g = parseFloat(document.getElementById(`pw-carbs-${dayOut}`).value) || null;
+  const notes = document.getElementById(`pw-notes-${dayOut}`).value.trim() || null;
+
+  const selectedVA = document.querySelector(`[data-va].pill-accent`);
+  const visual = selectedVA ? selectedVA.dataset.va : null;
+
+  try {
+    await api(`/api/competitions/${compId}/peak-week`, {
+      method: 'POST',
+      body: { day_out: dayOut, weight, water_oz, sodium_mg, carbs_g, visual, notes }
+    });
+    loadCompete();
+  } catch(e) { alert(e.message); }
+}
+
+async function openNewCompetitionModal() {
+  let federations = [];
+  try { federations = await api('/api/federations'); } catch(e) {}
+
+  openModal(`
+    <div class="modal-title">New Competition</div>
+    <div class="flex flex-col gap-12">
+      <div><label>Competition Name</label><input type="text" id="nc-comp-name" placeholder="e.g. NPC Nationals 2026"></div>
+      <div><label>Federation</label>
+        <select id="nc-comp-fed" onchange="onCompFedChange()">
+          <option value="">Select...</option>
+          ${federations.map(f => `<option value="${f.id}">${f.name}</option>`).join('')}
+        </select>
+      </div>
+      <div><label>Division</label>
+        <select id="nc-comp-div"><option value="">Select federation first...</option></select>
+      </div>
+      <div class="grid-2 gap-8">
+        <div><label>Show Date</label><input type="date" id="nc-comp-date"></div>
+        <div><label>Location</label><input type="text" id="nc-comp-loc" placeholder="City, State"></div>
+      </div>
+      <div class="grid-2 gap-8">
+        <div><label>Prep Start Date</label><input type="date" id="nc-comp-prep-start" value="${todayStr()}"></div>
+        <div><label>Prep Weeks</label><input type="number" id="nc-comp-prep-weeks" placeholder="16" value="16"></div>
+      </div>
+      <div><label>Placement (if past)</label><input type="number" id="nc-comp-placement" placeholder="Leave blank for upcoming"></div>
+      <button class="btn btn-primary btn-block" onclick="createCompetition()">Create Competition</button>
+    </div>
+  `);
+}
+
+async function onCompFedChange() {
+  const fedId = document.getElementById('nc-comp-fed').value;
+  const divSel = document.getElementById('nc-comp-div');
+  divSel.innerHTML = '<option value="">Select...</option>';
+  if (!fedId) return;
+
+  // Load all division types and filter by federation
+  const sports = ['bodybuilding','powerlifting','strongman'];
+  for (const sport of sports) {
+    try {
+      const divs = await api(`/api/divisions/${sport}`);
+      divs.filter(d => d.federation && d.federation.includes(fedId)).forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.id;
+        opt.textContent = d.name;
+        divSel.appendChild(opt);
+      });
+    } catch(e) {}
+  }
+}
+
+async function createCompetition() {
+  const name = document.getElementById('nc-comp-name').value.trim();
+  const show_date = document.getElementById('nc-comp-date').value;
+  if (!name || !show_date) return alert('Name and show date required');
+
+  const federation = document.getElementById('nc-comp-fed').value || null;
+  const division = document.getElementById('nc-comp-div').value || null;
+  const location = document.getElementById('nc-comp-loc').value.trim() || null;
+  const prep_start = document.getElementById('nc-comp-prep-start').value || null;
+  const prep_weeks = parseInt(document.getElementById('nc-comp-prep-weeks').value) || null;
+  const placement = parseInt(document.getElementById('nc-comp-placement').value) || null;
+
+  try {
+    await api('/api/competitions', {
+      method: 'POST',
+      body: { name, show_date, federation, division, location, prep_start, prep_weeks, placement }
+    });
+    closeModal();
+    loadCompete();
+  } catch(e) { alert(e.message); }
+}
+
+function openLogPosingModal() {
+  openModal(`
+    <div class="modal-title">Log Posing Session</div>
+    <div class="flex flex-col gap-12">
+      <div><label>Date</label><input type="date" id="pos-date" value="${todayStr()}"></div>
+      <div><label>Duration (min)</label><input type="number" id="pos-duration" placeholder="30"></div>
+      <div>
+        <label>Poses Practiced</label>
+        <div class="flex gap-8 mt-4" style="flex-wrap:wrap" id="pos-pose-chips">
+          ${['Front Double Bicep','Front Lat Spread','Side Chest','Back Double Bicep','Back Lat Spread','Side Tricep','Abs & Thigh','Most Muscular','Front Pose','Back Pose','Favorite Pose','Quarter Turns','Model Walk'].map(p => `<button class="pill" onclick="this.classList.toggle('pill-accent')" data-pose="${p}">${p}</button>`).join('')}
+        </div>
+      </div>
+      <div class="flex items-center justify-between">
+        <label style="margin-bottom:0">Coach Session?</label>
+        <div class="toggle" id="pos-coach" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div><label>Notes</label><textarea id="pos-notes" rows="2" placeholder="How did it go?"></textarea></div>
+      <button class="btn btn-primary btn-block" onclick="savePosingSession()">Save Session</button>
+    </div>
+  `);
+}
+
+async function savePosingSession() {
+  const date = document.getElementById('pos-date').value;
+  const duration_min = parseInt(document.getElementById('pos-duration').value) || null;
+  const coach_session = document.getElementById('pos-coach').classList.contains('on');
+  const notes = document.getElementById('pos-notes').value.trim() || null;
+  const poses_practiced = [];
+  document.querySelectorAll('#pos-pose-chips .pill-accent').forEach(el => poses_practiced.push(el.dataset.pose));
+
+  if (!date) return alert('Date required');
+
+  try {
+    await api('/api/posing', {
+      method: 'POST',
+      body: { date, duration_min, poses_practiced, coach_session, notes }
+    });
+    closeModal();
+    loadCompete();
+  } catch(e) { alert(e.message); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   POWERLIFTING TAB
+   ───────────────────────────────────────────────────────────────────────── */
+async function loadPowerlifting() {
+  try {
+    // Load 1RM data
+    const oneRmData = await api('/api/one-rm');
+    const profile = await api('/api/sport-profile');
+
+    // Find best for each lift
+    const bestByExercise = {};
+    (oneRmData || []).forEach(r => {
+      const ex = r.exercise;
+      const val = r.estimated_1rm || r.weight;
+      if (!bestByExercise[ex] || val > bestByExercise[ex]) {
+        bestByExercise[ex] = val;
+      }
+    });
+
+    const squat = bestByExercise['squat'] || bestByExercise['barbell-back-squat'] || 0;
+    const bench = bestByExercise['bench'] || bestByExercise['flat-barbell-bench-press'] || 0;
+    const deadlift = bestByExercise['deadlift'] || bestByExercise['conventional-deadlift'] || 0;
+    const total = squat + bench + deadlift;
+
+    document.getElementById('pl-squat-1rm').textContent = squat || '--';
+    document.getElementById('pl-bench-1rm').textContent = bench || '--';
+    document.getElementById('pl-dead-1rm').textContent = deadlift || '--';
+    document.getElementById('pl-total').textContent = total || '--';
+
+    // Calculate Wilks and DOTS
+    const bw = profile && profile.comp_weight ? profile.comp_weight * 0.453592 : null; // lbs to kg
+    const totalKg = total * 0.453592;
+    const gender = profile && profile.gender || 'male';
+
+    if (bw && total > 0) {
+      try {
+        const wilksRes = await api(`/api/calc/wilks?total=${totalKg.toFixed(1)}&bodyweight=${bw.toFixed(1)}&gender=${gender}`);
+        document.getElementById('pl-wilks').textContent = wilksRes.wilks || '--';
+      } catch(e) { document.getElementById('pl-wilks').textContent = '--'; }
+      try {
+        const dotsRes = await api(`/api/calc/dots?total=${totalKg.toFixed(1)}&bodyweight=${bw.toFixed(1)}&gender=${gender}`);
+        document.getElementById('pl-dots').textContent = dotsRes.dots || '--';
+      } catch(e) { document.getElementById('pl-dots').textContent = '--'; }
+    } else {
+      document.getElementById('pl-wilks').textContent = '--';
+      document.getElementById('pl-dots').textContent = '--';
+    }
+
+    // 1RM History Chart
+    if (oneRmData && oneRmData.length > 0) {
+      const sorted = [...oneRmData].sort((a,b) => new Date(a.date) - new Date(b.date));
+
+      // Group by exercise for chart datasets
+      const squatHist = sorted.filter(r => r.exercise === 'squat' || r.exercise === 'barbell-back-squat').map(r => r.estimated_1rm || r.weight);
+      const benchHist = sorted.filter(r => r.exercise === 'bench' || r.exercise === 'flat-barbell-bench-press').map(r => r.estimated_1rm || r.weight);
+      const deadHist = sorted.filter(r => r.exercise === 'deadlift' || r.exercise === 'conventional-deadlift').map(r => r.estimated_1rm || r.weight);
+
+      const maxLen = Math.max(squatHist.length, benchHist.length, deadHist.length);
+      if (maxLen > 0) {
+        const labels = sorted.slice(-maxLen).map(r => r.date ? r.date.slice(5) : '');
+        const datasets = [];
+        if (squatHist.length) datasets.push({ data: squatHist, color: '#e94e1b', fill: false });
+        if (benchHist.length) datasets.push({ data: benchHist, color: '#2dd4a8', fill: false });
+        if (deadHist.length) datasets.push({ data: deadHist, color: '#f59e0b', fill: false });
+        drawChart(document.getElementById('pl-1rm-chart'), datasets, { labels, height: 200, yLabel: 'lbs' });
+      }
+    }
+
+    // Recent 1RM log
+    const listEl = document.getElementById('pl-1rm-list');
+    if (!oneRmData || oneRmData.length === 0) {
+      listEl.innerHTML = '<div class="text-sm text-muted" style="padding:8px">No 1RM data logged</div>';
+    } else {
+      listEl.innerHTML = oneRmData.slice(0, 15).map(r => `
+        <div class="flex items-center justify-between" style="padding:8px 0;border-bottom:1px solid var(--card-border)">
+          <div>
+            <div class="text-sm" style="font-weight:500">${getExName(r.exercise)}</div>
+            <div class="text-xs text-muted">${formatDate(r.date)}</div>
+          </div>
+          <div class="flex items-center gap-8">
+            <span class="text-sm">${r.weight} x ${r.reps || 1}</span>
+            ${r.estimated_1rm ? `<span class="pill pill-accent">${r.estimated_1rm} e1RM</span>` : `<span class="pill pill-accent">${r.weight} 1RM</span>`}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Meet list
+    const meets = await api('/api/pl-meets');
+    const meetEl = document.getElementById('pl-meet-list');
+    if (!meets || meets.length === 0) {
+      meetEl.innerHTML = '<div class="text-sm text-muted" style="padding:8px">No meets logged</div>';
+    } else {
+      meetEl.innerHTML = meets.map(m => `
+        <div class="card" style="padding:12px">
+          <div class="flex items-center justify-between mb-4">
+            <div style="font-weight:600">${m.name}</div>
+            ${m.placement ? `<span class="pill pill-teal">#${m.placement}</span>` : ''}
+          </div>
+          <div class="text-xs text-muted">${formatDate(m.date)}${m.federation ? ' &bull; ' + m.federation : ''}${m.weight_class ? ' &bull; ' + m.weight_class + 'kg' : ''}</div>
+          <div class="grid-3 gap-8 mt-8" style="text-align:center">
+            <div><div class="text-xs text-muted">SQ</div><div style="font-weight:600">${m.best_squat || '--'}</div></div>
+            <div><div class="text-xs text-muted">BP</div><div style="font-weight:600">${m.best_bench || '--'}</div></div>
+            <div><div class="text-xs text-muted">DL</div><div style="font-weight:600">${m.best_deadlift || '--'}</div></div>
+          </div>
+          ${m.total ? `<div class="text-sm mt-4" style="text-align:center"><span class="text-muted">Total:</span> <span style="font-weight:700;color:var(--teal)">${m.total}</span>${m.wilks ? ` &bull; Wilks: ${m.wilks}` : ''}${m.dots ? ` &bull; DOTS: ${m.dots}` : ''}</div>` : ''}
+        </div>
+      `).join('');
+    }
+  } catch(e) { console.error('PL load error', e); }
+}
+
+function openLog1RMModal() {
+  openModal(`
+    <div class="modal-title">Log 1RM</div>
+    <div class="flex flex-col gap-12">
+      <div><label>Exercise</label>
+        <select id="orm-exercise">
+          <option value="squat">Squat</option>
+          <option value="bench">Bench Press</option>
+          <option value="deadlift">Deadlift</option>
+          <option value="overhead-press">Overhead Press</option>
+          <option value="barbell-row">Barbell Row</option>
+        </select>
+      </div>
+      <div class="grid-2 gap-8">
+        <div><label>Weight (lbs)</label><input type="number" id="orm-weight" placeholder="315"></div>
+        <div><label>Reps</label><input type="number" id="orm-reps" placeholder="1" value="1" oninput="calc1RMPreview()"></div>
+      </div>
+      <div><label>Date</label><input type="date" id="orm-date" value="${todayStr()}"></div>
+      <div id="orm-estimate" style="text-align:center;display:none">
+        <div class="text-xs text-muted">ESTIMATED 1RM</div>
+        <div id="orm-est-val" style="font-family:var(--font-display);font-size:36px;letter-spacing:2px;color:var(--teal)">--</div>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="save1RM()">Save</button>
+    </div>
+  `);
+}
+
+async function calc1RMPreview() {
+  const weight = parseFloat(document.getElementById('orm-weight').value);
+  const reps = parseInt(document.getElementById('orm-reps').value);
+  const estEl = document.getElementById('orm-estimate');
+  const valEl = document.getElementById('orm-est-val');
+
+  if (weight > 0 && reps > 1) {
+    try {
+      const res = await api(`/api/calc/1rm?weight=${weight}&reps=${reps}`);
+      estEl.style.display = 'block';
+      valEl.textContent = res.estimated_1rm + ' lbs';
+    } catch(e) { estEl.style.display = 'none'; }
+  } else if (weight > 0 && reps === 1) {
+    estEl.style.display = 'block';
+    valEl.textContent = weight + ' lbs';
+  } else {
+    estEl.style.display = 'none';
+  }
+}
+
+async function save1RM() {
+  const exercise = document.getElementById('orm-exercise').value;
+  const weight = parseFloat(document.getElementById('orm-weight').value);
+  const reps = parseInt(document.getElementById('orm-reps').value) || 1;
+  const date = document.getElementById('orm-date').value;
+
+  if (!weight || !date) return alert('Weight and date required');
+
+  // Calculate estimated 1RM on the server
+  let estimated_1rm = weight;
+  if (reps > 1) {
+    try {
+      const res = await api(`/api/calc/1rm?weight=${weight}&reps=${reps}`);
+      estimated_1rm = res.estimated_1rm;
+    } catch(e) {}
+  }
+
+  try {
+    await api('/api/one-rm', {
+      method: 'POST',
+      body: { exercise, weight, reps, estimated_1rm, date }
+    });
+    closeModal();
+    loadPowerlifting();
+  } catch(e) { alert(e.message); }
+}
+
+function openLogMeetModal() {
+  openModal(`
+    <div class="modal-title">Log Meet</div>
+    <div class="flex flex-col gap-12" style="max-height:70vh;overflow-y:auto">
+      <div><label>Meet Name</label><input type="text" id="mt-name" placeholder="USAPL Raw Nationals"></div>
+      <div class="grid-2 gap-8">
+        <div><label>Date</label><input type="date" id="mt-date" value="${todayStr()}"></div>
+        <div><label>Federation</label><input type="text" id="mt-fed" placeholder="USAPL"></div>
+      </div>
+      <div class="grid-2 gap-8">
+        <div><label>Weight Class (kg)</label><input type="number" id="mt-wc" placeholder="83"></div>
+        <div><label>Bodyweight (kg)</label><input type="number" id="mt-bw" step="0.1" placeholder="82.5"></div>
+      </div>
+      <div class="section-hdr" style="font-size:14px">Squat Attempts (kg)</div>
+      <div class="grid-3 gap-8">
+        <div><label>1st</label><input type="number" id="mt-sq1" step="0.5" oninput="calcMeetTotal()"></div>
+        <div><label>2nd</label><input type="number" id="mt-sq2" step="0.5" oninput="calcMeetTotal()"></div>
+        <div><label>3rd</label><input type="number" id="mt-sq3" step="0.5" oninput="calcMeetTotal()"></div>
+      </div>
+      <div class="section-hdr" style="font-size:14px">Bench Attempts (kg)</div>
+      <div class="grid-3 gap-8">
+        <div><label>1st</label><input type="number" id="mt-bp1" step="0.5" oninput="calcMeetTotal()"></div>
+        <div><label>2nd</label><input type="number" id="mt-bp2" step="0.5" oninput="calcMeetTotal()"></div>
+        <div><label>3rd</label><input type="number" id="mt-bp3" step="0.5" oninput="calcMeetTotal()"></div>
+      </div>
+      <div class="section-hdr" style="font-size:14px">Deadlift Attempts (kg)</div>
+      <div class="grid-3 gap-8">
+        <div><label>1st</label><input type="number" id="mt-dl1" step="0.5" oninput="calcMeetTotal()"></div>
+        <div><label>2nd</label><input type="number" id="mt-dl2" step="0.5" oninput="calcMeetTotal()"></div>
+        <div><label>3rd</label><input type="number" id="mt-dl3" step="0.5" oninput="calcMeetTotal()"></div>
+      </div>
+      <div id="mt-calc-result" style="text-align:center;display:none" class="card">
+        <div class="grid-4 gap-8">
+          <div><div class="text-xs text-muted">Best SQ</div><div id="mt-best-sq" style="font-weight:700">--</div></div>
+          <div><div class="text-xs text-muted">Best BP</div><div id="mt-best-bp" style="font-weight:700">--</div></div>
+          <div><div class="text-xs text-muted">Best DL</div><div id="mt-best-dl" style="font-weight:700">--</div></div>
+          <div><div class="text-xs text-muted">Total</div><div id="mt-total-val" style="font-weight:700;color:var(--teal)">--</div></div>
+        </div>
+      </div>
+      <div><label>Placement</label><input type="number" id="mt-placement" placeholder="Optional"></div>
+      <button class="btn btn-primary btn-block" onclick="saveMeet()">Save Meet</button>
+    </div>
+  `);
+}
+
+function calcMeetTotal() {
+  const getMax = (...ids) => Math.max(0, ...ids.map(id => parseFloat(document.getElementById(id).value) || 0));
+  const bestSq = getMax('mt-sq1','mt-sq2','mt-sq3');
+  const bestBp = getMax('mt-bp1','mt-bp2','mt-bp3');
+  const bestDl = getMax('mt-dl1','mt-dl2','mt-dl3');
+  const total = bestSq + bestBp + bestDl;
+
+  if (total > 0) {
+    document.getElementById('mt-calc-result').style.display = 'block';
+    document.getElementById('mt-best-sq').textContent = bestSq || '--';
+    document.getElementById('mt-best-bp').textContent = bestBp || '--';
+    document.getElementById('mt-best-dl').textContent = bestDl || '--';
+    document.getElementById('mt-total-val').textContent = total;
+  }
+}
+
+async function saveMeet() {
+  const name = document.getElementById('mt-name').value.trim();
+  const date = document.getElementById('mt-date').value;
+  if (!name || !date) return alert('Name and date required');
+
+  const federation = document.getElementById('mt-fed').value.trim() || null;
+  const weight_class = parseFloat(document.getElementById('mt-wc').value) || null;
+  const bodyweight = parseFloat(document.getElementById('mt-bw').value) || null;
+  const placement = parseInt(document.getElementById('mt-placement').value) || null;
+
+  const getMax = (...ids) => Math.max(0, ...ids.map(id => parseFloat(document.getElementById(id).value) || 0));
+  const best_squat = getMax('mt-sq1','mt-sq2','mt-sq3') || null;
+  const best_bench = getMax('mt-bp1','mt-bp2','mt-bp3') || null;
+  const best_deadlift = getMax('mt-dl1','mt-dl2','mt-dl3') || null;
+  const total = (best_squat || 0) + (best_bench || 0) + (best_deadlift || 0) || null;
+
+  let wilks = null, dots = null;
+  if (total && bodyweight) {
+    try {
+      const wRes = await api(`/api/calc/wilks?total=${total}&bodyweight=${bodyweight}&gender=male`);
+      wilks = wRes.wilks;
+    } catch(e) {}
+    try {
+      const dRes = await api(`/api/calc/dots?total=${total}&bodyweight=${bodyweight}&gender=male`);
+      dots = dRes.dots;
+    } catch(e) {}
+  }
+
+  const attempts = {
+    squat: [parseFloat(document.getElementById('mt-sq1').value)||null, parseFloat(document.getElementById('mt-sq2').value)||null, parseFloat(document.getElementById('mt-sq3').value)||null],
+    bench: [parseFloat(document.getElementById('mt-bp1').value)||null, parseFloat(document.getElementById('mt-bp2').value)||null, parseFloat(document.getElementById('mt-bp3').value)||null],
+    deadlift: [parseFloat(document.getElementById('mt-dl1').value)||null, parseFloat(document.getElementById('mt-dl2').value)||null, parseFloat(document.getElementById('mt-dl3').value)||null]
+  };
+
+  try {
+    await api('/api/pl-meets', {
+      method: 'POST',
+      body: { name, date, federation, weight_class, bodyweight, best_squat, best_bench, best_deadlift, total, wilks, dots, placement, attempts }
+    });
+    closeModal();
+    loadPowerlifting();
+  } catch(e) { alert(e.message); }
+}
+
+function calcAttempts() {
+  const sqOpener = parseFloat(document.getElementById('att-squat').value);
+  const bpOpener = parseFloat(document.getElementById('att-bench').value);
+  const dlOpener = parseFloat(document.getElementById('att-dead').value);
+  const el = document.getElementById('att-results');
+
+  if (!sqOpener && !bpOpener && !dlOpener) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+
+  const calcAttempt = (opener) => {
+    if (!opener) return ['--','--','--'];
+    const second = Math.round(opener * 1.025 / 2.5) * 2.5;
+    const third = Math.round(opener * 1.05 / 2.5) * 2.5;
+    return [opener, second, third];
+  };
+
+  const sq = calcAttempt(sqOpener);
+  const bp = calcAttempt(bpOpener);
+  const dl = calcAttempt(dlOpener);
+
+  el.innerHTML = `
+    <div style="font-size:11px;color:var(--text2);display:grid;grid-template-columns:70px 1fr 1fr 1fr;gap:4px;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">
+      <div></div><div style="text-align:center">Opener</div><div style="text-align:center">2nd (+2.5%)</div><div style="text-align:center">3rd (+5%)</div>
+    </div>
+    <div style="display:grid;grid-template-columns:70px 1fr 1fr 1fr;gap:4px;align-items:center;padding:6px 0;border-bottom:1px solid var(--card-border)">
+      <div class="text-xs text-muted">Squat</div>
+      ${sq.map(v => `<div style="text-align:center;font-weight:600">${v}</div>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:70px 1fr 1fr 1fr;gap:4px;align-items:center;padding:6px 0;border-bottom:1px solid var(--card-border)">
+      <div class="text-xs text-muted">Bench</div>
+      ${bp.map(v => `<div style="text-align:center;font-weight:600">${v}</div>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:70px 1fr 1fr 1fr;gap:4px;align-items:center;padding:6px 0">
+      <div class="text-xs text-muted">Deadlift</div>
+      ${dl.map(v => `<div style="text-align:center;font-weight:600">${v}</div>`).join('')}
+    </div>
+    <div class="mt-8" style="text-align:center">
+      <span class="text-xs text-muted">Projected Total: </span>
+      <span style="font-family:var(--font-display);font-size:22px;color:var(--teal);letter-spacing:1px">${(sq[2] !== '--' ? sq[2] : 0) + (bp[2] !== '--' ? bp[2] : 0) + (dl[2] !== '--' ? dl[2] : 0)} lbs</span>
+    </div>
+  `;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   STRONGMAN TAB
+   ───────────────────────────────────────────────────────────────────────── */
+const SM_EVENT_TYPES = {
+  'Deadlift':{metric:'weight',unit:'lbs'},'Atlas Stones':{metric:'weight',unit:'lbs'},'Log Press':{metric:'weight',unit:'lbs'},
+  'Farmers Walk':{metric:'distance',unit:'ft'},'Yoke Carry':{metric:'distance',unit:'ft'},'Tire Flip':{metric:'reps',unit:'reps'},
+  'Car Deadlift':{metric:'reps',unit:'reps'},'Circus Dumbbell':{metric:'weight',unit:'lbs'},'Keg Toss':{metric:'time',unit:'sec'},
+  'Conan Wheel':{metric:'distance',unit:'ft'},'Hercules Hold':{metric:'time',unit:'sec'},'Frame Carry':{metric:'distance',unit:'ft'},
+  'Sandbag Carry':{metric:'distance',unit:'ft'},'Axle Press':{metric:'weight',unit:'lbs'},'Viking Press':{metric:'reps',unit:'reps'},
+  'Hussafell Stone':{metric:'distance',unit:'ft'},'Shield Carry':{metric:'distance',unit:'ft'},'Medley':{metric:'time',unit:'sec'},
+  'Truck Pull':{metric:'time',unit:'sec'},'Stone Over Bar':{metric:'reps',unit:'reps'}
+};
+
+async function loadStrongman() {
+  // Build event buttons
+  const btnEl = document.getElementById('sm-event-buttons');
+  btnEl.innerHTML = Object.keys(SM_EVENT_TYPES).map(ev =>
+    `<button class="pill" style="cursor:pointer" onclick="openLogStrongmanEvent('${ev}')">${ev}</button>`
+  ).join('');
+
+  try {
+    const events = await api('/api/strongman-events');
+
+    // Build PR board
+    const prByEvent = {};
+    (events || []).forEach(e => {
+      const key = e.event_name;
+      const val = e.result || e.weight || e.reps || e.distance || e.time_seconds || 0;
+      const metric = SM_EVENT_TYPES[key]?.metric || 'weight';
+      const isBetter = metric === 'time' ? (val < (prByEvent[key]?.val || Infinity)) : (val > (prByEvent[key]?.val || 0));
+      if (!prByEvent[key] || isBetter) {
+        prByEvent[key] = { val, date: e.date, unit: SM_EVENT_TYPES[key]?.unit || '' };
+      }
+    });
+
+    const prEl = document.getElementById('sm-pr-board');
+    const prEntries = Object.entries(prByEvent);
+    if (prEntries.length === 0) {
+      prEl.innerHTML = '<div class="text-sm text-muted" style="padding:8px">No PRs yet. Log events to track records.</div>';
+    } else {
+      prEl.innerHTML = '<div class="grid-2 gap-8">' + prEntries.map(([ev, pr]) => `
+        <div class="card" style="padding:12px;text-align:center">
+          <div class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:1px">${ev}</div>
+          <div style="font-family:var(--font-display);font-size:26px;letter-spacing:2px;color:var(--accent);margin-top:4px">${pr.val}</div>
+          <div class="text-xs text-muted">${pr.unit}${pr.date ? ' &bull; ' + pr.date.slice(5) : ''}</div>
+        </div>
+      `).join('') + '</div>';
+    }
+
+    // Event history
+    const histEl = document.getElementById('sm-event-history');
+    if (!events || events.length === 0) {
+      histEl.innerHTML = '<div class="text-sm text-muted" style="padding:8px">No events logged</div>';
+    } else {
+      histEl.innerHTML = events.slice(0, 20).map(e => {
+        const val = e.result || e.weight || e.reps || e.distance || e.time_seconds || '--';
+        const evType = SM_EVENT_TYPES[e.event_name];
+        const unit = evType ? evType.unit : '';
+
+        // PR check
+        const pr = prByEvent[e.event_name];
+        const isPR = pr && val == pr.val && e.date === pr.date;
+
+        return `
+          <div class="flex items-center justify-between" style="padding:8px 0;border-bottom:1px solid var(--card-border)">
+            <div>
+              <div class="text-sm" style="font-weight:500">${e.event_name}</div>
+              <div class="text-xs text-muted">${formatDate(e.date)}${e.notes ? ' &bull; ' + e.notes : ''}</div>
+            </div>
+            <div class="flex items-center gap-8">
+              <span style="font-weight:600">${val} ${unit}</span>
+              ${isPR ? '<span class="pill pill-accent" style="font-size:9px">PR</span>' : ''}
+            </div>
+          </div>`;
+      }).join('');
+    }
+  } catch(e) { console.error('Strongman load error', e); }
+}
+
+function openLogStrongmanEvent(eventName) {
+  const evType = SM_EVENT_TYPES[eventName] || { metric: 'weight', unit: 'lbs' };
+  let resultLabel = 'Weight (lbs)';
+  let placeholder = '500';
+  if (evType.metric === 'reps') { resultLabel = 'Reps'; placeholder = '10'; }
+  else if (evType.metric === 'time') { resultLabel = 'Time (seconds)'; placeholder = '30'; }
+  else if (evType.metric === 'distance') { resultLabel = 'Distance (ft)'; placeholder = '50'; }
+
+  openModal(`
+    <div class="modal-title">${eventName}</div>
+    <div class="flex flex-col gap-12">
+      <div><label>Date</label><input type="date" id="sme-date" value="${todayStr()}"></div>
+      <div><label>${resultLabel}</label><input type="number" id="sme-result" step="0.1" placeholder="${placeholder}"></div>
+      ${evType.metric === 'distance' || evType.metric === 'reps' ? `<div><label>Weight Used (lbs)</label><input type="number" id="sme-weight" placeholder="Optional"></div>` : ''}
+      <div><label>Notes</label><textarea id="sme-notes" rows="2" placeholder="Optional"></textarea></div>
+      <button class="btn btn-primary btn-block" onclick="saveStrongmanEvent('${eventName}')">Log Event</button>
+    </div>
+  `);
+}
+
+async function saveStrongmanEvent(eventName) {
+  const date = document.getElementById('sme-date').value;
+  const result = parseFloat(document.getElementById('sme-result').value);
+  const notes = document.getElementById('sme-notes').value.trim() || null;
+  const weightEl = document.getElementById('sme-weight');
+  const weight = weightEl ? parseFloat(weightEl.value) || null : null;
+
+  if (!date || !result) return alert('Date and result required');
+
+  try {
+    await api('/api/strongman-events', {
+      method: 'POST',
+      body: { date, event_name: eventName, result, weight, notes }
+    });
+    closeModal();
+    loadStrongman();
+  } catch(e) { alert(e.message); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   PROFILE TAB
+   ───────────────────────────────────────────────────────────────────────── */
+async function loadProfile() {
+  try {
+    const profile = await api('/api/sport-profile');
+    if (profile) {
+      if (profile.sport) document.getElementById('prof-sport').value = profile.sport;
+      if (profile.gender) document.getElementById('prof-gender').value = profile.gender;
+      if (profile.height) document.getElementById('prof-height').value = profile.height;
+      if (profile.comp_weight) document.getElementById('prof-comp-weight').value = profile.comp_weight;
+      if (profile.off_season_weight) document.getElementById('prof-off-weight').value = profile.off_season_weight;
+      if (profile.years_training) document.getElementById('prof-years-training').value = profile.years_training;
+      if (profile.years_enhanced) document.getElementById('prof-years-enhanced').value = profile.years_enhanced;
+      if (profile.coach_name) document.getElementById('prof-coach').value = profile.coach_name;
+      if (profile.coach_contact) document.getElementById('prof-coach-contact').value = profile.coach_contact;
+
+      // Load federation and division dropdowns
+      if (profile.sport) {
+        await onProfileSportChange();
+        if (profile.federation) document.getElementById('prof-federation').value = profile.federation;
+        if (profile.division) document.getElementById('prof-division').value = profile.division;
+      }
+    }
+  } catch(e) { console.error('Profile load error', e); }
+}
+
+async function onProfileSportChange() {
+  const sport = document.getElementById('prof-sport').value;
+  const fedSel = document.getElementById('prof-federation');
+  const divSel = document.getElementById('prof-division');
+
+  fedSel.innerHTML = '<option value="">Select...</option>';
+  divSel.innerHTML = '<option value="">Select...</option>';
+
+  if (!sport) return;
+
+  try {
+    const federations = await api('/api/federations');
+    // Filter federations relevant to the sport
+    const sportDivisions = await api(`/api/divisions/${sport}`);
+    const relevantFedIds = new Set();
+    sportDivisions.forEach(d => { if (d.federation) d.federation.forEach(f => relevantFedIds.add(f)); });
+
+    federations.filter(f => relevantFedIds.has(f.id)).forEach(f => {
+      const opt = document.createElement('option');
+      opt.value = f.id;
+      opt.textContent = f.name;
+      fedSel.appendChild(opt);
+    });
+
+    sportDivisions.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d.id;
+      opt.textContent = d.name;
+      divSel.appendChild(opt);
+    });
+  } catch(e) { console.error('Sport change error', e); }
+}
+
+async function saveProfile() {
+  const data = {
+    sport: document.getElementById('prof-sport').value || null,
+    federation: document.getElementById('prof-federation').value || null,
+    division: document.getElementById('prof-division').value || null,
+    gender: document.getElementById('prof-gender').value || 'male',
+    height: parseFloat(document.getElementById('prof-height').value) || null,
+    comp_weight: parseFloat(document.getElementById('prof-comp-weight').value) || null,
+    off_season_weight: parseFloat(document.getElementById('prof-off-weight').value) || null,
+    years_training: parseInt(document.getElementById('prof-years-training').value) || null,
+    years_enhanced: parseInt(document.getElementById('prof-years-enhanced').value) || null,
+    coach_name: document.getElementById('prof-coach').value.trim() || null,
+    coach_contact: document.getElementById('prof-coach-contact').value.trim() || null,
+  };
+
+  try {
+    await api('/api/sport-profile', { method: 'PUT', body: data });
+    alert('Profile saved!');
+  } catch(e) { alert(e.message); }
+}
+
+async function calcClassicLimit() {
+  const height = parseFloat(document.getElementById('classic-height').value);
+  const resultEl = document.getElementById('classic-result');
+  if (!height || height < 60) {
+    resultEl.innerHTML = '<div class="text-xs text-muted">MAX WEIGHT</div><div style="font-family:var(--font-display);font-size:28px;letter-spacing:2px;color:var(--teal)">--</div>';
+    return;
+  }
+  try {
+    const res = await api(`/api/classic-limit?height=${height}`);
+    resultEl.innerHTML = `<div class="text-xs text-muted">MAX WEIGHT</div><div style="font-family:var(--font-display);font-size:28px;letter-spacing:2px;color:var(--teal)">${res.maxWeight} lbs</div><div class="text-xs text-muted">at ${Math.floor(res.maxHeight/12)}'${res.maxHeight%12}"</div>`;
+  } catch(e) {
+    resultEl.innerHTML = '<div class="text-xs text-muted">MAX WEIGHT</div><div style="font-family:var(--font-display);font-size:28px;letter-spacing:2px;color:var(--teal)">--</div>';
+  }
+}
+
+function calcWeightClass() {
+  const weight = parseFloat(document.getElementById('wc-weight').value);
+  const gender = document.getElementById('wc-gender').value;
+  const resultEl = document.getElementById('wc-result');
+  const displayEl = document.getElementById('wc-class-display');
+
+  if (!weight || weight <= 0) { resultEl.style.display = 'none'; return; }
+
+  const classes = gender === 'female' ? [47, 52, 57, 63, 69, 76, 84, 'SHW'] : [59, 66, 74, 83, 93, 105, 120, 'SHW'];
+  let cls = 'SHW';
+  for (const c of classes) {
+    if (c === 'SHW') { cls = 'SHW (120+)'; break; }
+    if (weight <= c) { cls = c + ' kg'; break; }
+  }
+
+  resultEl.style.display = 'block';
+  displayEl.textContent = cls;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BOOT
+   ───────────────────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
