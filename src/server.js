@@ -23,7 +23,7 @@ const compounds = {
   },
 };
 
-const PORT     = 3888;
+const PORT     = process.env.PORT || 3888;
 const WEB_ROOT = path.join(__dirname, 'web');
 
 // ---------------------------------------------------------------------------
