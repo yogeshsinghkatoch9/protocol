@@ -3,3 +3,5 @@ protocol.db
 .DS_Store
 *.log
 protocol.db*
+stitch_application_ui_ux_design/
+UI_DESIGN_BRIEF.md
