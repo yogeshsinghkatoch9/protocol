@@ -72,6 +72,12 @@ Generate encrypted share links for your coach. They can view your cycles, blood 
 ### Desktop + Mobile
 Professional sidebar navigation on desktop (1024px+). Bottom tab bar on mobile. Glassmorphism UI with obsidian dark theme. PWA-ready — install on your phone's home screen.
 
+## Architecture
+
+<p align="center">
+  <img src="docs/architecture.svg" alt="Protocol Architecture" width="100%"/>
+</p>
+
 ## Screenshots
 
 The app features a professional dark interface with:
