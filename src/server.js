@@ -1,13 +1,16 @@
 'use strict';
 
-const http = require('http');
-const fs   = require('fs');
-const path = require('path');
-const url  = require('url');
+const http   = require('http');
+const fs     = require('fs');
+const path   = require('path');
+const url    = require('url');
+const crypto = require('crypto');
 
 const db        = require('./db');
+const getDb     = db.getDb;
 const compoundsModule = require('./data/compounds');
 const competitionsData = require('./data/competitions');
+const exercisesModule = require('./data/exercises');
 
 // Normalize compound access — agents exported different shapes
 const compounds = {
@@ -94,6 +97,28 @@ function csvEscape(val) {
     return '"' + str.replace(/"/g, '""') + '"';
   }
   return str;
+}
+
+/**
+ * Guess muscle groups from an exercise name when not found in the exercise database.
+ * Returns an array of muscle group strings.
+ */
+function guessMuscleGroup(name) {
+  const n = (name || '').toLowerCase();
+  const groups = [];
+  if (n.includes('bench') || n.includes('chest') || n.includes('pec') || n.includes('fly')) groups.push('chest');
+  if (n.includes('squat') || n.includes('leg press') || n.includes('extension') || n.includes('lunge')) groups.push('quads');
+  if (n.includes('deadlift') || n.includes('row') || n.includes('pull') || n.includes('lat')) groups.push('back');
+  if (n.includes('curl') && !n.includes('leg')) groups.push('biceps');
+  if (n.includes('tricep') || n.includes('pushdown') || n.includes('skull') || n.includes('dip')) groups.push('triceps');
+  if (n.includes('shoulder') || n.includes('press') || n.includes('lateral') || n.includes('delt')) groups.push('shoulders');
+  if (n.includes('hamstring') || n.includes('leg curl') || n.includes('romanian')) groups.push('hamstrings');
+  if (n.includes('calf') || n.includes('calve')) groups.push('calves');
+  if (n.includes('glute') || n.includes('hip thrust')) groups.push('glutes');
+  if (n.includes('ab') || n.includes('crunch') || n.includes('plank') || n.includes('sit-up')) groups.push('abs');
+  if (n.includes('shrug') || n.includes('trap')) groups.push('traps');
+  if (groups.length === 0) groups.push('other');
+  return groups;
 }
 
 /** Match a route pattern like /api/cycles/:id and return params. */
@@ -1040,6 +1065,1085 @@ async function handleRequest(req, res) {
       }
       const estimated = calculate1RM(weight, reps);
       return json(res, { weight, reps, estimated_1rm: estimated });
+    }
+
+    // ── Exercises (static DB from exercises.js) ─────────────────────
+    if (method === 'GET' && pathname === '/api/exercises') {
+      return json(res, exercisesModule.exercises);
+    }
+
+    if (method === 'GET' && pathname === '/api/exercises/search') {
+      const q = query(req.url);
+      const results = exercisesModule.search(q.q || '', {
+        category: q.category,
+        equipment: q.equipment,
+      });
+      return json(res, results);
+    }
+
+    if (method === 'GET' && pathname === '/api/exercises/templates') {
+      return json(res, exercisesModule.TEMPLATES);
+    }
+
+    // ── Reminders ───────────────────────────────────────────────────
+    if (method === 'GET' && pathname === '/api/reminders/due') {
+      const due = db.reminders.getDue();
+      return json(res, due);
+    }
+
+    if (method === 'GET' && pathname === '/api/reminders') {
+      return json(res, db.reminders.list());
+    }
+
+    if (method === 'POST' && pathname === '/api/reminders') {
+      const body = await parseBody(req);
+      if (!body.compound_id || !body.label || body.frequency_hours == null) {
+        return error(res, 'compound_id, label, and frequency_hours required');
+      }
+      return json(res, db.reminders.create(body), 201);
+    }
+
+    if (method === 'PUT' && (params = matchRoute('/api/reminders/:id', pathname))) {
+      const existing = db.reminders.getById(Number(params.id));
+      if (!existing) return error(res, 'Reminder not found', 404);
+      const body = await parseBody(req);
+      return json(res, db.reminders.update(Number(params.id), body));
+    }
+
+    if (method === 'DELETE' && (params = matchRoute('/api/reminders/:id', pathname))) {
+      const existing = db.reminders.getById(Number(params.id));
+      if (!existing) return error(res, 'Reminder not found', 404);
+      db.reminders.delete(Number(params.id));
+      return json(res, { deleted: true });
+    }
+
+    // ── Unit Converter ──────────────────────────────────────────────
+    if (method === 'GET' && pathname === '/api/calc/convert') {
+      const q = query(req.url);
+      const value = parseFloat(q.value);
+      const from = (q.from || '').toLowerCase();
+      const to = (q.to || '').toLowerCase();
+      const concentration = parseFloat(q.concentration) || null;
+      const compound = (q.compound || '').toLowerCase();
+
+      if (isNaN(value)) return error(res, 'value query param required as a number');
+      if (!from || !to) return error(res, 'from and to query params required (mg, mL, IU, mcg)');
+
+      let result = null;
+      let notes = null;
+
+      // mg <-> mcg
+      if (from === 'mg' && to === 'mcg') {
+        result = value * 1000;
+      } else if (from === 'mcg' && to === 'mg') {
+        result = value / 1000;
+      }
+      // mg <-> mL (needs concentration)
+      else if (from === 'mg' && to === 'ml') {
+        if (!concentration) return error(res, 'concentration (mg/mL) required for mg to mL conversion');
+        result = value / concentration;
+        notes = `Using concentration ${concentration} mg/mL`;
+      } else if (from === 'ml' && to === 'mg') {
+        if (!concentration) return error(res, 'concentration (mg/mL) required for mL to mg conversion');
+        result = value * concentration;
+        notes = `Using concentration ${concentration} mg/mL`;
+      }
+      // IU <-> mg (compound-specific)
+      else if (from === 'iu' && to === 'mg') {
+        const factors = { hgh: 0.33, hcg: 0.001, insulin: 0.0347 };
+        const factor = factors[compound];
+        if (!factor) return error(res, 'compound query param required for IU conversion (hgh, hcg, insulin)');
+        result = value * factor;
+        notes = `1 IU = ${factor} mg for ${compound.toUpperCase()}`;
+      } else if (from === 'mg' && to === 'iu') {
+        const factors = { hgh: 0.33, hcg: 0.001, insulin: 0.0347 };
+        const factor = factors[compound];
+        if (!factor) return error(res, 'compound query param required for IU conversion (hgh, hcg, insulin)');
+        result = value / factor;
+        notes = `1 IU = ${factor} mg for ${compound.toUpperCase()}`;
+      }
+      // mcg <-> mL
+      else if (from === 'mcg' && to === 'ml') {
+        if (!concentration) return error(res, 'concentration (mcg/mL) required');
+        result = value / concentration;
+        notes = `Using concentration ${concentration} mcg/mL`;
+      } else if (from === 'ml' && to === 'mcg') {
+        if (!concentration) return error(res, 'concentration (mcg/mL) required');
+        result = value * concentration;
+        notes = `Using concentration ${concentration} mcg/mL`;
+      }
+      // IU <-> mcg
+      else if (from === 'iu' && to === 'mcg') {
+        const factors = { hgh: 0.33, hcg: 0.001, insulin: 0.0347 };
+        const factor = factors[compound];
+        if (!factor) return error(res, 'compound query param required for IU conversion (hgh, hcg, insulin)');
+        result = value * factor * 1000;
+        notes = `1 IU = ${factor * 1000} mcg for ${compound.toUpperCase()}`;
+      } else if (from === 'mcg' && to === 'iu') {
+        const factors = { hgh: 0.33, hcg: 0.001, insulin: 0.0347 };
+        const factor = factors[compound];
+        if (!factor) return error(res, 'compound query param required for IU conversion (hgh, hcg, insulin)');
+        result = value / (factor * 1000);
+        notes = `1 IU = ${factor * 1000} mcg for ${compound.toUpperCase()}`;
+      }
+      else {
+        return error(res, `Unsupported conversion: ${from} to ${to}`);
+      }
+
+      result = Math.round(result * 10000) / 10000;
+      const response = { value, from, to, result };
+      if (notes) response.notes = notes;
+      if (compound) response.compound = compound;
+      return json(res, response);
+    }
+
+    // ── Readiness Score ─────────────────────────────────────────────
+    if (method === 'GET' && pathname === '/api/readiness') {
+      const today = new Date().toISOString().slice(0, 10);
+      const entry = db.wellness.getByDate(today);
+      if (!entry) return json(res, { error: 'No wellness check-in for today', score: null });
+
+      const sleep_score     = Math.min(20, ((entry.sleep_hours || 0) / 8.0) * 20);
+      const sleep_qual_score = ((entry.sleep_quality || 0) / 5) * 15;
+      const energy_score    = ((entry.energy || 0) / 5) * 20;
+      const mood_score      = ((entry.mood || 0) / 5) * 10;
+      const libido_score    = ((entry.libido || 0) / 5) * 5;
+      const joint_score     = ((6 - (entry.joint_pain || 0)) / 5) * 15;
+      const appetite_score  = ((entry.appetite || 0) / 5) * 5;
+      const stress_score    = ((6 - (entry.stress || 0)) / 5) * 10;
+
+      const total = Math.round(
+        (sleep_score + sleep_qual_score + energy_score + mood_score +
+         libido_score + joint_score + appetite_score + stress_score) * 10
+      ) / 10;
+
+      const score = Math.min(100, Math.max(0, total));
+
+      let recommendation;
+      if (score >= 80) recommendation = 'Train hard — you\'re recovered';
+      else if (score >= 60) recommendation = 'Moderate intensity — don\'t push PRs';
+      else recommendation = 'Light session or rest — recovery is low';
+
+      return json(res, {
+        date: today,
+        score,
+        breakdown: {
+          sleep: Math.round((sleep_score + sleep_qual_score) * 10) / 10,
+          energy: Math.round(energy_score * 10) / 10,
+          mood: Math.round(mood_score * 10) / 10,
+          recovery: Math.round((libido_score + joint_score + appetite_score) * 10) / 10,
+          stress: Math.round(stress_score * 10) / 10,
+        },
+        recommendation,
+      });
+    }
+
+    if (method === 'GET' && pathname === '/api/readiness/history') {
+      const q = query(req.url);
+      const days = parseInt(q.days, 10) || 7;
+      const entries = db.wellness.list();
+
+      // Take last N days of entries
+      const recent = entries.slice(0, days);
+      const results = recent.map(entry => {
+        const sleep_score     = Math.min(20, ((entry.sleep_hours || 0) / 8.0) * 20);
+        const sleep_qual_score = ((entry.sleep_quality || 0) / 5) * 15;
+        const energy_score    = ((entry.energy || 0) / 5) * 20;
+        const mood_score      = ((entry.mood || 0) / 5) * 10;
+        const libido_score    = ((entry.libido || 0) / 5) * 5;
+        const joint_score     = ((6 - (entry.joint_pain || 0)) / 5) * 15;
+        const appetite_score  = ((entry.appetite || 0) / 5) * 5;
+        const stress_score    = ((6 - (entry.stress || 0)) / 5) * 10;
+
+        const total = Math.round(
+          (sleep_score + sleep_qual_score + energy_score + mood_score +
+           libido_score + joint_score + appetite_score + stress_score) * 10
+        ) / 10;
+        const score = Math.min(100, Math.max(0, total));
+
+        let recommendation;
+        if (score >= 80) recommendation = 'Train hard — you\'re recovered';
+        else if (score >= 60) recommendation = 'Moderate intensity — don\'t push PRs';
+        else recommendation = 'Light session or rest — recovery is low';
+
+        return { date: entry.date, score, recommendation };
+      });
+
+      return json(res, results);
+    }
+
+    // ── Blood Work OCR Parser (Stub) ────────────────────────────────
+    if (method === 'POST' && pathname === '/api/bloodwork/parse') {
+      const body = await parseBody(req);
+      if (!body.text) return error(res, 'text field required');
+
+      const text = body.text;
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const parsed = [];
+      const unparsed = [];
+
+      // Comprehensive regex patterns for common lab markers
+      const patterns = [
+        // Testosterone
+        { regex: /testosterone[,:]?\s*total[:\s]*(\d+\.?\d*)\s*(ng\/dL|ng\/ml)/i, marker: 'Total Testosterone' },
+        { regex: /total\s+testosterone[:\s]*(\d+\.?\d*)\s*(ng\/dL|ng\/ml)/i, marker: 'Total Testosterone' },
+        { regex: /testosterone[,:]?\s*free[:\s]*(\d+\.?\d*)\s*(pg\/mL|ng\/dL)/i, marker: 'Free Testosterone' },
+        { regex: /free\s+testosterone[:\s]*(\d+\.?\d*)\s*(pg\/mL|ng\/dL)/i, marker: 'Free Testosterone' },
+        { regex: /testosterone[:\s]*(\d+\.?\d*)\s*(ng\/dL)/i, marker: 'Total Testosterone' },
+        // Estrogen
+        { regex: /estradiol(?:\s*\(E2\))?[:\s]*(\d+\.?\d*)\s*(pg\/mL|pmol\/L)/i, marker: 'Estradiol (E2)' },
+        { regex: /estrogen[:\s]*(\d+\.?\d*)\s*(pg\/mL|pmol\/L)/i, marker: 'Estradiol (E2)' },
+        // Liver
+        { regex: /\bAST[:\s]*(\d+\.?\d*)\s*(U\/L|IU\/L)/i, marker: 'AST' },
+        { regex: /\bALT[:\s]*(\d+\.?\d*)\s*(U\/L|IU\/L)/i, marker: 'ALT' },
+        { regex: /\bGGT[:\s]*(\d+\.?\d*)\s*(U\/L|IU\/L)/i, marker: 'GGT' },
+        { regex: /alkaline\s+phosphatase[:\s]*(\d+\.?\d*)\s*(U\/L|IU\/L)/i, marker: 'Alkaline Phosphatase' },
+        { regex: /\bALP[:\s]*(\d+\.?\d*)\s*(U\/L|IU\/L)/i, marker: 'Alkaline Phosphatase' },
+        { regex: /bilirubin[,:]?\s*total[:\s]*(\d+\.?\d*)\s*(mg\/dL)/i, marker: 'Total Bilirubin' },
+        { regex: /total\s+bilirubin[:\s]*(\d+\.?\d*)\s*(mg\/dL)/i, marker: 'Total Bilirubin' },
+        { regex: /bilirubin[,:]?\s*direct[:\s]*(\d+\.?\d*)\s*(mg\/dL)/i, marker: 'Direct Bilirubin' },
+        { regex: /albumin[:\s]*(\d+\.?\d*)\s*(g\/dL)/i, marker: 'Albumin' },
+        { regex: /total\s+protein[:\s]*(\d+\.?\d*)\s*(g\/dL)/i, marker: 'Total Protein' },
+        // Lipids
+        { regex: /total\s+cholesterol[:\s]*(\d+\.?\d*)\s*(mg\/dL)/i, marker: 'Total Cholesterol' },
+        { regex: /cholesterol[,:]?\s*total[:\s]*(\d+\.?\d*)\s*(mg\/dL)/i, marker: 'Total Cholesterol' },
+        { regex: /HDL\s*(?:cholesterol)?[:\s]*(\d+\.?\d*)\s*(mg\/dL)/i, marker: 'HDL' },
+        { regex: /LDL\s*(?:cholesterol)?[:\s]*(\d+\.?\d*)\s*(mg\/dL)/i, marker: 'LDL' },
+        { regex: /triglycerides[:\s]*(\d+\.?\d*)\s*(mg\/dL)/i, marker: 'Triglycerides' },
+        { regex: /VLDL[:\s]*(\d+\.?\d*)\s*(mg\/dL)/i, marker: 'VLDL' },
+        // Blood count
+        { regex: /hematocrit[:\s]*(\d+\.?\d*)\s*(%)/i, marker: 'Hematocrit' },
+        { regex: /\bHCT[:\s]*(\d+\.?\d*)\s*(%)/i, marker: 'Hematocrit' },
+        { regex: /hemoglobin[:\s]*(\d+\.?\d*)\s*(g\/dL)/i, marker: 'Hemoglobin' },
+        { regex: /\bHGB[:\s]*(\d+\.?\d*)\s*(g\/dL)/i, marker: 'Hemoglobin' },
+        { regex: /\bRBC[:\s]*(\d+\.?\d*)\s*(M\/uL|x10\^6\/uL|10\*6\/uL)/i, marker: 'RBC' },
+        { regex: /\bWBC[:\s]*(\d+\.?\d*)\s*(K\/uL|x10\^3\/uL|10\*3\/uL)/i, marker: 'WBC' },
+        { regex: /platelets?[:\s]*(\d+\.?\d*)\s*(K\/uL|x10\^3\/uL|10\*3\/uL)/i, marker: 'Platelets' },
+        { regex: /\bMCV[:\s]*(\d+\.?\d*)\s*(fL)/i, marker: 'MCV' },
+        { regex: /\bMCH[:\s]*(\d+\.?\d*)\s*(pg)/i, marker: 'MCH' },
+        { regex: /\bMCHC[:\s]*(\d+\.?\d*)\s*(g\/dL|%)/i, marker: 'MCHC' },
+        { regex: /\bRDW[:\s]*(\d+\.?\d*)\s*(%)/i, marker: 'RDW' },
+        // Kidney
+        { regex: /creatinine[:\s]*(\d+\.?\d*)\s*(mg\/dL)/i, marker: 'Creatinine' },
+        { regex: /\bBUN[:\s]*(\d+\.?\d*)\s*(mg\/dL)/i, marker: 'BUN' },
+        { regex: /\beGFR[:\s]*(\d+\.?\d*)\s*(mL\/min)/i, marker: 'eGFR' },
+        { regex: /uric\s+acid[:\s]*(\d+\.?\d*)\s*(mg\/dL)/i, marker: 'Uric Acid' },
+        // Thyroid
+        { regex: /\bTSH[:\s]*(\d+\.?\d*)\s*((?:u|m)IU\/(?:m)?L|mIU\/L)/i, marker: 'TSH' },
+        { regex: /free\s+T4[:\s]*(\d+\.?\d*)\s*(ng\/dL)/i, marker: 'Free T4' },
+        { regex: /free\s+T3[:\s]*(\d+\.?\d*)\s*(pg\/mL)/i, marker: 'Free T3' },
+        { regex: /\bT4[,:]?\s*free[:\s]*(\d+\.?\d*)\s*(ng\/dL)/i, marker: 'Free T4' },
+        { regex: /\bT3[,:]?\s*free[:\s]*(\d+\.?\d*)\s*(pg\/mL)/i, marker: 'Free T3' },
+        // Metabolic
+        { regex: /glucose[,:]?\s*(?:fasting)?[:\s]*(\d+\.?\d*)\s*(mg\/dL)/i, marker: 'Glucose' },
+        { regex: /fasting\s+glucose[:\s]*(\d+\.?\d*)\s*(mg\/dL)/i, marker: 'Glucose' },
+        { regex: /\bHbA1c[:\s]*(\d+\.?\d*)\s*(%)/i, marker: 'HbA1c' },
+        { regex: /hemoglobin\s+A1c[:\s]*(\d+\.?\d*)\s*(%)/i, marker: 'HbA1c' },
+        { regex: /insulin[:\s]*(\d+\.?\d*)\s*(uIU\/mL|mIU\/L)/i, marker: 'Insulin' },
+        // Hormones
+        { regex: /\bLH[:\s]*(\d+\.?\d*)\s*(mIU\/mL|IU\/L)/i, marker: 'LH' },
+        { regex: /\bFSH[:\s]*(\d+\.?\d*)\s*(mIU\/mL|IU\/L)/i, marker: 'FSH' },
+        { regex: /prolactin[:\s]*(\d+\.?\d*)\s*(ng\/mL|ug\/L)/i, marker: 'Prolactin' },
+        { regex: /\bDHEA[- ]?S(?:ulfate)?[:\s]*(\d+\.?\d*)\s*((?:u|m)g\/dL|umol\/L)/i, marker: 'DHEA-S' },
+        { regex: /\bSHBG[:\s]*(\d+\.?\d*)\s*(nmol\/L)/i, marker: 'SHBG' },
+        { regex: /progesterone[:\s]*(\d+\.?\d*)\s*(ng\/mL)/i, marker: 'Progesterone' },
+        { regex: /cortisol[:\s]*(\d+\.?\d*)\s*(ug\/dL|nmol\/L)/i, marker: 'Cortisol' },
+        { regex: /IGF[- ]?1[:\s]*(\d+\.?\d*)\s*(ng\/mL)/i, marker: 'IGF-1' },
+        // Electrolytes
+        { regex: /sodium[:\s]*(\d+\.?\d*)\s*(mmol\/L|mEq\/L)/i, marker: 'Sodium' },
+        { regex: /potassium[:\s]*(\d+\.?\d*)\s*(mmol\/L|mEq\/L)/i, marker: 'Potassium' },
+        { regex: /calcium[:\s]*(\d+\.?\d*)\s*(mg\/dL)/i, marker: 'Calcium' },
+        { regex: /magnesium[:\s]*(\d+\.?\d*)\s*(mg\/dL)/i, marker: 'Magnesium' },
+        { regex: /phosphorus[:\s]*(\d+\.?\d*)\s*(mg\/dL)/i, marker: 'Phosphorus' },
+        { regex: /chloride[:\s]*(\d+\.?\d*)\s*(mmol\/L|mEq\/L)/i, marker: 'Chloride' },
+        { regex: /\bCO2[:\s]*(\d+\.?\d*)\s*(mmol\/L|mEq\/L)/i, marker: 'CO2' },
+        { regex: /bicarbonate[:\s]*(\d+\.?\d*)\s*(mmol\/L|mEq\/L)/i, marker: 'Bicarbonate' },
+        // Iron
+        { regex: /ferritin[:\s]*(\d+\.?\d*)\s*(ng\/mL|ug\/L)/i, marker: 'Ferritin' },
+        { regex: /\biron[:\s]*(\d+\.?\d*)\s*(ug\/dL|umol\/L)/i, marker: 'Iron' },
+        { regex: /\bTIBC[:\s]*(\d+\.?\d*)\s*(ug\/dL)/i, marker: 'TIBC' },
+        // Inflammation / misc
+        { regex: /\bCRP[:\s]*(\d+\.?\d*)\s*(mg\/L|mg\/dL)/i, marker: 'CRP' },
+        { regex: /\bESR[:\s]*(\d+\.?\d*)\s*(mm\/hr)/i, marker: 'ESR' },
+        { regex: /vitamin\s*D[:\s]*(\d+\.?\d*)\s*(ng\/mL)/i, marker: 'Vitamin D' },
+        { regex: /25-hydroxy.*?vitamin\s*D[:\s]*(\d+\.?\d*)\s*(ng\/mL)/i, marker: 'Vitamin D' },
+        { regex: /vitamin\s*B12[:\s]*(\d+\.?\d*)\s*(pg\/mL)/i, marker: 'Vitamin B12' },
+        { regex: /folate[:\s]*(\d+\.?\d*)\s*(ng\/mL)/i, marker: 'Folate' },
+        { regex: /\bPSA[:\s]*(\d+\.?\d*)\s*(ng\/mL)/i, marker: 'PSA' },
+      ];
+
+      for (const line of lines) {
+        let matched = false;
+        for (const p of patterns) {
+          const m = line.match(p.regex);
+          if (m) {
+            parsed.push({
+              marker: p.marker,
+              value: parseFloat(m[1]),
+              unit: m[2],
+            });
+            matched = true;
+            break;
+          }
+        }
+        if (!matched) {
+          unparsed.push(line);
+        }
+      }
+
+      return json(res, { parsed, unparsed });
+    }
+
+    // ── Supplements ─────────────────────────────────────────────────
+    if (method === 'GET' && pathname === '/api/supplements') {
+      return json(res, db.supplements.list({ active: true }));
+    }
+
+    if (method === 'POST' && pathname === '/api/supplements') {
+      const body = await parseBody(req);
+      if (!body.name) return error(res, 'name required');
+      return json(res, db.supplements.create(body), 201);
+    }
+
+    if (method === 'PUT' && (params = matchRoute('/api/supplements/:id', pathname))) {
+      const existing = db.supplements.getById(Number(params.id));
+      if (!existing) return error(res, 'Supplement not found', 404);
+      const body = await parseBody(req);
+      return json(res, db.supplements.update(Number(params.id), body));
+    }
+
+    if (method === 'DELETE' && (params = matchRoute('/api/supplements/:id', pathname))) {
+      const existing = db.supplements.getById(Number(params.id));
+      if (!existing) return error(res, 'Supplement not found', 404);
+      db.supplements.delete(Number(params.id));
+      return json(res, { deleted: true });
+    }
+
+    // ── Supplement Log ──────────────────────────────────────────────
+    if (method === 'POST' && pathname === '/api/supplement-log') {
+      const body = await parseBody(req);
+      if (!body.supplement_id || !body.taken_at) return error(res, 'supplement_id and taken_at required');
+      const supp = db.supplements.getById(body.supplement_id);
+      if (!supp) return error(res, 'Supplement not found', 404);
+      return json(res, db.supplementLog.create(body), 201);
+    }
+
+    if (method === 'GET' && pathname === '/api/supplement-log') {
+      const q = query(req.url);
+      const date = q.date || new Date().toISOString().slice(0, 10);
+      return json(res, db.supplementLog.listByDate(date));
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    //  FEATURE 6: Gamification (Streaks, Achievements, PRs)
+    // ════════════════════════════════════════════════════════════════
+
+    // ── Achievements ────────────────────────────────────────────────
+    if (method === 'GET' && pathname === '/api/achievements') {
+      return json(res, db.achievements.list());
+    }
+
+    if (method === 'POST' && pathname === '/api/achievements/check') {
+      const newlyUnlocked = [];
+      const allAchievements = db.achievements.list();
+      const locked = allAchievements.filter(a => !a.unlocked_at);
+      if (locked.length === 0) return json(res, { newly_unlocked: [], achievements: allAchievements });
+
+      // Gather counts from DB
+      const totalWorkouts  = getDb().prepare('SELECT COUNT(*) AS cnt FROM workouts').get().cnt;
+      const totalDoses     = getDb().prepare('SELECT COUNT(*) AS cnt FROM dose_log').get().cnt;
+      const totalBlood     = getDb().prepare('SELECT COUNT(*) AS cnt FROM blood_work').get().cnt;
+      const totalCheckins  = getDb().prepare('SELECT COUNT(*) AS cnt FROM wellness').get().cnt;
+      const totalPhotos    = getDb().prepare('SELECT COUNT(*) AS cnt FROM progress_photos').get().cnt;
+      const totalComps     = getDb().prepare('SELECT COUNT(*) AS cnt FROM competitions').get().cnt;
+      const totalPRs       = getDb().prepare('SELECT COUNT(*) AS cnt FROM one_rm_log').get().cnt;
+      const streakData     = db.streaks.get();
+      const currentStreak  = streakData ? streakData.current_streak : 0;
+
+      // Weight log days
+      const weightDays = getDb().prepare('SELECT COUNT(DISTINCT date) AS cnt FROM measurements WHERE weight IS NOT NULL').get().cnt;
+
+      // Big 3 total: best estimated_1rm for squat, bench, deadlift
+      const squat1rm = getDb().prepare(
+        "SELECT MAX(estimated_1rm) AS best FROM one_rm_log WHERE LOWER(exercise) LIKE '%squat%'"
+      ).get().best || 0;
+      const bench1rm = getDb().prepare(
+        "SELECT MAX(estimated_1rm) AS best FROM one_rm_log WHERE LOWER(exercise) LIKE '%bench%'"
+      ).get().best || 0;
+      const dead1rm = getDb().prepare(
+        "SELECT MAX(estimated_1rm) AS best FROM one_rm_log WHERE LOWER(exercise) LIKE '%deadlift%'"
+      ).get().best || 0;
+      const big3Total = squat1rm + bench1rm + dead1rm;
+
+      // Meal count (supplement_log can serve as meal proxy, but we check if a meals table exists)
+      // Since no meals table exists, first_meal stays locked unless we add one.
+      // For now use 0 — the achievement exists but cannot be unlocked yet.
+      const totalMeals = 0;
+
+      // Achievement unlock rules
+      const rules = {
+        first_workout:     totalWorkouts >= 1,
+        workouts_10:       totalWorkouts >= 10,
+        workouts_50:       totalWorkouts >= 50,
+        workouts_100:      totalWorkouts >= 100,
+        first_dose:        totalDoses >= 1,
+        doses_100:         totalDoses >= 100,
+        first_blood_panel: totalBlood >= 1,
+        blood_panels_10:   totalBlood >= 10,
+        first_pr:          totalPRs >= 1,
+        weight_logged_30:  weightDays >= 30,
+        first_competition: totalComps >= 1,
+        checkin_7:         totalCheckins >= 7,
+        checkin_30:        totalCheckins >= 30,
+        photos_5:          totalPhotos >= 5,
+        streak_3:          currentStreak >= 3,
+        streak_7:          currentStreak >= 7,
+        streak_30:         currentStreak >= 30,
+        streak_100:        currentStreak >= 100,
+        big3_1000:         big3Total >= 1000,
+        first_meal:        totalMeals >= 1,
+      };
+
+      for (const a of locked) {
+        if (rules[a.key]) {
+          db.achievements.unlock(a.key);
+          const updated = db.achievements.getByKey(a.key);
+          newlyUnlocked.push(updated);
+        }
+      }
+
+      return json(res, { newly_unlocked: newlyUnlocked, achievements: db.achievements.list() });
+    }
+
+    // ── Streaks ─────────────────────────────────────────────────────
+    if (method === 'GET' && pathname === '/api/streaks') {
+      return json(res, db.streaks.get());
+    }
+
+    if (method === 'POST' && pathname === '/api/streaks/update') {
+      const today = new Date().toISOString().slice(0, 10);
+      const streakData = db.streaks.get();
+
+      // Recount totals from source tables
+      const totalWorkouts = getDb().prepare('SELECT COUNT(*) AS cnt FROM workouts').get().cnt;
+      const totalDoses    = getDb().prepare('SELECT COUNT(*) AS cnt FROM dose_log').get().cnt;
+      const totalCheckins = getDb().prepare('SELECT COUNT(*) AS cnt FROM wellness').get().cnt;
+
+      let currentStreak = streakData.current_streak;
+      let longestStreak = streakData.longest_streak;
+      const lastDate    = streakData.last_activity_date;
+
+      if (lastDate === today) {
+        // Already counted today, just update totals
+      } else {
+        // Check if yesterday
+        const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+        if (lastDate === yesterday) {
+          currentStreak += 1;
+        } else if (!lastDate) {
+          currentStreak = 1;
+        } else {
+          // Streak broken
+          currentStreak = 1;
+        }
+        if (currentStreak > longestStreak) longestStreak = currentStreak;
+      }
+
+      const updated = db.streaks.update({
+        current_streak: currentStreak,
+        longest_streak: longestStreak,
+        last_activity_date: today,
+        total_workouts: totalWorkouts,
+        total_doses: totalDoses,
+        total_checkins: totalCheckins,
+      });
+
+      return json(res, updated);
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    //  FEATURE 7: Coach/Client Platform
+    // ════════════════════════════════════════════════════════════════
+
+    if (method === 'POST' && pathname === '/api/coach/share') {
+      const body = await parseBody(req);
+      const token = crypto.randomBytes(24).toString('hex');
+      const share = db.coachShares.create({
+        share_token: token,
+        coach_name: body.coach_name || null,
+        permissions: body.permissions || 'read',
+        sections: body.sections || ['cycles', 'blood', 'body', 'training', 'wellness'],
+      });
+      return json(res, share, 201);
+    }
+
+    if (method === 'GET' && pathname === '/api/coach/shares') {
+      return json(res, db.coachShares.list());
+    }
+
+    if (method === 'DELETE' && (params = matchRoute('/api/coach/shares/:id', pathname))) {
+      const existing = db.coachShares.getById(Number(params.id));
+      if (!existing) return error(res, 'Share not found', 404);
+      db.coachShares.revoke(Number(params.id));
+      return json(res, { revoked: true });
+    }
+
+    if (method === 'GET' && (params = matchRoute('/api/coach/view/:token', pathname))) {
+      const share = db.coachShares.getByToken(params.token);
+      if (!share) return error(res, 'Invalid or revoked share link', 404);
+
+      const sections = share.sections ? JSON.parse(share.sections) : [];
+      const data = {};
+
+      if (sections.includes('cycles')) {
+        data.cycles = db.cycles.list().map(c => {
+          const comps = db.cycleCompounds.listByCycle(c.id);
+          return { ...c, compounds: comps };
+        });
+      }
+      if (sections.includes('blood')) {
+        data.bloodWork = db.bloodWork.list().map(bw => db.bloodWork.getById(bw.id));
+      }
+      if (sections.includes('body')) {
+        data.measurements = db.measurements.list();
+        // Exclude photo_data for privacy — just metadata
+        data.photos = db.progressPhotos.list();
+      }
+      if (sections.includes('training')) {
+        data.workouts = db.workouts.list().map(w => db.workouts.getById(w.id));
+        data.oneRmLog = db.oneRmLog.list();
+      }
+      if (sections.includes('wellness')) {
+        data.wellness = db.wellness.list();
+      }
+
+      data.share = { coach_name: share.coach_name, permissions: share.permissions, sections };
+      data.notes = db.coachNotes.listByShare(share.id);
+
+      return json(res, data);
+    }
+
+    if (method === 'POST' && (params = matchRoute('/api/coach/notes/:token', pathname))) {
+      const share = db.coachShares.getByToken(params.token);
+      if (!share) return error(res, 'Invalid or revoked share link', 404);
+      if (share.permissions !== 'read_write') return error(res, 'Write permission required', 403);
+
+      const body = await parseBody(req);
+      if (!body.date || !body.note) return error(res, 'date and note required');
+
+      const note = db.coachNotes.create({
+        share_id: share.id,
+        date: body.date,
+        note: body.note,
+        from_coach: body.from_coach !== undefined ? body.from_coach : 1,
+      });
+      return json(res, note, 201);
+    }
+
+    if (method === 'GET' && (params = matchRoute('/api/coach/notes/:share_id', pathname))) {
+      return json(res, db.coachNotes.listByShare(Number(params.share_id)));
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    //  FEATURE 8: Social Features (Shareable Cards)
+    // ════════════════════════════════════════════════════════════════
+
+    if (method === 'GET' && (params = matchRoute('/api/share/workout/:id', pathname))) {
+      const workout = db.workouts.getById(Number(params.id));
+      if (!workout) return error(res, 'Workout not found', 404);
+
+      const sets = workout.sets || [];
+      const exerciseList = [...new Set(sets.map(s => s.exercise))];
+      const totalVolume = sets.reduce((sum, s) => sum + ((s.weight || 0) * (s.reps || 0)), 0);
+      const totalSets = sets.length;
+      const totalReps = sets.reduce((sum, s) => sum + (s.reps || 0), 0);
+
+      // Check for PRs: find if any set weight is the all-time max for that exercise
+      const prs = [];
+      for (const exercise of exerciseList) {
+        const exerciseSets = sets.filter(s => s.exercise === exercise);
+        const maxWeight = Math.max(...exerciseSets.map(s => s.weight || 0));
+        if (maxWeight > 0) {
+          const allTimeBest = getDb().prepare(
+            'SELECT MAX(ws.weight) AS best FROM workout_sets ws WHERE ws.exercise = ?'
+          ).get(exercise);
+          if (allTimeBest && allTimeBest.best === maxWeight) {
+            prs.push({ exercise, weight: maxWeight });
+          }
+        }
+      }
+
+      return json(res, {
+        date: workout.date,
+        name: workout.name,
+        duration_min: workout.duration_min,
+        exercises: exerciseList,
+        total_sets: totalSets,
+        total_reps: totalReps,
+        total_volume: Math.round(totalVolume),
+        prs,
+      });
+    }
+
+    if (method === 'GET' && pathname === '/api/share/progress') {
+      const allMeasurements = db.measurements.list();
+      const latest = allMeasurements[0] || null;
+      const oldest = allMeasurements[allMeasurements.length - 1] || null;
+
+      let weightChange = null;
+      let measurementChanges = {};
+      if (latest && oldest && allMeasurements.length > 1) {
+        if (latest.weight != null && oldest.weight != null) {
+          weightChange = Math.round((latest.weight - oldest.weight) * 10) / 10;
+        }
+        const bodyParts = ['neck', 'chest', 'shoulders', 'left_arm', 'right_arm', 'waist', 'hips', 'left_quad', 'right_quad', 'left_calf', 'right_calf'];
+        for (const part of bodyParts) {
+          if (latest[part] != null && oldest[part] != null) {
+            measurementChanges[part] = Math.round((latest[part] - oldest[part]) * 10) / 10;
+          }
+        }
+      }
+
+      // Current cycle info (NO compound details for privacy)
+      const allCycles = db.cycles.list();
+      const activeCycle = allCycles.find(c => !c.end_date || new Date(c.end_date) >= new Date());
+      let cycleInfo = null;
+      if (activeCycle) {
+        const weeksIn = Math.floor((Date.now() - new Date(activeCycle.start_date).getTime()) / (7 * 86400000));
+        cycleInfo = { name: activeCycle.name, type: activeCycle.type, weeks_in: weeksIn };
+      }
+
+      return json(res, {
+        current_weight: latest ? latest.weight : null,
+        current_bf: latest ? latest.body_fat : null,
+        weight_change: weightChange,
+        measurement_changes: measurementChanges,
+        total_measurements: allMeasurements.length,
+        cycle: cycleInfo,
+      });
+    }
+
+    if (method === 'GET' && (params = matchRoute('/api/share/meet/:id', pathname))) {
+      const meet = db.plMeets.getById(Number(params.id));
+      if (!meet) return error(res, 'Meet not found', 404);
+
+      return json(res, {
+        name: meet.name,
+        federation: meet.federation,
+        date: meet.date,
+        weight_class: meet.weight_class,
+        body_weight: meet.body_weight,
+        squat_best: meet.squat_best,
+        bench_best: meet.bench_best,
+        deadlift_best: meet.deadlift_best,
+        total: meet.total,
+        wilks: meet.wilks,
+        dots: meet.dots,
+        placement: meet.placement,
+      });
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    //  FEATURE 9: AI Workout Suggestions
+    // ════════════════════════════════════════════════════════════════
+
+    if (method === 'GET' && pathname === '/api/suggest/workout') {
+      const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+      const today = new Date().toISOString().slice(0, 10);
+      const recentWorkouts = db.workouts.list({ from: sevenDaysAgo, to: today });
+
+      // Build muscle-group -> last trained date map
+      const muscleLastTrained = {};
+      for (const w of recentWorkouts) {
+        const full = db.workouts.getById(w.id);
+        if (!full || !full.sets) continue;
+        for (const s of full.sets) {
+          const exName = (s.exercise || '').toLowerCase();
+          // Map exercise name to muscle groups using the exercise database
+          const exObj = exercisesModule.exercises.find(e =>
+            e.id === exName || e.name.toLowerCase() === exName ||
+            exName.includes(e.id) || e.id.includes(exName.replace(/\s+/g, '-'))
+          );
+          const muscles = exObj
+            ? [...(exObj.musclesPrimary || []), ...(exObj.musclesSecondary || [])]
+            : guessMuscleGroup(exName);
+          for (const m of muscles) {
+            if (!muscleLastTrained[m] || w.date > muscleLastTrained[m]) {
+              muscleLastTrained[m] = w.date;
+            }
+          }
+        }
+      }
+
+      // Find muscle groups NOT trained in 48+ hours
+      const cutoff = new Date(Date.now() - 48 * 3600000).toISOString().slice(0, 10);
+      const allMuscles = ['chest', 'back', 'shoulders', 'quads', 'hamstrings', 'glutes', 'biceps', 'triceps', 'calves', 'abs', 'traps'];
+      const rested = allMuscles.filter(m => !muscleLastTrained[m] || muscleLastTrained[m] <= cutoff);
+
+      // Select best template
+      const templateMuscles = {
+        push:    ['chest', 'shoulders', 'triceps'],
+        pull:    ['back', 'biceps', 'traps'],
+        legs:    ['quads', 'hamstrings', 'glutes', 'calves'],
+        'upper-body': ['chest', 'back', 'shoulders', 'biceps', 'triceps'],
+        'lower-body': ['quads', 'hamstrings', 'glutes', 'calves'],
+        'full-body': allMuscles,
+        arms:    ['biceps', 'triceps'],
+        'chest-and-back': ['chest', 'back'],
+      };
+
+      let bestTemplate = 'full-body';
+      let bestScore = 0;
+      let bestReason = 'Full body session recommended';
+
+      for (const [tid, muscles] of Object.entries(templateMuscles)) {
+        const overlap = muscles.filter(m => rested.includes(m)).length;
+        const score = overlap / muscles.length;
+        if (score > bestScore) {
+          bestScore = score;
+          bestTemplate = tid;
+          bestReason = muscles.filter(m => rested.includes(m)).join(', ');
+        }
+      }
+
+      const template = exercisesModule.TEMPLATES.find(t => t.id === bestTemplate);
+      const expanded = template ? template.exercises.map(e => {
+        const ex = exercisesModule.exercisesById[e.exerciseId];
+        return {
+          exercise: ex ? ex.name : e.exerciseId,
+          sets: e.sets,
+          reps: `${e.repsMin}-${e.repsMax}`,
+        };
+      }) : [];
+
+      // Days since last trained for rested muscles
+      const daysSinceMap = {};
+      for (const m of rested) {
+        if (muscleLastTrained[m]) {
+          daysSinceMap[m] = Math.floor((Date.now() - new Date(muscleLastTrained[m]).getTime()) / 86400000);
+        } else {
+          daysSinceMap[m] = 7; // not trained in the window
+        }
+      }
+
+      const maxDays = Math.max(...Object.values(daysSinceMap), 2);
+
+      return json(res, {
+        suggestion: template ? template.name : bestTemplate,
+        reason: `${bestReason} haven't been trained in ${maxDays}+ days`,
+        exercises: expanded,
+        estimated_duration: expanded.length * 8 + 5, // ~8 min per exercise + warmup
+        rested_muscles: rested,
+        muscle_days_since: daysSinceMap,
+        workouts_last_7_days: recentWorkouts.length,
+      });
+    }
+
+    if (method === 'GET' && pathname === '/api/suggest/deload') {
+      // Check if user needs a deload
+      const fourWeeksAgo = new Date(Date.now() - 28 * 86400000).toISOString().slice(0, 10);
+      const today = new Date().toISOString().slice(0, 10);
+      const recentWorkouts = db.workouts.list({ from: fourWeeksAgo, to: today });
+      const weeksOfTraining = recentWorkouts.length > 0 ? Math.ceil(recentWorkouts.length / 4) : 0;
+
+      // Check wellness trend (last 7 days)
+      const sevenAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+      const wellnessEntries = db.wellness.list({ from: sevenAgo, to: today });
+      let decliningWellness = false;
+      let avgEnergy = null;
+      let avgMood = null;
+
+      if (wellnessEntries.length >= 3) {
+        const energies = wellnessEntries.filter(w => w.energy != null).map(w => w.energy);
+        const moods = wellnessEntries.filter(w => w.mood != null).map(w => w.mood);
+        if (energies.length >= 3) {
+          avgEnergy = energies.reduce((a, b) => a + b, 0) / energies.length;
+          const firstHalf = energies.slice(Math.floor(energies.length / 2));
+          const secondHalf = energies.slice(0, Math.floor(energies.length / 2));
+          const avg1 = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length;
+          const avg2 = secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length;
+          if (avg2 < avg1 - 0.5) decliningWellness = true;
+        }
+        if (moods.length >= 3) {
+          avgMood = moods.reduce((a, b) => a + b, 0) / moods.length;
+        }
+      }
+
+      const needsDeload = recentWorkouts.length >= 16 || decliningWellness; // 16+ workouts in 4 weeks ~= 4/week
+      let reason = '';
+      if (recentWorkouts.length >= 16) reason += `${recentWorkouts.length} workouts in the last 4 weeks without a break. `;
+      if (decliningWellness) reason += 'Wellness scores show a declining trend. ';
+      if (!needsDeload) reason = 'Training load looks manageable. No deload needed yet.';
+
+      return json(res, {
+        needs_deload: needsDeload,
+        reason: reason.trim(),
+        workouts_last_4_weeks: recentWorkouts.length,
+        avg_energy: avgEnergy ? Math.round(avgEnergy * 10) / 10 : null,
+        avg_mood: avgMood ? Math.round(avgMood * 10) / 10 : null,
+        declining_wellness: decliningWellness,
+        recommendation: needsDeload
+          ? 'Take a deload week: reduce volume by 40-50%, keep intensity moderate, focus on recovery.'
+          : 'Continue training as planned.',
+      });
+    }
+
+    if (method === 'GET' && pathname === '/api/suggest/compound') {
+      // Based on active cycle goal, suggest compounds
+      const allCycles = db.cycles.list();
+      const activeCycle = allCycles.find(c => !c.end_date || new Date(c.end_date) >= new Date());
+      const cycleType = activeCycle ? (activeCycle.type || 'blast') : 'blast';
+
+      // Determine goal from cycle type
+      const goalMap = { blast: 'bulking', cut: 'cutting', cruise: 'trt', recomp: 'recomp', bridge: 'trt' };
+      const goal = goalMap[cycleType] || 'bulking';
+
+      // Get all compounds and filter by bestFor
+      const allCompounds = compounds.getAll();
+      const suggestions = (Array.isArray(allCompounds) ? allCompounds : [])
+        .filter(c => c.bestFor && c.bestFor.includes(goal))
+        .map(c => ({
+          id: c.id,
+          name: c.name,
+          category: c.category,
+          bestFor: c.bestFor,
+          typicalDose: c.doseMaleMin && c.doseMaleMax ? `${c.doseMaleMin}-${c.doseMaleMax} mg` : null,
+          frequency: c.frequencyDisplay,
+          aromatization: c.aromatization || 'none',
+          liverToxicity: c.liverToxicity,
+          halfLife: c.halfLifeDisplay,
+          notes: c.notes,
+        }));
+
+      return json(res, {
+        goal,
+        cycle: activeCycle ? { name: activeCycle.name, type: activeCycle.type } : null,
+        suggestions,
+        disclaimer: 'This is educational information only, NOT a prescription. Consult a medical professional before using any compounds.',
+      });
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    //  FEATURE 10: Analytics Dashboard
+    // ════════════════════════════════════════════════════════════════
+
+    if (method === 'GET' && pathname === '/api/analytics') {
+      const now = new Date();
+      const today = now.toISOString().slice(0, 10);
+
+      // ─── Training analytics ───────────────────────────────────────
+      const allWorkouts = db.workouts.list();
+      const totalWorkouts = allWorkouts.length;
+
+      // This week (Mon-Sun)
+      const dayOfWeek = now.getDay() || 7; // 1=Mon...7=Sun
+      const weekStart = new Date(now.getTime() - (dayOfWeek - 1) * 86400000).toISOString().slice(0, 10);
+      const workoutsThisWeek = allWorkouts.filter(w => w.date >= weekStart).length;
+
+      // Total volume & avg duration
+      let totalVolume = 0;
+      let totalDuration = 0;
+      let durationCount = 0;
+      const muscleGroupSets = {};
+      const exerciseStats = {};
+
+      for (const w of allWorkouts) {
+        if (w.duration_min) { totalDuration += w.duration_min; durationCount++; }
+        const full = db.workouts.getById(w.id);
+        if (!full || !full.sets) continue;
+        for (const s of full.sets) {
+          const vol = (s.weight || 0) * (s.reps || 0);
+          totalVolume += vol;
+
+          // Exercise stats
+          if (!exerciseStats[s.exercise]) exerciseStats[s.exercise] = { exercise: s.exercise, totalSets: 0, totalVolume: 0 };
+          exerciseStats[s.exercise].totalSets++;
+          exerciseStats[s.exercise].totalVolume += vol;
+
+          // Muscle group balance
+          const exObj = exercisesModule.exercises.find(e =>
+            e.id === (s.exercise || '').toLowerCase().replace(/\s+/g, '-') ||
+            e.name.toLowerCase() === (s.exercise || '').toLowerCase()
+          );
+          const primaryMuscles = exObj ? exObj.musclesPrimary : guessMuscleGroup((s.exercise || '').toLowerCase());
+          for (const m of primaryMuscles) {
+            muscleGroupSets[m] = (muscleGroupSets[m] || 0) + 1;
+          }
+        }
+      }
+
+      // Volume trend — last 4 weeks
+      const volumeTrend = [];
+      for (let i = 3; i >= 0; i--) {
+        const wStart = new Date(now.getTime() - (dayOfWeek - 1 + i * 7) * 86400000).toISOString().slice(0, 10);
+        const wEnd = new Date(now.getTime() - (dayOfWeek - 1 + (i - 1) * 7) * 86400000).toISOString().slice(0, 10);
+        const weekWorkouts = allWorkouts.filter(w => w.date >= wStart && w.date < wEnd);
+        let weekVol = 0;
+        for (const w of weekWorkouts) {
+          const full = db.workouts.getById(w.id);
+          if (full && full.sets) {
+            for (const s of full.sets) weekVol += (s.weight || 0) * (s.reps || 0);
+          }
+        }
+        volumeTrend.push({ week_start: wStart, volume: Math.round(weekVol) });
+      }
+
+      const topExercises = Object.values(exerciseStats)
+        .sort((a, b) => b.totalVolume - a.totalVolume)
+        .slice(0, 10)
+        .map(e => ({ ...e, totalVolume: Math.round(e.totalVolume) }));
+
+      // ─── Body analytics ───────────────────────────────────────────
+      const allMeasurements = db.measurements.list();
+      const latestMeasure = allMeasurements[0] || {};
+      const currentWeight = latestMeasure.weight || null;
+      const currentBF = latestMeasure.body_fat || null;
+      const leanMass = (currentWeight && currentBF) ? Math.round(currentWeight * (1 - currentBF / 100) * 10) / 10 : null;
+
+      // Weight change 30d / 90d
+      const date30 = new Date(now.getTime() - 30 * 86400000).toISOString().slice(0, 10);
+      const date90 = new Date(now.getTime() - 90 * 86400000).toISOString().slice(0, 10);
+      const measure30 = allMeasurements.find(m => m.date <= date30 && m.weight != null);
+      const measure90 = allMeasurements.find(m => m.date <= date90 && m.weight != null);
+
+      const weightChange30d = (currentWeight && measure30 && measure30.weight) ? Math.round((currentWeight - measure30.weight) * 10) / 10 : null;
+      const weightChange90d = (currentWeight && measure90 && measure90.weight) ? Math.round((currentWeight - measure90.weight) * 10) / 10 : null;
+
+      // Measurement changes (latest vs earliest)
+      const measurementChanges = {};
+      if (allMeasurements.length > 1) {
+        const oldest = allMeasurements[allMeasurements.length - 1];
+        const bodyParts = ['neck', 'chest', 'shoulders', 'left_arm', 'right_arm', 'waist', 'hips', 'left_quad', 'right_quad', 'left_calf', 'right_calf'];
+        for (const part of bodyParts) {
+          if (latestMeasure[part] != null && oldest[part] != null) {
+            measurementChanges[part] = Math.round((latestMeasure[part] - oldest[part]) * 10) / 10;
+          }
+        }
+      }
+
+      // ─── Compounds analytics ──────────────────────────────────────
+      const allCycles = db.cycles.list();
+      const activeCycle = allCycles.find(c => !c.end_date || new Date(c.end_date) >= new Date());
+      let compoundsAnalytics = { activeCycle: null, weeksIn: 0, compoundsRunning: 0, totalWeeklyMg: 0, doseCompliance: null };
+
+      if (activeCycle) {
+        const weeksIn = Math.max(1, Math.floor((Date.now() - new Date(activeCycle.start_date).getTime()) / (7 * 86400000)));
+        const cycleCompounds = db.cycleCompounds.listByCycle(activeCycle.id);
+
+        // Calculate total weekly mg
+        let totalWeeklyMg = 0;
+        let expectedDosesTotal = 0;
+        for (const cc of cycleCompounds) {
+          // Parse frequency to weekly multiplier
+          const freqMap = { 'eod': 3.5, 'e3.5d': 2, 'e3d': 2.33, 'e5d': 1.4, 'e7d': 1, 'ed': 7, 'e2w': 0.5, '2x/week': 2, '3x/week': 3 };
+          const weeklyDoses = freqMap[(cc.frequency || '').toLowerCase()] || 2;
+          totalWeeklyMg += cc.dose_mg * weeklyDoses;
+          expectedDosesTotal += weeklyDoses * weeksIn;
+        }
+
+        // Dose compliance
+        const cycleDoses = db.doseLog.list({ from: activeCycle.start_date, to: today });
+        const actualDoses = cycleDoses.length;
+        const compliance = expectedDosesTotal > 0 ? Math.round((actualDoses / expectedDosesTotal) * 100) : null;
+
+        compoundsAnalytics = {
+          activeCycle: activeCycle.name,
+          weeksIn,
+          compoundsRunning: cycleCompounds.length,
+          totalWeeklyMg: Math.round(totalWeeklyMg),
+          doseCompliance: compliance,
+        };
+      }
+
+      // ─── Health analytics ─────────────────────────────────────────
+      const allBlood = db.bloodWork.list();
+      const lastBlood = allBlood[0] || null;
+      const daysSinceBloodWork = lastBlood ? Math.floor((Date.now() - new Date(lastBlood.date).getTime()) / 86400000) : null;
+
+      // Flagged markers from last blood panel
+      const flaggedMarkers = [];
+      if (lastBlood) {
+        const panel = db.bloodWork.getById(lastBlood.id);
+        if (panel && panel.markers) {
+          for (const m of panel.markers) {
+            if (m.flag && m.flag !== 'normal') {
+              flaggedMarkers.push({ marker: m.marker, value: m.value, unit: m.unit, status: m.flag });
+            }
+          }
+        }
+      }
+
+      // Readiness avg 7d
+      const sevenAgo = new Date(now.getTime() - 7 * 86400000).toISOString().slice(0, 10);
+      const wellnessEntries = db.wellness.list({ from: sevenAgo, to: today });
+      let readinessAvg7d = null;
+
+      const wellnessTrend = { energy: [], mood: [], sleep_quality: [], stress: [], libido: [] };
+      if (wellnessEntries.length > 0) {
+        let readinessSum = 0;
+        for (const entry of wellnessEntries) {
+          const sleep_score     = Math.min(20, ((entry.sleep_hours || 0) / 8.0) * 20);
+          const sleep_qual_score = ((entry.sleep_quality || 0) / 5) * 15;
+          const energy_score    = ((entry.energy || 0) / 5) * 20;
+          const mood_score      = ((entry.mood || 0) / 5) * 10;
+          const libido_score    = ((entry.libido || 0) / 5) * 5;
+          const joint_score     = ((6 - (entry.joint_pain || 0)) / 5) * 15;
+          const appetite_score  = ((entry.appetite || 0) / 5) * 5;
+          const stress_score    = ((6 - (entry.stress || 0)) / 5) * 10;
+          const total = Math.min(100, Math.max(0, sleep_score + sleep_qual_score + energy_score + mood_score + libido_score + joint_score + appetite_score + stress_score));
+          readinessSum += total;
+
+          wellnessTrend.energy.push(entry.energy);
+          wellnessTrend.mood.push(entry.mood);
+          wellnessTrend.sleep_quality.push(entry.sleep_quality);
+          wellnessTrend.stress.push(entry.stress);
+          wellnessTrend.libido.push(entry.libido);
+        }
+        readinessAvg7d = Math.round(readinessSum / wellnessEntries.length * 10) / 10;
+      }
+
+      // ─── Achievements analytics ───────────────────────────────────
+      const allAchievements = db.achievements.list();
+      const unlockedAchievements = allAchievements.filter(a => a.unlocked_at);
+      const recentUnlocks = unlockedAchievements
+        .sort((a, b) => (b.unlocked_at || '').localeCompare(a.unlocked_at || ''))
+        .slice(0, 5)
+        .map(a => ({ name: a.name, icon: a.icon, unlocked_at: a.unlocked_at }));
+      const streakData = db.streaks.get();
+
+      return json(res, {
+        training: {
+          totalWorkouts,
+          totalVolume: Math.round(totalVolume),
+          avgDuration: durationCount > 0 ? Math.round(totalDuration / durationCount) : null,
+          workoutsThisWeek,
+          volumeTrend,
+          topExercises,
+          muscleGroupBalance: muscleGroupSets,
+        },
+        body: {
+          currentWeight,
+          weightChange30d,
+          weightChange90d,
+          currentBF,
+          leanMass,
+          measurementChanges,
+        },
+        compounds: compoundsAnalytics,
+        health: {
+          lastBloodWork: lastBlood ? lastBlood.date : null,
+          daysSinceBloodWork,
+          flaggedMarkers,
+          readinessAvg7d,
+          wellnessTrend,
+        },
+        achievements: {
+          totalUnlocked: unlockedAchievements.length,
+          totalAvailable: allAchievements.length,
+          recentUnlocks,
+          currentStreak: streakData ? streakData.current_streak : 0,
+        },
+      });
     }
 
     // ── 404 ─────────────────────────────────────────────────────────

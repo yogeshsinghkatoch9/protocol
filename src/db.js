@@ -260,6 +260,81 @@ function initDb() {
       coach_contact TEXT,
       updated_at TEXT DEFAULT (datetime('now'))
     );
+
+    -- Dose reminders
+    CREATE TABLE IF NOT EXISTS reminders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      compound_id TEXT NOT NULL,
+      label TEXT NOT NULL,
+      frequency_hours REAL NOT NULL,
+      time_of_day TEXT,
+      enabled INTEGER DEFAULT 1,
+      last_reminded TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- Supplement stack
+    CREATE TABLE IF NOT EXISTS supplements (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      category TEXT,
+      dose TEXT,
+      frequency TEXT,
+      time_of_day TEXT,
+      purpose TEXT,
+      active INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS supplement_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      supplement_id INTEGER REFERENCES supplements(id) ON DELETE CASCADE,
+      taken_at TEXT NOT NULL,
+      notes TEXT
+    );
+
+    -- Achievements (gamification)
+    CREATE TABLE IF NOT EXISTS achievements (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      key TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      description TEXT,
+      icon TEXT,
+      unlocked_at TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- Streaks (gamification)
+    CREATE TABLE IF NOT EXISTS streaks (
+      id INTEGER PRIMARY KEY DEFAULT 1,
+      current_streak INTEGER DEFAULT 0,
+      longest_streak INTEGER DEFAULT 0,
+      last_activity_date TEXT,
+      total_workouts INTEGER DEFAULT 0,
+      total_doses INTEGER DEFAULT 0,
+      total_checkins INTEGER DEFAULT 0,
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- Coach/Client sharing
+    CREATE TABLE IF NOT EXISTS coach_shares (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      share_token TEXT NOT NULL UNIQUE,
+      coach_name TEXT,
+      permissions TEXT DEFAULT 'read',
+      sections TEXT,
+      active INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS coach_notes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      share_id INTEGER REFERENCES coach_shares(id) ON DELETE CASCADE,
+      date TEXT NOT NULL,
+      note TEXT NOT NULL,
+      from_coach INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
   `);
 
   // Seed default profile row if missing
@@ -272,6 +347,48 @@ function initDb() {
   const spRow = db.prepare('SELECT id FROM sport_profile WHERE id = 1').get();
   if (!spRow) {
     db.prepare('INSERT INTO sport_profile (id) VALUES (1)').run();
+  }
+
+  // Seed default streaks row if missing
+  const streakRow = db.prepare('SELECT id FROM streaks WHERE id = 1').get();
+  if (!streakRow) {
+    db.prepare('INSERT INTO streaks (id) VALUES (1)').run();
+  }
+
+  // Seed achievements if table is empty
+  const achievementCount = db.prepare('SELECT COUNT(*) AS cnt FROM achievements').get();
+  if (achievementCount.cnt === 0) {
+    const seedAchievements = [
+      ['first_workout',      'First Blood',             'Complete your first workout',              '\uD83D\uDCAA'],
+      ['streak_3',           'Consistency',             '3-day activity streak',                     '\uD83D\uDD25'],
+      ['streak_7',           'Iron Week',               '7-day activity streak',                     '\u26A1'],
+      ['streak_30',          'Machine',                 '30-day activity streak',                    '\uD83C\uDFC6'],
+      ['streak_100',         'Unstoppable',             '100-day activity streak',                   '\uD83D\uDC51'],
+      ['workouts_10',        'Getting Started',         'Complete 10 workouts',                      '\uD83C\uDFAF'],
+      ['workouts_50',        'Dedicated',               'Complete 50 workouts',                      '\uD83D\uDC8E'],
+      ['workouts_100',       'Century',                 'Complete 100 workouts',                     '\uD83C\uDF1F'],
+      ['first_dose',         'On Protocol',             'Log your first dose',                       '\uD83D\uDC89'],
+      ['doses_100',          'Committed',               'Log 100 doses',                             '\uD83D\uDCCA'],
+      ['first_blood_panel',  'Data Driven',             'Submit your first blood panel',             '\uD83E\uDE78'],
+      ['blood_panels_10',    'Health Conscious',        'Submit 10 blood panels',                    '\u2764\uFE0F'],
+      ['first_pr',           'New Record',              'Set your first PR',                         '\uD83C\uDFC5'],
+      ['weight_logged_30',   'Scale Warrior',           'Log weight 30 days',                        '\u2696\uFE0F'],
+      ['first_competition',  'Competitor',              'Register for a competition',                '\uD83C\uDFDF\uFE0F'],
+      ['checkin_7',          'Self-Aware',              'Complete 7 wellness check-ins',             '\uD83E\uDDE0'],
+      ['checkin_30',         'Mindful',                 'Complete 30 wellness check-ins',            '\uD83E\uDDD8'],
+      ['photos_5',           'Documenting Progress',    'Take 5 progress photos',                    '\uD83D\uDCF8'],
+      ['big3_1000',          '1000lb Club',             'Squat+Bench+Deadlift total >= 1000lbs',     '\uD83E\uDDBE'],
+      ['first_meal',         'Fueled',                  'Log your first meal',                       '\uD83C\uDF7D\uFE0F'],
+    ];
+    const insertAch = db.prepare(
+      'INSERT INTO achievements (key, name, description, icon) VALUES (?, ?, ?, ?)'
+    );
+    const seedTxn = db.transaction(() => {
+      for (const a of seedAchievements) {
+        insertAch.run(a[0], a[1], a[2], a[3]);
+      }
+    });
+    seedTxn();
   }
 
   return db;
@@ -890,6 +1007,202 @@ const sportProfile = {
 };
 
 // ---------------------------------------------------------------------------
+// Reminders
+// ---------------------------------------------------------------------------
+const reminders = {
+  list() {
+    return getDb().prepare('SELECT * FROM reminders ORDER BY created_at DESC').all();
+  },
+  getById(id) {
+    return getDb().prepare('SELECT * FROM reminders WHERE id = ?').get(id);
+  },
+  create({ compound_id, label, frequency_hours, time_of_day = null }) {
+    const info = getDb().prepare(
+      'INSERT INTO reminders (compound_id, label, frequency_hours, time_of_day) VALUES (?, ?, ?, ?)'
+    ).run(compound_id, label, frequency_hours, time_of_day);
+    return this.getById(info.lastInsertRowid);
+  },
+  update(id, fields) {
+    const allowed = ['compound_id', 'label', 'frequency_hours', 'time_of_day', 'enabled', 'last_reminded'];
+    const sets = [];
+    const vals = {};
+    for (const key of allowed) {
+      if (fields[key] !== undefined) {
+        sets.push(`${key} = @${key}`);
+        vals[key] = fields[key];
+      }
+    }
+    if (sets.length === 0) return this.getById(id);
+    vals.id = id;
+    getDb().prepare(`UPDATE reminders SET ${sets.join(', ')} WHERE id = @id`).run(vals);
+    return this.getById(id);
+  },
+  delete(id) {
+    return getDb().prepare('DELETE FROM reminders WHERE id = ?').run(id);
+  },
+  getDue() {
+    return getDb().prepare(`
+      SELECT * FROM reminders
+      WHERE enabled = 1
+        AND (
+          last_reminded IS NULL
+          OR datetime(last_reminded, '+' || CAST(ROUND(frequency_hours * 60) AS INTEGER) || ' minutes') <= datetime('now')
+        )
+      ORDER BY created_at ASC
+    `).all();
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Supplements
+// ---------------------------------------------------------------------------
+const supplements = {
+  list({ active } = {}) {
+    if (active !== undefined) {
+      return getDb().prepare('SELECT * FROM supplements WHERE active = ? ORDER BY name ASC').all(active ? 1 : 0);
+    }
+    return getDb().prepare('SELECT * FROM supplements ORDER BY name ASC').all();
+  },
+  getById(id) {
+    return getDb().prepare('SELECT * FROM supplements WHERE id = ?').get(id);
+  },
+  create({ name, category = null, dose = null, frequency = null, time_of_day = null, purpose = null, active = 1 }) {
+    const info = getDb().prepare(
+      `INSERT INTO supplements (name, category, dose, frequency, time_of_day, purpose, active)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`
+    ).run(name, category, dose, frequency, time_of_day, purpose, active);
+    return this.getById(info.lastInsertRowid);
+  },
+  update(id, fields) {
+    const allowed = ['name', 'category', 'dose', 'frequency', 'time_of_day', 'purpose', 'active'];
+    const sets = [];
+    const vals = {};
+    for (const key of allowed) {
+      if (fields[key] !== undefined) {
+        sets.push(`${key} = @${key}`);
+        vals[key] = fields[key];
+      }
+    }
+    if (sets.length === 0) return this.getById(id);
+    vals.id = id;
+    getDb().prepare(`UPDATE supplements SET ${sets.join(', ')} WHERE id = @id`).run(vals);
+    return this.getById(id);
+  },
+  delete(id) {
+    return getDb().prepare('DELETE FROM supplements WHERE id = ?').run(id);
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Supplement Log
+// ---------------------------------------------------------------------------
+const supplementLog = {
+  listByDate(date) {
+    // Match entries whose taken_at starts with the given YYYY-MM-DD
+    return getDb().prepare(
+      "SELECT sl.*, s.name AS supplement_name, s.dose, s.category FROM supplement_log sl JOIN supplements s ON s.id = sl.supplement_id WHERE sl.taken_at LIKE ? ORDER BY sl.taken_at DESC"
+    ).all(date + '%');
+  },
+  getById(id) {
+    return getDb().prepare('SELECT * FROM supplement_log WHERE id = ?').get(id);
+  },
+  create({ supplement_id, taken_at, notes = null }) {
+    const info = getDb().prepare(
+      'INSERT INTO supplement_log (supplement_id, taken_at, notes) VALUES (?, ?, ?)'
+    ).run(supplement_id, taken_at, notes);
+    return this.getById(info.lastInsertRowid);
+  },
+  delete(id) {
+    return getDb().prepare('DELETE FROM supplement_log WHERE id = ?').run(id);
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Achievements
+// ---------------------------------------------------------------------------
+const achievements = {
+  list() {
+    return getDb().prepare('SELECT * FROM achievements ORDER BY id ASC').all();
+  },
+  getByKey(key) {
+    return getDb().prepare('SELECT * FROM achievements WHERE key = ?').get(key);
+  },
+  unlock(key) {
+    const now = new Date().toISOString();
+    getDb().prepare('UPDATE achievements SET unlocked_at = ? WHERE key = ? AND unlocked_at IS NULL').run(now, key);
+    return this.getByKey(key);
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Streaks
+// ---------------------------------------------------------------------------
+const streaks = {
+  get() {
+    return getDb().prepare('SELECT * FROM streaks WHERE id = 1').get();
+  },
+  update(fields) {
+    const allowed = ['current_streak', 'longest_streak', 'last_activity_date', 'total_workouts', 'total_doses', 'total_checkins'];
+    const sets = [];
+    const vals = {};
+    for (const key of allowed) {
+      if (fields[key] !== undefined) {
+        sets.push(`${key} = @${key}`);
+        vals[key] = fields[key];
+      }
+    }
+    if (sets.length === 0) return this.get();
+    sets.push("updated_at = datetime('now')");
+    getDb().prepare(`UPDATE streaks SET ${sets.join(', ')} WHERE id = 1`).run(vals);
+    return this.get();
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Coach Shares
+// ---------------------------------------------------------------------------
+const coachShares = {
+  list() {
+    return getDb().prepare('SELECT * FROM coach_shares WHERE active = 1 ORDER BY created_at DESC').all();
+  },
+  getById(id) {
+    return getDb().prepare('SELECT * FROM coach_shares WHERE id = ?').get(id);
+  },
+  getByToken(token) {
+    return getDb().prepare('SELECT * FROM coach_shares WHERE share_token = ? AND active = 1').get(token);
+  },
+  create({ share_token, coach_name = null, permissions = 'read', sections = null }) {
+    const sectionsJson = sections && typeof sections !== 'string' ? JSON.stringify(sections) : sections;
+    const info = getDb().prepare(
+      'INSERT INTO coach_shares (share_token, coach_name, permissions, sections) VALUES (?, ?, ?, ?)'
+    ).run(share_token, coach_name, permissions, sectionsJson);
+    return this.getById(info.lastInsertRowid);
+  },
+  revoke(id) {
+    getDb().prepare('UPDATE coach_shares SET active = 0 WHERE id = ?').run(id);
+    return this.getById(id);
+  },
+  delete(id) {
+    return getDb().prepare('DELETE FROM coach_shares WHERE id = ?').run(id);
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Coach Notes
+// ---------------------------------------------------------------------------
+const coachNotes = {
+  listByShare(shareId) {
+    return getDb().prepare('SELECT * FROM coach_notes WHERE share_id = ? ORDER BY created_at DESC').all(shareId);
+  },
+  create({ share_id, date, note, from_coach = 1 }) {
+    const info = getDb().prepare(
+      'INSERT INTO coach_notes (share_id, date, note, from_coach) VALUES (?, ?, ?, ?)'
+    ).run(share_id, date, note, from_coach ? 1 : 0);
+    return getDb().prepare('SELECT * FROM coach_notes WHERE id = ?').get(info.lastInsertRowid);
+  }
+};
+
+// ---------------------------------------------------------------------------
 // Exports
 // ---------------------------------------------------------------------------
 module.exports = {
@@ -914,5 +1227,12 @@ module.exports = {
   plMeets,
   oneRmLog,
   strongmanEvents,
-  sportProfile
+  sportProfile,
+  reminders,
+  supplements,
+  supplementLog,
+  achievements,
+  streaks,
+  coachShares,
+  coachNotes
 };
