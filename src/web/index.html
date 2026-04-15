@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>PROTOCOL</title>
-<meta name="theme-color" content="#09090b">
+<meta name="theme-color" content="#0A0A0A">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="/manifest.json">
@@ -16,14 +16,14 @@
    ═══════════════════════════════════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#09090b;--bg2:#111113;--bg3:#18181b;--bg4:#27272a;
-  --accent:#3b82f6;--accent2:#2563eb;--accent-glow:rgba(59,130,246,.1);
+  --bg:#0A0A0A;--bg2:#111111;--bg3:#1a1a1a;--bg4:#2a2a2a;
+  --accent:#0066FF;--accent2:#0052cc;--accent-glow:rgba(0,102,255,.12);
   --teal:#10b981;--teal-glow:rgba(16,185,129,.1);
-  --red:#ef4444;--red-glow:rgba(239,68,68,.1);
+  --red:#FF4500;--red-glow:rgba(255,69,0,.1);
   --amber:#f59e0b;--amber-glow:rgba(245,158,11,.1);
-  --text:#fafafa;--text2:#a1a1aa;--text3:#52525b;
-  --card:#111113;--card-border:#27272a;
-  --card-hover:#18181b;
+  --text:#F5F5F5;--text2:#a0a0a0;--text3:#555555;
+  --card:#111111;--card-border:#222222;
+  --card-hover:#1a1a1a;
   --radius:8px;--radius-sm:6px;--radius-lg:12px;
   --shadow:0 0 0 1px var(--card-border);
   --tab-h:56px;
@@ -299,6 +299,25 @@ details summary{background:var(--bg3) !important;color:var(--text) !important}
 
     <!-- Interaction Warnings -->
     <div id="home-warnings" class="mt-12"></div>
+
+    <!-- Overview Charts -->
+    <div class="mt-16">
+      <div class="section-hdr">Weekly Overview</div>
+      <div class="card" style="padding:8px">
+        <canvas id="chart-home-weekly" height="140"></canvas>
+      </div>
+    </div>
+
+    <div class="grid-2 mt-12">
+      <div class="card" style="padding:8px">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;padding:6px 8px">Weight Trend</div>
+        <canvas id="chart-home-weight" height="100"></canvas>
+      </div>
+      <div class="card" style="padding:8px">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;padding:6px 8px">Readiness</div>
+        <canvas id="chart-home-readiness" height="100"></canvas>
+      </div>
+    </div>
 
     <!-- Recent Activity -->
     <div class="mt-16">
@@ -1562,7 +1581,210 @@ async function loadHome() {
       }
     } catch(e) {}
 
+    // Render home overview charts
+    renderHomeCharts();
+
   } catch(e) { console.error('Home load error', e); }
+}
+
+function renderHomeCharts() {
+  // Weekly activity bar chart
+  const weeklyCanvas = document.getElementById('chart-home-weekly');
+  if (weeklyCanvas) {
+    const ctx = weeklyCanvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const w = weeklyCanvas.parentElement.clientWidth - 16;
+    const h = 140;
+    weeklyCanvas.width = w * dpr;
+    weeklyCanvas.height = h * dpr;
+    weeklyCanvas.style.width = w + 'px';
+    weeklyCanvas.style.height = h + 'px';
+    ctx.scale(dpr, dpr);
+
+    const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const barW = (w - 60) / 7;
+    const maxVal = 5;
+
+    // Get this week's data (doses + workouts + check-ins)
+    const today = new Date();
+    const dayOfWeek = (today.getDay() + 6) % 7;
+    const data = new Array(7).fill(0);
+
+    // Count activities per day from recent data
+    try {
+      const doses = S.doses || [];
+      const workouts = S.workouts || [];
+      doses.forEach(d => {
+        const dd = new Date(d.taken_at);
+        const diff = Math.floor((today - dd) / 86400000);
+        if (diff >= 0 && diff < 7) {
+          const idx = (dayOfWeek - diff + 7) % 7;
+          data[idx]++;
+        }
+      });
+      workouts.forEach(wo => {
+        const dd = new Date(wo.date);
+        const diff = Math.floor((today - dd) / 86400000);
+        if (diff >= 0 && diff < 7) {
+          const idx = (dayOfWeek - diff + 7) % 7;
+          data[idx]++;
+        }
+      });
+    } catch(e) {}
+
+    const actualMax = Math.max(...data, 1);
+
+    ctx.fillStyle = 'rgba(255,255,255,.03)';
+    ctx.fillRect(0, 0, w, h);
+
+    // Grid lines
+    for (let i = 0; i < 4; i++) {
+      const y = 20 + (i / 3) * (h - 40);
+      ctx.strokeStyle = 'rgba(255,255,255,.04)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(40, y);
+      ctx.lineTo(w - 10, y);
+      ctx.stroke();
+    }
+
+    // Bars
+    days.forEach((day, i) => {
+      const x = 40 + i * barW + barW * 0.2;
+      const barWidth = barW * 0.6;
+      const val = data[i];
+      const barH = Math.max(2, (val / actualMax) * (h - 50));
+      const y = h - 20 - barH;
+
+      // Bar
+      const isToday = i === dayOfWeek;
+      ctx.fillStyle = isToday ? '#0066FF' : (val > 0 ? 'rgba(0,102,255,.4)' : 'rgba(255,255,255,.04)');
+      ctx.beginPath();
+      ctx.roundRect(x, y, barWidth, barH, 3);
+      ctx.fill();
+
+      // Day label
+      ctx.fillStyle = isToday ? '#F5F5F5' : 'rgba(255,255,255,.25)';
+      ctx.font = '10px Outfit';
+      ctx.textAlign = 'center';
+      ctx.fillText(day, x + barWidth / 2, h - 4);
+    });
+
+    // Y-axis label
+    ctx.fillStyle = 'rgba(255,255,255,.15)';
+    ctx.font = '9px JetBrains Mono';
+    ctx.textAlign = 'right';
+    ctx.fillText(actualMax.toString(), 32, 25);
+    ctx.fillText('0', 32, h - 18);
+  }
+
+  // Weight trend mini chart
+  const weightCanvas = document.getElementById('chart-home-weight');
+  if (weightCanvas) {
+    const ctx = weightCanvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const w = weightCanvas.parentElement.clientWidth - 16;
+    const h2 = 100;
+    weightCanvas.width = w * dpr;
+    weightCanvas.height = h2 * dpr;
+    weightCanvas.style.width = w + 'px';
+    weightCanvas.style.height = h2 + 'px';
+    ctx.scale(dpr, dpr);
+
+    ctx.fillStyle = 'rgba(255,255,255,.02)';
+    ctx.fillRect(0, 0, w, h2);
+
+    const measurements = S.measurements || [];
+    if (measurements.length >= 2) {
+      const weights = measurements.filter(m => m.weight).slice(-14).map(m => m.weight);
+      const mn = Math.min(...weights) - 2;
+      const mx = Math.max(...weights) + 2;
+      const range = mx - mn || 1;
+
+      ctx.beginPath();
+      ctx.moveTo(10, h2 - 10 - ((weights[0] - mn) / range) * (h2 - 30));
+      weights.forEach((v, i) => {
+        const x = 10 + (i / (weights.length - 1)) * (w - 20);
+        const y = h2 - 10 - ((v - mn) / range) * (h2 - 30);
+        ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = '#0066FF';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Fill gradient
+      ctx.lineTo(w - 10, h2 - 10);
+      ctx.lineTo(10, h2 - 10);
+      ctx.closePath();
+      const grad = ctx.createLinearGradient(0, 0, 0, h2);
+      grad.addColorStop(0, 'rgba(0,102,255,.15)');
+      grad.addColorStop(1, 'rgba(0,102,255,0)');
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Current weight
+      ctx.fillStyle = '#F5F5F5';
+      ctx.font = '600 16px JetBrains Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText(weights[weights.length - 1] + '', w / 2, 20);
+    } else {
+      ctx.fillStyle = 'rgba(255,255,255,.1)';
+      ctx.font = '11px Outfit';
+      ctx.textAlign = 'center';
+      ctx.fillText('Log 2+ weights', w / 2, h2 / 2);
+    }
+  }
+
+  // Readiness mini chart
+  const readCanvas = document.getElementById('chart-home-readiness');
+  if (readCanvas) {
+    const ctx = readCanvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const w = readCanvas.parentElement.clientWidth - 16;
+    const h3 = 100;
+    readCanvas.width = w * dpr;
+    readCanvas.height = h3 * dpr;
+    readCanvas.style.width = w + 'px';
+    readCanvas.style.height = h3 + 'px';
+    ctx.scale(dpr, dpr);
+
+    ctx.fillStyle = 'rgba(255,255,255,.02)';
+    ctx.fillRect(0, 0, w, h3);
+
+    // Show readiness score as gauge
+    const score = S.readinessScore || 0;
+    const centerX = w / 2;
+    const centerY = h3 / 2 + 10;
+    const radius = 30;
+
+    // Background arc
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, Math.PI, 2 * Math.PI);
+    ctx.strokeStyle = 'rgba(255,255,255,.06)';
+    ctx.lineWidth = 6;
+    ctx.stroke();
+
+    // Score arc
+    if (score > 0) {
+      const angle = Math.PI + (score / 100) * Math.PI;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, Math.PI, angle);
+      ctx.strokeStyle = score >= 80 ? '#10b981' : score >= 60 ? '#f59e0b' : '#FF4500';
+      ctx.lineWidth = 6;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+    }
+
+    // Score number
+    ctx.fillStyle = '#F5F5F5';
+    ctx.font = '600 18px JetBrains Mono';
+    ctx.textAlign = 'center';
+    ctx.fillText(score > 0 ? score.toString() : '--', centerX, centerY - 4);
+
+    ctx.fillStyle = 'rgba(255,255,255,.2)';
+    ctx.font = '9px Outfit';
+    ctx.fillText('READINESS', centerX, centerY + 14);
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
