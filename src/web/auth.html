@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PROTOCOL - Sign In</title>
+<meta name="theme-color" content="#08080c">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08080c;--bg2:#0e0e14;--bg3:#16161f;--bg4:#1c1c28;
+  --accent:#e94e1b;--accent2:#ff6a3a;--accent-glow:rgba(233,78,27,.15);
+  --teal:#2dd4a8;--teal-glow:rgba(45,212,168,.15);
+  --red:#ef4444;--red-glow:rgba(239,68,68,.12);
+  --amber:#f59e0b;
+  --text:#f0eff4;--text2:#8b8a96;--text3:#4a4958;
+  --card:rgba(255,255,255,.025);--card-border:rgba(255,255,255,.06);
+  --radius:10px;--radius-sm:6px;--radius-lg:14px;
+  --font-display:'Bebas Neue',Impact,sans-serif;
+  --font-body:'DM Sans',system-ui,sans-serif;
+}
+
+html,body{
+  height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:14px;
+  line-height:1.55;
+  -webkit-tap-highlight-color:transparent;
+}
+
+body{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(233,78,27,.04) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(45,212,168,.02) 0%, transparent 50%);
+  overflow-y:auto;
+  min-height:100%;
+}
+
+/* Floating particles background */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(1px 1px at 20% 30%, rgba(233,78,27,.3), transparent),
+    radial-gradient(1px 1px at 80% 20%, rgba(45,212,168,.2), transparent),
+    radial-gradient(1px 1px at 40% 70%, rgba(233,78,27,.15), transparent),
+    radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,.08), transparent),
+    radial-gradient(1px 1px at 10% 80%, rgba(45,212,168,.15), transparent),
+    radial-gradient(1px 1px at 90% 90%, rgba(233,78,27,.2), transparent);
+  pointer-events:none;
+  z-index:0;
+}
+
+.auth-card{
+  width:100%;
+  max-width:420px;
+  background:rgba(14,14,20,.85);
+  border:1px solid var(--card-border);
+  border-radius:var(--radius-lg);
+  padding:40px 32px 36px;
+  backdrop-filter:blur(40px);
+  -webkit-backdrop-filter:blur(40px);
+  box-shadow:
+    0 24px 80px rgba(0,0,0,.6),
+    0 0 0 1px rgba(255,255,255,.03) inset,
+    0 1px 0 rgba(255,255,255,.04) inset;
+  position:relative;
+  z-index:1;
+  animation:cardIn .5s ease-out;
+}
+
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(16px) scale(.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+/* Logo */
+.auth-logo{
+  text-align:center;
+  margin-bottom:8px;
+}
+.auth-logo h1{
+  font-family:var(--font-display);
+  font-size:52px;
+  letter-spacing:8px;
+  color:var(--text);
+  line-height:1;
+  background:linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.auth-logo .tagline{
+  font-size:12px;
+  color:var(--text3);
+  margin-top:6px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  font-weight:500;
+}
+
+/* Divider */
+.auth-divider{
+  height:1px;
+  background:linear-gradient(90deg, transparent 0%, var(--card-border) 50%, transparent 100%);
+  margin:24px 0 28px;
+}
+
+/* Tab switcher */
+.auth-tabs{
+  display:flex;
+  background:var(--bg);
+  border-radius:var(--radius-sm);
+  padding:3px;
+  margin-bottom:28px;
+  border:1px solid var(--card-border);
+}
+.auth-tab{
+  flex:1;
+  padding:10px 0;
+  text-align:center;
+  font-size:13px;
+  font-weight:600;
+  color:var(--text3);
+  border-radius:4px;
+  transition:all .25s ease;
+  cursor:pointer;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  position:relative;
+}
+.auth-tab.active{
+  background:var(--accent);
+  color:#fff;
+  box-shadow:0 2px 12px rgba(233,78,27,.3);
+}
+.auth-tab:not(.active):hover{
+  color:var(--text2);
+}
+
+/* Forms */
+.auth-form{
+  display:none;
+}
+.auth-form.active{
+  display:block;
+  animation:formIn .3s ease;
+}
+@keyframes formIn{
+  from{opacity:0;transform:translateX(8px)}
+  to{opacity:1;transform:translateX(0)}
+}
+
+.form-group{
+  margin-bottom:18px;
+}
+.form-group label{
+  display:block;
+  font-size:11px;
+  color:var(--text2);
+  margin-bottom:5px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:1.2px;
+}
+.form-group input{
+  width:100%;
+  padding:12px 14px;
+  background:var(--bg);
+  border:1px solid var(--card-border);
+  border-radius:var(--radius-sm);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:14px;
+  outline:none;
+  transition:border .2s, box-shadow .2s;
+}
+.form-group input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-glow);
+}
+.form-group input::placeholder{
+  color:var(--text3);
+}
+
+/* Password wrapper */
+.pw-wrapper{
+  position:relative;
+}
+.pw-wrapper input{
+  padding-right:44px;
+}
+.pw-toggle{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  background:none;
+  border:none;
+  cursor:pointer;
+  color:var(--text3);
+  padding:4px;
+  display:flex;
+  align-items:center;
+  transition:color .2s;
+}
+.pw-toggle:hover{
+  color:var(--text2);
+}
+.pw-toggle svg{
+  width:18px;
+  height:18px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+/* Password strength */
+.pw-strength{
+  display:flex;
+  gap:4px;
+  margin-top:8px;
+  align-items:center;
+}
+.pw-strength-bar{
+  flex:1;
+  height:3px;
+  border-radius:2px;
+  background:var(--bg3);
+  transition:background .3s;
+}
+.pw-strength-bar.filled.weak{ background:var(--red); }
+.pw-strength-bar.filled.medium{ background:var(--amber); }
+.pw-strength-bar.filled.strong{ background:var(--teal); }
+.pw-strength-label{
+  font-size:10px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  margin-left:8px;
+  min-width:52px;
+  text-align:right;
+}
+.pw-strength-label.weak{ color:var(--red); }
+.pw-strength-label.medium{ color:var(--amber); }
+.pw-strength-label.strong{ color:var(--teal); }
+
+/* Submit button */
+.auth-btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:var(--radius-sm);
+  background:var(--accent);
+  color:#fff;
+  font-family:var(--font-body);
+  font-size:14px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+  cursor:pointer;
+  transition:all .2s;
+  position:relative;
+  overflow:hidden;
+  margin-top:8px;
+}
+.auth-btn:hover{
+  background:var(--accent2);
+  box-shadow:0 4px 20px rgba(233,78,27,.3);
+}
+.auth-btn:active{
+  transform:scale(.98);
+}
+.auth-btn:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+  transform:none;
+}
+.auth-btn:disabled:hover{
+  background:var(--accent);
+  box-shadow:none;
+}
+
+/* Spinner inside button */
+.auth-btn .spinner{
+  display:none;
+  width:18px;
+  height:18px;
+  border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin .6s linear infinite;
+  margin-right:8px;
+}
+.auth-btn.loading .spinner{
+  display:inline-block;
+}
+.auth-btn.loading .btn-text{
+  opacity:.7;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Error message */
+.auth-error{
+  display:none;
+  background:var(--red-glow);
+  border:1px solid rgba(239,68,68,.2);
+  border-radius:var(--radius-sm);
+  padding:10px 14px;
+  margin-bottom:16px;
+  font-size:13px;
+  color:var(--red);
+  animation:errorIn .2s ease;
+}
+.auth-error.visible{
+  display:block;
+}
+@keyframes errorIn{
+  from{opacity:0;transform:translateY(-4px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* Remember me */
+.remember-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:20px;
+  margin-top:-4px;
+}
+.remember-row input[type="checkbox"]{
+  width:16px;
+  height:16px;
+  accent-color:var(--accent);
+  cursor:pointer;
+  flex-shrink:0;
+}
+.remember-row label{
+  margin:0;
+  font-size:12px;
+  color:var(--text2);
+  cursor:pointer;
+  text-transform:none;
+  letter-spacing:0;
+  font-weight:400;
+}
+
+/* Footer */
+.auth-footer{
+  text-align:center;
+  margin-top:24px;
+  font-size:11px;
+  color:var(--text3);
+}
+
+/* Responsive */
+@media (max-width: 460px) {
+  .auth-card{
+    padding:32px 22px 28px;
+  }
+  .auth-logo h1{
+    font-size:44px;
+    letter-spacing:6px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="auth-card">
+  <div class="auth-logo">
+    <h1>PROTOCOL</h1>
+    <p class="tagline">Your body. Your data. Your protocol.</p>
+  </div>
+
+  <div class="auth-divider"></div>
+
+  <!-- Tab switcher -->
+  <div class="auth-tabs">
+    <div class="auth-tab active" data-tab="login" onclick="switchAuthTab('login')">Sign In</div>
+    <div class="auth-tab" data-tab="signup" onclick="switchAuthTab('signup')">Sign Up</div>
+  </div>
+
+  <!-- ═══ SIGN IN FORM ═══ -->
+  <form id="form-login" class="auth-form active" onsubmit="handleLogin(event)">
+    <div id="login-error" class="auth-error"></div>
+
+    <div class="form-group">
+      <label for="login-identity">Email or Username</label>
+      <input type="text" id="login-identity" placeholder="you@email.com" autocomplete="username" required>
+    </div>
+
+    <div class="form-group">
+      <label for="login-password">Password</label>
+      <div class="pw-wrapper">
+        <input type="password" id="login-password" placeholder="Enter password" autocomplete="current-password" required>
+        <button type="button" class="pw-toggle" onclick="togglePassword('login-password', this)" aria-label="Show password">
+          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="remember-row">
+      <input type="checkbox" id="login-remember">
+      <label for="login-remember">Remember me</label>
+    </div>
+
+    <button type="submit" class="auth-btn" id="login-btn">
+      <span class="spinner"></span>
+      <span class="btn-text">Sign In</span>
+    </button>
+  </form>
+
+  <!-- ═══ SIGN UP FORM ═══ -->
+  <form id="form-signup" class="auth-form" onsubmit="handleSignup(event)">
+    <div id="signup-error" class="auth-error"></div>
+
+    <div class="form-group">
+      <label for="signup-name">Full Name</label>
+      <input type="text" id="signup-name" placeholder="John Doe" autocomplete="name">
+    </div>
+
+    <div class="form-group">
+      <label for="signup-email">Email</label>
+      <input type="email" id="signup-email" placeholder="you@email.com" autocomplete="email" required>
+    </div>
+
+    <div class="form-group">
+      <label for="signup-username">Username</label>
+      <input type="text" id="signup-username" placeholder="ironwarrior" autocomplete="username" required>
+    </div>
+
+    <div class="form-group">
+      <label for="signup-password">Password</label>
+      <div class="pw-wrapper">
+        <input type="password" id="signup-password" placeholder="Min 6 characters" autocomplete="new-password" required oninput="updateStrength()">
+        <button type="button" class="pw-toggle" onclick="togglePassword('signup-password', this)" aria-label="Show password">
+          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div class="pw-strength" id="pw-strength" style="display:none">
+        <div class="pw-strength-bar" id="str-1"></div>
+        <div class="pw-strength-bar" id="str-2"></div>
+        <div class="pw-strength-bar" id="str-3"></div>
+        <span class="pw-strength-label" id="str-label"></span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="signup-confirm">Confirm Password</label>
+      <div class="pw-wrapper">
+        <input type="password" id="signup-confirm" placeholder="Repeat password" autocomplete="new-password" required>
+        <button type="button" class="pw-toggle" onclick="togglePassword('signup-confirm', this)" aria-label="Show password">
+          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <button type="submit" class="auth-btn" id="signup-btn">
+      <span class="spinner"></span>
+      <span class="btn-text">Create Account</span>
+    </button>
+  </form>
+
+  <div class="auth-footer">
+    Built for athletes who take it seriously.
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   AUTH LOGIC
+   ═══════════════════════════════════════════════════════════════════════ */
+
+// If already logged in, go straight to main app
+if (localStorage.getItem('protocol_token')) {
+  window.location.replace('/');
+}
+
+// Pre-fill remembered email/username
+const remembered = localStorage.getItem('protocol_remember');
+if (remembered) {
+  document.getElementById('login-identity').value = remembered;
+  document.getElementById('login-remember').checked = true;
+}
+
+// Auto-focus first input
+setTimeout(() => {
+  document.getElementById('login-identity').focus();
+}, 100);
+
+/* ─── Tab switching ────────────────────────────────────────────────── */
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+  const form = document.getElementById('form-' + tab);
+  form.classList.add('active');
+
+  // Clear errors
+  document.querySelectorAll('.auth-error').forEach(e => { e.classList.remove('visible'); e.textContent = ''; });
+
+  // Focus first input
+  setTimeout(() => {
+    const inp = form.querySelector('input');
+    if (inp) inp.focus();
+  }, 50);
+}
+
+/* ─── Password visibility toggle ───────────────────────────────────── */
+function togglePassword(inputId, btn) {
+  const input = document.getElementById(inputId);
+  const isPassword = input.type === 'password';
+  input.type = isPassword ? 'text' : 'password';
+  btn.innerHTML = isPassword
+    ? '<svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+    : '<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+}
+
+/* ─── Password strength indicator ──────────────────────────────────── */
+function updateStrength() {
+  const pw = document.getElementById('signup-password').value;
+  const container = document.getElementById('pw-strength');
+  const bars = [document.getElementById('str-1'), document.getElementById('str-2'), document.getElementById('str-3')];
+  const label = document.getElementById('str-label');
+
+  if (!pw) {
+    container.style.display = 'none';
+    return;
+  }
+  container.style.display = 'flex';
+
+  let score = 0;
+  if (pw.length >= 6) score++;
+  if (pw.length >= 10) score++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+  let level, levelClass;
+  if (score <= 1) { level = 'Weak'; levelClass = 'weak'; }
+  else if (score <= 3) { level = 'Medium'; levelClass = 'medium'; }
+  else { level = 'Strong'; levelClass = 'strong'; }
+
+  const fill = score <= 1 ? 1 : score <= 3 ? 2 : 3;
+  bars.forEach((bar, i) => {
+    bar.className = 'pw-strength-bar' + (i < fill ? ' filled ' + levelClass : '');
+  });
+  label.textContent = level;
+  label.className = 'pw-strength-label ' + levelClass;
+}
+
+/* ─── Show error ───────────────────────────────────────────────────── */
+function showError(formType, msg) {
+  const el = document.getElementById(formType + '-error');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+
+function clearError(formType) {
+  const el = document.getElementById(formType + '-error');
+  el.classList.remove('visible');
+  el.textContent = '';
+}
+
+/* ─── Set loading state ────────────────────────────────────────────── */
+function setLoading(btnId, loading) {
+  const btn = document.getElementById(btnId);
+  if (loading) {
+    btn.classList.add('loading');
+    btn.disabled = true;
+  } else {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+/* ─── API call ─────────────────────────────────────────────────────── */
+async function authApi(path, body) {
+  const res = await fetch(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Something went wrong');
+  return data;
+}
+
+/* ─── Handle login ─────────────────────────────────────────────────── */
+async function handleLogin(e) {
+  e.preventDefault();
+  clearError('login');
+
+  const identity = document.getElementById('login-identity').value.trim();
+  const password = document.getElementById('login-password').value;
+  const remember = document.getElementById('login-remember').checked;
+
+  if (!identity) { showError('login', 'Email or username is required'); return; }
+  if (!password) { showError('login', 'Password is required'); return; }
+
+  // Remember preference
+  if (remember) {
+    localStorage.setItem('protocol_remember', identity);
+  } else {
+    localStorage.removeItem('protocol_remember');
+  }
+
+  setLoading('login-btn', true);
+
+  try {
+    const isEmail = identity.includes('@');
+    const payload = isEmail
+      ? { email: identity, password }
+      : { username: identity, password };
+
+    const data = await authApi('/api/auth/login', payload);
+    localStorage.setItem('protocol_token', data.token);
+    localStorage.setItem('protocol_user', JSON.stringify(data.user));
+    window.location.replace('/');
+  } catch (err) {
+    showError('login', err.message);
+  } finally {
+    setLoading('login-btn', false);
+  }
+}
+
+/* ─── Handle signup ────────────────────────────────────────────────── */
+async function handleSignup(e) {
+  e.preventDefault();
+  clearError('signup');
+
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const username = document.getElementById('signup-username').value.trim();
+  const password = document.getElementById('signup-password').value;
+  const confirm = document.getElementById('signup-confirm').value;
+
+  // Client-side validation
+  if (!email || !email.includes('@')) { showError('signup', 'Please enter a valid email address'); return; }
+  if (!username || username.length < 3) { showError('signup', 'Username must be at least 3 characters'); return; }
+  if (!/^[a-zA-Z0-9_]+$/.test(username)) { showError('signup', 'Username can only contain letters, numbers, and underscores'); return; }
+  if (!password || password.length < 6) { showError('signup', 'Password must be at least 6 characters'); return; }
+  if (password !== confirm) { showError('signup', 'Passwords do not match'); return; }
+
+  setLoading('signup-btn', true);
+
+  try {
+    const data = await authApi('/api/auth/signup', { email, username, password, name: name || null });
+    localStorage.setItem('protocol_token', data.token);
+    localStorage.setItem('protocol_user', JSON.stringify(data.user));
+    window.location.replace('/');
+  } catch (err) {
+    showError('signup', err.message);
+  } finally {
+    setLoading('signup-btn', false);
+  }
+}
+
+/* ─── Enter key on forms ───────────────────────────────────────────── */
+document.querySelectorAll('.auth-form input').forEach(input => {
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const form = input.closest('form');
+      const inputs = Array.from(form.querySelectorAll('input:not([type="checkbox"])'));
+      const idx = inputs.indexOf(input);
+      if (idx < inputs.length - 1) {
+        inputs[idx + 1].focus();
+      } else {
+        form.dispatchEvent(new Event('submit'));
+      }
+    }
+  });
+});
+</script>
+</body>
+</html>

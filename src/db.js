@@ -1,6 +1,7 @@
 'use strict';
 
 const Database = require('better-sqlite3');
+const crypto = require('crypto');
 const path = require('path');
 
 const DB_PATH = path.join(__dirname, '..', 'protocol.db');
@@ -314,6 +315,28 @@ function initDb() {
       total_doses INTEGER DEFAULT 0,
       total_checkins INTEGER DEFAULT 0,
       updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- Users (authentication)
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT NOT NULL UNIQUE,
+      username TEXT NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      salt TEXT NOT NULL,
+      name TEXT,
+      avatar_url TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      last_login TEXT
+    );
+
+    -- Sessions (authentication)
+    CREATE TABLE IF NOT EXISTS sessions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      token TEXT NOT NULL UNIQUE,
+      expires_at TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now'))
     );
 
     -- Coach/Client sharing
@@ -1203,6 +1226,78 @@ const coachNotes = {
 };
 
 // ---------------------------------------------------------------------------
+// Users (Authentication)
+// ---------------------------------------------------------------------------
+const users = {
+  create({ email, username, password, name = null }) {
+    const salt = crypto.randomBytes(32).toString('hex');
+    const password_hash = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
+    const info = getDb().prepare(
+      'INSERT INTO users (email, username, password_hash, salt, name) VALUES (?, ?, ?, ?, ?)'
+    ).run(email.toLowerCase().trim(), username.toLowerCase().trim(), password_hash, salt, name);
+    return this.findById(info.lastInsertRowid);
+  },
+  findById(id) {
+    return getDb().prepare('SELECT id, email, username, name, avatar_url, created_at, last_login FROM users WHERE id = ?').get(id);
+  },
+  findByEmail(email) {
+    return getDb().prepare('SELECT * FROM users WHERE email = ?').get((email || '').toLowerCase().trim());
+  },
+  findByUsername(username) {
+    return getDb().prepare('SELECT * FROM users WHERE username = ?').get((username || '').toLowerCase().trim());
+  },
+  verifyPassword(user, password) {
+    const hash = crypto.pbkdf2Sync(password, user.salt, 100000, 64, 'sha512').toString('hex');
+    return hash === user.password_hash;
+  },
+  updateLastLogin(id) {
+    getDb().prepare("UPDATE users SET last_login = datetime('now') WHERE id = ?").run(id);
+  },
+  update(id, fields) {
+    const allowed = ['name', 'email'];
+    const sets = [];
+    const vals = {};
+    for (const key of allowed) {
+      if (fields[key] !== undefined) {
+        sets.push(`${key} = @${key}`);
+        vals[key] = key === 'email' ? fields[key].toLowerCase().trim() : fields[key];
+      }
+    }
+    if (sets.length === 0) return this.findById(id);
+    vals.id = id;
+    getDb().prepare(`UPDATE users SET ${sets.join(', ')} WHERE id = @id`).run(vals);
+    return this.findById(id);
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Sessions (Authentication)
+// ---------------------------------------------------------------------------
+const sessions = {
+  create(userId) {
+    const token = crypto.randomBytes(64).toString('hex');
+    const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    getDb().prepare(
+      'INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)'
+    ).run(userId, token, expires);
+    return { token, expires_at: expires };
+  },
+  verify(token) {
+    if (!token) return null;
+    const row = getDb().prepare(
+      "SELECT * FROM sessions WHERE token = ? AND expires_at > datetime('now')"
+    ).get(token);
+    return row ? row.user_id : null;
+  },
+  delete(token) {
+    getDb().prepare('DELETE FROM sessions WHERE token = ?').run(token);
+  },
+  cleanup() {
+    getDb().prepare("DELETE FROM sessions WHERE expires_at <= datetime('now')").run();
+  }
+};
+
+// ---------------------------------------------------------------------------
 // Exports
 // ---------------------------------------------------------------------------
 module.exports = {
@@ -1234,5 +1329,7 @@ module.exports = {
   achievements,
   streaks,
   coachShares,
-  coachNotes
+  coachNotes,
+  users,
+  sessions
 };

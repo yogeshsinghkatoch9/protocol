@@ -99,6 +99,15 @@ function csvEscape(val) {
   return str;
 }
 
+/** Extract Bearer token from Authorization header and verify session. Returns user_id or null. */
+function authenticate(req) {
+  const auth = req.headers['authorization'] || '';
+  if (!auth.startsWith('Bearer ')) return null;
+  const token = auth.slice(7).trim();
+  if (!token) return null;
+  return db.sessions.verify(token);
+}
+
 /**
  * Guess muscle groups from an exercise name when not found in the exercise database.
  * Returns an array of muscle group strings.
@@ -395,7 +404,7 @@ async function handleRequest(req, res) {
   // CORS headers on every response
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
@@ -424,10 +433,102 @@ async function handleRequest(req, res) {
       return;
     }
 
+    // Serve auth page
+    if (method === 'GET' && pathname === '/auth') {
+      serveStatic(res, 'auth.html');
+      return;
+    }
+
     // Serve anything else from web/ for non-API paths
     if (method === 'GET' && !pathname.startsWith('/api/')) {
       serveStatic(res, pathname.slice(1));
       return;
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    //  AUTH ROUTES
+    // ════════════════════════════════════════════════════════════════
+
+    if (method === 'POST' && pathname === '/api/auth/signup') {
+      const body = await parseBody(req);
+      const { email, username, password, name } = body;
+
+      // Validation
+      if (!email || !email.includes('@')) return error(res, 'Valid email required');
+      if (!username || username.length < 3 || !/^[a-zA-Z0-9_]+$/.test(username)) {
+        return error(res, 'Username must be 3+ alphanumeric characters');
+      }
+      if (!password || password.length < 6) return error(res, 'Password must be at least 6 characters');
+
+      // Check uniqueness
+      if (db.users.findByEmail(email)) return error(res, 'Email already registered', 409);
+      if (db.users.findByUsername(username)) return error(res, 'Username already taken', 409);
+
+      try {
+        const user = db.users.create({ email, username, password, name: name || null });
+        db.users.updateLastLogin(user.id);
+        const session = db.sessions.create(user.id);
+        return json(res, { token: session.token, user }, 201);
+      } catch (err) {
+        return error(res, 'Failed to create account: ' + err.message, 500);
+      }
+    }
+
+    if (method === 'POST' && pathname === '/api/auth/login') {
+      const body = await parseBody(req);
+      const { email, username, password } = body;
+
+      if (!password) return error(res, 'Password required');
+
+      // Find user by email or username
+      let fullUser = null;
+      if (email) {
+        fullUser = db.users.findByEmail(email);
+      } else if (username) {
+        fullUser = db.users.findByUsername(username);
+      } else {
+        return error(res, 'Email or username required');
+      }
+
+      if (!fullUser) return error(res, 'Invalid credentials', 401);
+      if (!db.users.verifyPassword(fullUser, password)) return error(res, 'Invalid credentials', 401);
+
+      db.users.updateLastLogin(fullUser.id);
+      const session = db.sessions.create(fullUser.id);
+      const user = db.users.findById(fullUser.id);
+      return json(res, { token: session.token, user });
+    }
+
+    if (method === 'POST' && pathname === '/api/auth/logout') {
+      const auth = req.headers['authorization'] || '';
+      if (auth.startsWith('Bearer ')) {
+        db.sessions.delete(auth.slice(7).trim());
+      }
+      return json(res, { success: true });
+    }
+
+    if (method === 'GET' && pathname === '/api/auth/me') {
+      const userId = authenticate(req);
+      if (!userId) return error(res, 'Not authenticated', 401);
+      const user = db.users.findById(userId);
+      if (!user) return error(res, 'User not found', 404);
+      return json(res, user);
+    }
+
+    if (method === 'PUT' && pathname === '/api/auth/me') {
+      const userId = authenticate(req);
+      if (!userId) return error(res, 'Not authenticated', 401);
+      const body = await parseBody(req);
+
+      // Validate email if being updated
+      if (body.email !== undefined) {
+        if (!body.email || !body.email.includes('@')) return error(res, 'Valid email required');
+        const existing = db.users.findByEmail(body.email);
+        if (existing && existing.id !== userId) return error(res, 'Email already in use', 409);
+      }
+
+      const user = db.users.update(userId, body);
+      return json(res, user);
     }
 
     // ── Compounds (static DB) ───────────────────────────────────────
@@ -2163,5 +2264,8 @@ const server = http.createServer(handleRequest);
 server.listen(PORT, () => {
   // Initialize database on startup
   db.getDb();
+  // Cleanup expired sessions on startup and every hour
+  db.sessions.cleanup();
+  setInterval(() => db.sessions.cleanup(), 3600000);
   console.log(`Protocol server running on http://localhost:${PORT}`);
 });

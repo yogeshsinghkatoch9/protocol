@@ -164,7 +164,11 @@ input[type="range"]:focus{box-shadow:none}
 
   <!-- TAB: HOME -->
   <div id="page-home" class="tab-page active">
-    <div style="text-align:center;margin-bottom:20px">
+    <div style="text-align:center;margin-bottom:20px;position:relative">
+      <div id="user-bar" style="display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-bottom:8px;min-height:28px">
+        <span id="user-name" style="font-size:12px;color:var(--text2);font-weight:500"></span>
+        <button id="logout-btn" onclick="handleLogout()" style="display:none;padding:4px 10px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;border-radius:4px;background:var(--bg3);border:1px solid var(--card-border);color:var(--text3);cursor:pointer;transition:all .15s" onmouseover="this.style.color='var(--red)';this.style.borderColor='rgba(239,68,68,.3)'" onmouseout="this.style.color='var(--text3)';this.style.borderColor='var(--card-border)'">Logout</button>
+      </div>
       <h1 style="font-family:var(--font-display);font-size:42px;letter-spacing:6px;color:var(--text);line-height:1">PROTOCOL</h1>
       <p class="text-sm text-muted" style="margin-top:4px">Track. Optimize. Evolve.</p>
     </div>
@@ -1108,6 +1112,44 @@ input[type="range"]:focus{box-shadow:none}
      ═══════════════════════════════════════════════════════════════════════ -->
 <script>
 /* ─────────────────────────────────────────────────────────────────────────
+   AUTH CHECK — redirect to /auth if not logged in
+   ───────────────────────────────────────────────────────────────────────── */
+const _authToken = localStorage.getItem('protocol_token');
+if (!_authToken) {
+  window.location.replace('/auth');
+}
+
+/* ─── Display user info / logout ──────────────────────────────────────── */
+function _initUserBar() {
+  const stored = localStorage.getItem('protocol_user');
+  if (stored) {
+    try {
+      const u = JSON.parse(stored);
+      const nameEl = document.getElementById('user-name');
+      const logoutBtn = document.getElementById('logout-btn');
+      if (nameEl) nameEl.textContent = u.name || u.username || u.email || '';
+      if (logoutBtn) logoutBtn.style.display = 'inline-block';
+    } catch {}
+  }
+}
+document.addEventListener('DOMContentLoaded', _initUserBar);
+
+async function handleLogout() {
+  try {
+    const token = localStorage.getItem('protocol_token');
+    if (token) {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+    }
+  } catch {}
+  localStorage.removeItem('protocol_token');
+  localStorage.removeItem('protocol_user');
+  window.location.replace('/auth');
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
    GLOBAL STATE
    ───────────────────────────────────────────────────────────────────────── */
 const API = '';
@@ -1143,9 +1185,18 @@ const S = {
    API HELPER
    ───────────────────────────────────────────────────────────────────────── */
 async function api(path, opts = {}) {
+  const token = localStorage.getItem('protocol_token');
   const o = { headers: { 'Content-Type': 'application/json' }, ...opts };
+  if (token) o.headers['Authorization'] = 'Bearer ' + token;
   if (o.body && typeof o.body === 'object') o.body = JSON.stringify(o.body);
   const r = await fetch(API + path, o);
+  if (r.status === 401) {
+    // Session expired — redirect to auth
+    localStorage.removeItem('protocol_token');
+    localStorage.removeItem('protocol_user');
+    window.location.replace('/auth');
+    return;
+  }
   if (r.status === 204) return null;
   const data = await r.json();
   if (!r.ok) throw new Error(data.error || 'API error');
@@ -3249,7 +3300,10 @@ function viewCompound(id) {
 async function exportData() {
   closeModal();
   try {
-    const response = await fetch(API + '/api/export/json');
+    const _headers = {};
+    const _tk = localStorage.getItem('protocol_token');
+    if (_tk) _headers['Authorization'] = 'Bearer ' + _tk;
+    const response = await fetch(API + '/api/export/json', { headers: _headers });
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
