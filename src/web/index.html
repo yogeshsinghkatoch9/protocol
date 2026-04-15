@@ -1,0 +1,2783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PROTOCOL</title>
+<meta name="theme-color" content="#08080c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   IRON CATHEDRAL — CSS
+   ═══════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08080c;--bg2:#0e0e14;--bg3:#16161f;--bg4:#1c1c28;
+  --accent:#e94e1b;--accent2:#ff6a3a;--accent-glow:rgba(233,78,27,.15);
+  --teal:#2dd4a8;--teal-glow:rgba(45,212,168,.15);
+  --red:#ef4444;--red-glow:rgba(239,68,68,.12);
+  --amber:#f59e0b;--amber-glow:rgba(245,158,11,.12);
+  --text:#f0eff4;--text2:#8b8a96;--text3:#4a4958;
+  --card:rgba(255,255,255,.025);--card-border:rgba(255,255,255,.06);
+  --card-hover:rgba(255,255,255,.05);
+  --radius:10px;--radius-sm:6px;--radius-lg:14px;
+  --shadow:0 8px 32px rgba(0,0,0,.5);
+  --tab-h:62px;
+  --font-display:'Bebas Neue',Impact,sans-serif;
+  --font-body:'DM Sans',system-ui,sans-serif;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:14px;line-height:1.55;overflow:hidden;-webkit-tap-highlight-color:transparent}
+body{display:flex;flex-direction:column;background-image:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(233,78,27,.03) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 100%,rgba(45,212,168,.015) 0%,transparent 50%)}
+a{color:var(--accent);text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;font-size:inherit}
+input,select,textarea{font-family:var(--font-body);font-size:14px;color:var(--text);background:var(--bg2);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:10px 12px;width:100%;outline:none;transition:border .2s,box-shadow .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238b8a96'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+select option{background:var(--bg2);color:var(--text)}
+textarea{resize:vertical;min-height:60px}
+label{display:block;font-size:11px;color:var(--text2);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--text3);border-radius:4px}
+.section-hdr{font-family:var(--font-display);font-size:18px;letter-spacing:2px;text-transform:uppercase;color:var(--text);margin-bottom:12px}
+
+/* Main container */
+#app{flex:1;overflow:hidden;position:relative}
+.tab-page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:20px 16px 24px;display:none;-webkit-overflow-scrolling:touch}
+.tab-page.active{display:block}
+.tab-page::-webkit-scrollbar{width:0;display:none}
+
+/* Bottom tab bar */
+#tab-bar{height:var(--tab-h);background:rgba(8,8,12,.96);border-top:1px solid var(--card-border);display:flex;align-items:center;justify-content:space-around;padding:0 2px;padding-bottom:env(safe-area-inset-bottom,0);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);flex-shrink:0;position:relative;z-index:100}
+.tab-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 6px 4px;border-radius:8px;min-width:52px;transition:all .2s}
+.tab-btn svg{width:22px;height:22px;fill:none;stroke:var(--text3);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:all .2s}
+.tab-btn .tab-label{font-size:9px;font-weight:600;color:transparent;transition:all .2s;white-space:nowrap;height:0;overflow:hidden}
+.tab-btn.active svg{stroke:var(--accent)}
+.tab-btn.active .tab-label{color:var(--accent);height:auto}
+.tab-btn:active{transform:scale(.92)}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px;margin-bottom:12px;transition:background .2s}
+.card:active{background:var(--card-hover)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:var(--radius-sm);font-weight:600;font-size:13px;transition:all .15s;text-transform:uppercase;letter-spacing:.5px}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:active{background:var(--accent2);transform:scale(.97)}
+.btn-secondary{background:var(--bg3);border:1px solid var(--card-border);color:var(--text2)}
+.btn-secondary:active{background:var(--bg4)}
+.btn-sm{padding:7px 12px;font-size:11px}
+.btn-block{width:100%;justify-content:center}
+.btn-teal{background:var(--teal);color:#000}
+.btn-red{background:var(--red);color:#fff}
+.btn-amber{background:var(--amber);color:#000}
+
+/* Pills / chips */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;background:var(--bg3);color:var(--text2);border:1px solid var(--card-border)}
+.pill-accent{background:var(--accent-glow);color:var(--accent);border-color:rgba(233,78,27,.2)}
+.pill-teal{background:var(--teal-glow);color:var(--teal);border-color:rgba(45,212,168,.2)}
+.pill-red{background:var(--red-glow);color:var(--red);border-color:rgba(239,68,68,.2)}
+.pill-amber{background:var(--amber-glow);color:var(--amber);border-color:rgba(245,158,11,.2)}
+
+/* Utility */
+.flex{display:flex}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-between{justify-content:space-between}.gap-8{gap:8px}.gap-12{gap:12px}.gap-16{gap:16px}
+.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-20{margin-top:20px}.mb-8{margin-bottom:8px}.mb-12{margin-bottom:12px}
+.text-xs{font-size:11px}.text-sm{font-size:12px}.text-muted{color:var(--text2)}.text-accent{color:var(--accent)}.text-teal{color:var(--teal)}.text-red{color:var(--red)}.text-amber{color:var(--amber)}
+.w-full{width:100%}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text3)}
+.empty-state svg{width:48px;height:48px;stroke:var(--text3);margin-bottom:12px}
+.divider{height:1px;background:var(--card-border);margin:16px 0}
+
+/* Quick action buttons */
+.qa-btn{display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 8px;border-radius:var(--radius);background:var(--bg3);border:1px solid var(--card-border);transition:all .15s;flex:1}
+.qa-btn svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:1.8}
+.qa-btn span{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.qa-btn:active{background:var(--bg4);transform:scale(.95)}
+
+/* KPI strip */
+.kpi{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;flex:1}
+.kpi-val{font-family:var(--font-display);font-size:24px;letter-spacing:1px;color:var(--text)}
+.kpi-label{font-size:9px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:1px}
+
+/* Progress bar */
+.progress-wrap{background:var(--bg2);border-radius:4px;height:6px;overflow:hidden;width:100%}
+.progress-fill{height:100%;border-radius:4px;transition:width .3s ease}
+
+/* Slider */
+input[type="range"]{-webkit-appearance:none;appearance:none;background:transparent;padding:0;height:32px;border:none}
+input[type="range"]::-webkit-slider-track{height:4px;background:var(--bg3);border-radius:2px}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--accent);margin-top:-8px;border:2px solid var(--bg)}
+input[type="range"]:focus{box-shadow:none}
+
+/* Modal */
+#modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+#modal-box{position:fixed;bottom:0;left:0;right:0;max-height:92vh;background:var(--bg2);border-radius:16px 16px 0 0;z-index:1001;overflow-y:auto;padding:20px 16px 32px;padding-bottom:calc(32px + env(safe-area-inset-bottom,0))}
+#modal-box .modal-handle{width:36px;height:4px;background:var(--text3);border-radius:2px;margin:0 auto 16px}
+#modal-box .modal-title{font-family:var(--font-display);font-size:22px;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px}
+
+/* Toggle */
+.toggle{position:relative;width:44px;height:24px;background:var(--bg3);border-radius:12px;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--accent)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s}
+.toggle.on::after{transform:translateX(20px)}
+
+/* List item */
+.list-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius-sm);transition:background .15s;cursor:pointer}
+.list-item:active{background:var(--bg3)}
+
+/* Body map injection sites */
+.body-map-wrap{position:relative;width:100%;max-width:260px;margin:0 auto}
+.body-map-wrap svg{width:100%;height:auto}
+.body-map-wrap .site{cursor:pointer;transition:all .15s}
+.body-map-wrap .site:hover,.body-map-wrap .site.sel{fill:var(--accent);fill-opacity:.35;stroke:var(--accent);stroke-width:1.5}
+
+/* Chart canvas */
+.chart-wrap{position:relative;width:100%;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg2);border:1px solid var(--card-border)}
+.chart-wrap canvas{width:100%!important;display:block}
+
+/* Sparkline */
+.sparkline{display:inline-block;vertical-align:middle}
+
+/* Rest timer overlay */
+#rest-timer{position:fixed;inset:0;background:rgba(8,8,12,.95);z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+#rest-timer .timer-display{font-family:var(--font-display);font-size:80px;letter-spacing:4px;color:var(--accent)}
+#rest-timer .timer-label{font-size:14px;color:var(--text2);text-transform:uppercase;letter-spacing:2px}
+
+/* Transitions */
+.fade-in{animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     APP CONTAINER
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- TAB: HOME -->
+  <div id="page-home" class="tab-page active">
+    <div style="text-align:center;margin-bottom:20px">
+      <h1 style="font-family:var(--font-display);font-size:42px;letter-spacing:6px;color:var(--text);line-height:1">PROTOCOL</h1>
+      <p class="text-sm text-muted" style="margin-top:4px">Track. Optimize. Evolve.</p>
+    </div>
+
+    <!-- Active Cycle Card -->
+    <div id="home-cycle-card" class="card" style="display:none">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <div class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:1px">Active Cycle</div>
+          <div id="home-cycle-name" style="font-weight:600;font-size:16px;margin-top:2px"></div>
+        </div>
+        <div id="home-cycle-day" class="pill pill-accent"></div>
+      </div>
+      <div id="home-cycle-compounds" class="flex gap-8" style="flex-wrap:wrap"></div>
+    </div>
+
+    <div id="home-no-cycle" class="card" style="text-align:center;display:none">
+      <p class="text-muted mb-8">No active cycle</p>
+      <button class="btn btn-primary btn-sm" onclick="switchTab('cycle')">Start a Cycle</button>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="flex gap-8 mt-12">
+      <button class="qa-btn" onclick="quickLogDose()">
+        <svg viewBox="0 0 24 24"><path d="M9 3h6v11l-3 3-3-3z"/><path d="M12 17v4"/></svg>
+        <span>Dose</span>
+      </button>
+      <button class="qa-btn" onclick="quickLogWeight()">
+        <svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+        <span>Weight</span>
+      </button>
+      <button class="qa-btn" onclick="switchTab('train')">
+        <svg viewBox="0 0 24 24"><path d="M6.5 6.5h11M4 10h16M6.5 17.5h11M4 14h16"/><circle cx="4" cy="12" r="2"/><circle cx="20" cy="12" r="2"/></svg>
+        <span>Workout</span>
+      </button>
+      <button class="qa-btn" onclick="switchTab('wellness')">
+        <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span>Check-in</span>
+      </button>
+    </div>
+
+    <!-- KPI Strip -->
+    <div class="card flex mt-12" id="home-kpi-strip">
+      <div class="kpi"><div class="kpi-val" id="kpi-days">--</div><div class="kpi-label">Days In</div></div>
+      <div class="kpi"><div class="kpi-val" id="kpi-doses">--</div><div class="kpi-label">Doses</div></div>
+      <div class="kpi"><div class="kpi-val" id="kpi-weight">--</div><div class="kpi-label">Weight</div></div>
+      <div class="kpi"><div class="kpi-val" id="kpi-bf">--</div><div class="kpi-label">BF%</div></div>
+    </div>
+
+    <!-- Today's Wellness -->
+    <div id="home-wellness" class="card mt-12" style="display:none">
+      <div class="section-hdr">Today's Wellness</div>
+      <div id="home-wellness-scores" class="grid-4"></div>
+    </div>
+
+    <!-- Interaction Warnings -->
+    <div id="home-warnings" class="mt-12"></div>
+
+    <!-- Recent Activity -->
+    <div class="mt-16">
+      <div class="section-hdr">Recent Activity</div>
+      <div id="home-activity" class="flex flex-col gap-8"></div>
+    </div>
+  </div>
+
+  <!-- TAB: CYCLE -->
+  <div id="page-cycle" class="tab-page">
+    <div class="section-hdr" style="font-size:24px">Cycles</div>
+
+    <div id="cycle-list"></div>
+
+    <button class="btn btn-primary btn-block mt-16" onclick="openNewCycleModal()">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Cycle
+    </button>
+
+    <!-- Active Cycle Detail -->
+    <div id="cycle-detail" style="display:none" class="mt-16">
+      <div class="flex items-center justify-between mb-12">
+        <div class="section-hdr" style="margin-bottom:0" id="cycle-detail-name"></div>
+        <button class="btn btn-sm btn-secondary" onclick="endCycle()">End Cycle</button>
+      </div>
+
+      <div class="flex items-center gap-8 mb-12">
+        <div class="pill pill-accent" id="cycle-detail-type"></div>
+        <div class="text-sm text-muted" id="cycle-detail-dates"></div>
+      </div>
+
+      <!-- Compounds in cycle -->
+      <div class="flex items-center justify-between mb-8">
+        <div class="section-hdr" style="font-size:15px;margin-bottom:0">Compounds</div>
+        <button class="btn btn-sm btn-primary" onclick="openAddCompoundModal()">+ Add</button>
+      </div>
+      <div id="cycle-compounds-list"></div>
+
+      <!-- Pinning Calculator -->
+      <div class="card mt-16">
+        <div class="section-hdr" style="font-size:15px">Pinning Calculator</div>
+        <div class="grid-2 gap-8">
+          <div><label>Dose (mg)</label><input type="number" id="pin-dose" placeholder="250" oninput="calcPin()"></div>
+          <div><label>Concentration (mg/mL)</label><input type="number" id="pin-conc" placeholder="250" oninput="calcPin()"></div>
+        </div>
+        <div id="pin-result" class="mt-8" style="text-align:center;font-family:var(--font-display);font-size:28px;letter-spacing:2px;color:var(--teal);display:none"></div>
+      </div>
+
+      <!-- Concentration Chart -->
+      <div class="mt-16">
+        <div class="section-hdr" style="font-size:15px">Blood Concentration</div>
+        <div class="chart-wrap" style="height:200px">
+          <canvas id="conc-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Dose Log -->
+      <div class="mt-16">
+        <div class="flex items-center justify-between mb-8">
+          <div class="section-hdr" style="font-size:15px;margin-bottom:0">Dose Log</div>
+          <button class="btn btn-sm btn-primary" onclick="openLogDoseModal()">+ Log Dose</button>
+        </div>
+        <div id="dose-log-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: TRAIN -->
+  <div id="page-train" class="tab-page">
+    <div class="section-hdr" style="font-size:24px">Training</div>
+
+    <!-- Start Workout or Active Workout -->
+    <div id="train-start">
+      <button class="btn btn-primary btn-block" style="padding:16px;font-size:16px" onclick="startWorkout()">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Start Workout
+      </button>
+
+      <!-- Templates -->
+      <div class="mt-16">
+        <div class="section-hdr" style="font-size:15px">Templates</div>
+        <div id="template-list" class="flex flex-col gap-8"></div>
+      </div>
+
+      <!-- Workout History -->
+      <div class="mt-16">
+        <div class="section-hdr" style="font-size:15px">History</div>
+        <div id="workout-history"></div>
+      </div>
+
+      <!-- Volume Chart -->
+      <div class="mt-16">
+        <div class="section-hdr" style="font-size:15px">Weekly Volume</div>
+        <div class="chart-wrap" style="height:180px">
+          <canvas id="volume-chart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Workout View (hidden by default) -->
+    <div id="train-active" style="display:none">
+      <div class="flex items-center justify-between mb-12">
+        <div>
+          <div class="text-xs text-muted">ACTIVE WORKOUT</div>
+          <div id="active-workout-name" style="font-weight:600;font-size:16px"></div>
+        </div>
+        <div id="active-workout-timer" style="font-family:var(--font-display);font-size:22px;color:var(--accent);letter-spacing:1px">00:00</div>
+      </div>
+
+      <div id="active-exercises"></div>
+
+      <button class="btn btn-secondary btn-block mt-12" onclick="openAddExerciseModal()">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Exercise
+      </button>
+
+      <div class="flex gap-8 mt-16">
+        <button class="btn btn-red btn-block" onclick="cancelWorkout()">Discard</button>
+        <button class="btn btn-teal btn-block" onclick="finishWorkout()">Finish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: BLOOD -->
+  <div id="page-blood" class="tab-page">
+    <div class="flex items-center justify-between mb-12">
+      <div class="section-hdr" style="font-size:24px;margin-bottom:0">Blood Work</div>
+      <button class="btn btn-sm btn-primary" onclick="openAddBloodPanel()">+ Panel</button>
+    </div>
+    <div id="blood-panel-list"></div>
+
+    <!-- Marker Trend -->
+    <div class="mt-16" id="blood-trend-section" style="display:none">
+      <div class="section-hdr" style="font-size:15px">Marker Trend</div>
+      <div class="mb-8">
+        <select id="blood-trend-marker" onchange="loadMarkerTrend()">
+          <option value="">Select a marker...</option>
+        </select>
+      </div>
+      <div class="chart-wrap" style="height:180px">
+        <canvas id="blood-trend-chart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: BODY -->
+  <div id="page-body" class="tab-page">
+    <div class="section-hdr" style="font-size:24px">Body</div>
+
+    <!-- Weight Chart -->
+    <div class="section-hdr" style="font-size:15px">Weight Trend</div>
+    <div class="chart-wrap mb-12" style="height:180px">
+      <canvas id="weight-chart"></canvas>
+    </div>
+
+    <!-- Measurements -->
+    <div class="flex items-center justify-between mt-16 mb-8">
+      <div class="section-hdr" style="font-size:15px;margin-bottom:0">Measurements</div>
+      <button class="btn btn-sm btn-primary" onclick="openAddMeasurement()">+ Add</button>
+    </div>
+    <div id="measurement-list"></div>
+
+    <!-- Progress Photos -->
+    <div class="flex items-center justify-between mt-16 mb-8">
+      <div class="section-hdr" style="font-size:15px;margin-bottom:0">Progress Photos</div>
+      <button class="btn btn-sm btn-primary" onclick="openAddPhoto()">+ Photo</button>
+    </div>
+    <div id="photo-grid" class="grid-3 gap-8"></div>
+  </div>
+
+  <!-- TAB: DIET -->
+  <div id="page-diet" class="tab-page">
+    <div class="section-hdr" style="font-size:24px">Diet</div>
+
+    <!-- Date Navigation -->
+    <div class="flex items-center justify-between mb-12">
+      <button class="btn btn-sm btn-secondary" onclick="dietPrevDay()">&#8592;</button>
+      <div id="diet-date" style="font-weight:600"></div>
+      <button class="btn btn-sm btn-secondary" onclick="dietNextDay()">&#8594;</button>
+    </div>
+
+    <!-- Macro Targets -->
+    <div class="card" id="diet-macros">
+      <div class="flex items-center justify-between mb-8">
+        <div class="section-hdr" style="font-size:15px;margin-bottom:0">Macros</div>
+        <button class="text-xs text-accent" onclick="openDietTargets()">Edit Targets</button>
+      </div>
+      <div id="diet-macro-bars"></div>
+    </div>
+
+    <!-- Water -->
+    <div class="card mt-12">
+      <div class="flex items-center justify-between mb-8">
+        <div class="section-hdr" style="font-size:15px;margin-bottom:0">Water</div>
+        <div id="diet-water-count" style="font-family:var(--font-display);font-size:22px;letter-spacing:1px">0 <span style="font-size:14px;color:var(--text2)">/ 8 glasses</span></div>
+      </div>
+      <div class="flex gap-8" style="flex-wrap:wrap" id="diet-water-dots"></div>
+      <button class="btn btn-sm btn-teal mt-8" onclick="addWater()">+ Glass</button>
+    </div>
+
+    <!-- Meal Log -->
+    <div class="flex items-center justify-between mt-16 mb-8">
+      <div class="section-hdr" style="font-size:15px;margin-bottom:0">Meals</div>
+      <button class="btn btn-sm btn-primary" onclick="openAddMeal()">+ Meal</button>
+    </div>
+    <div id="diet-meals"></div>
+  </div>
+
+  <!-- TAB: WELLNESS -->
+  <div id="page-wellness" class="tab-page">
+    <div class="section-hdr" style="font-size:24px">Daily Check-in</div>
+
+    <div id="wellness-form">
+      <div id="wellness-sliders"></div>
+      <div class="mt-12">
+        <label>Notes</label>
+        <textarea id="wellness-notes" rows="2" placeholder="How are you feeling?"></textarea>
+      </div>
+      <button class="btn btn-primary btn-block mt-12" onclick="saveWellness()">Save Check-in</button>
+    </div>
+
+    <!-- Today's Scores -->
+    <div id="wellness-today" class="card mt-16" style="display:none">
+      <div class="section-hdr" style="font-size:15px">Today's Scores</div>
+      <div id="wellness-today-scores" class="grid-4"></div>
+    </div>
+
+    <!-- 7-Day Trends -->
+    <div class="mt-16">
+      <div class="section-hdr" style="font-size:15px">7-Day Trends</div>
+      <div id="wellness-trends" class="flex flex-col gap-8"></div>
+    </div>
+
+    <!-- Correlation Insights -->
+    <div id="wellness-insights" class="mt-16" style="display:none">
+      <div class="section-hdr" style="font-size:15px">Insights</div>
+      <div id="wellness-insight-cards"></div>
+    </div>
+  </div>
+
+  <!-- TAB: JOURNAL -->
+  <div id="page-journal" class="tab-page">
+    <div class="flex items-center justify-between mb-12">
+      <div class="section-hdr" style="font-size:24px;margin-bottom:0">Journal</div>
+      <button class="btn btn-sm btn-primary" onclick="openAddSideEffect()">+ Entry</button>
+    </div>
+
+    <!-- Filter pills -->
+    <div id="journal-filters" class="flex gap-8 mb-12" style="flex-wrap:wrap;overflow-x:auto"></div>
+
+    <!-- Timeline -->
+    <div id="journal-timeline"></div>
+  </div>
+
+  <!-- TAB: LIBRARY -->
+  <div id="page-library" class="tab-page">
+    <div class="section-hdr" style="font-size:24px">Compound Library</div>
+
+    <input type="text" id="lib-search" placeholder="Search 103 compounds..." oninput="filterLibrary()" style="margin-bottom:12px">
+
+    <div id="lib-categories" class="flex gap-8 mb-12" style="flex-wrap:wrap;overflow-x:auto"></div>
+
+    <div id="lib-list"></div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     BOTTOM TAB BAR
+     ═══════════════════════════════════════════════════════════════════════ -->
+<nav id="tab-bar">
+  <button class="tab-btn active" data-tab="home" onclick="switchTab('home')">
+    <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9"/><path d="M9 21V12h6v9"/></svg>
+    <span class="tab-label">Home</span>
+  </button>
+  <button class="tab-btn" data-tab="cycle" onclick="switchTab('cycle')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    <span class="tab-label">Cycle</span>
+  </button>
+  <button class="tab-btn" data-tab="train" onclick="switchTab('train')">
+    <svg viewBox="0 0 24 24"><path d="M6.5 6.5h11M4 10h16M6.5 17.5h11M4 14h16"/><circle cx="4" cy="12" r="2"/><circle cx="20" cy="12" r="2"/></svg>
+    <span class="tab-label">Train</span>
+  </button>
+  <button class="tab-btn" data-tab="blood" onclick="switchTab('blood')">
+    <svg viewBox="0 0 24 24"><path d="M12 2c0 0-8 9.27-8 14a8 8 0 0016 0c0-4.73-8-14-8-14z"/></svg>
+    <span class="tab-label">Blood</span>
+  </button>
+  <button class="tab-btn" data-tab="more" onclick="openMoreMenu()">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none"/></svg>
+    <span class="tab-label">More</span>
+  </button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SINGLE MODAL SYSTEM
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div id="modal-bg" style="display:none" onclick="closeModal()"></div>
+<div id="modal-box" style="display:none"></div>
+
+<!-- REST TIMER OVERLAY -->
+<div id="rest-timer">
+  <div class="timer-label">REST</div>
+  <div class="timer-display" id="rest-time-display">0:00</div>
+  <div class="flex gap-12">
+    <button class="btn btn-secondary" onclick="adjustRest(-15)">-15s</button>
+    <button class="btn btn-red" onclick="stopRest()">Skip</button>
+    <button class="btn btn-secondary" onclick="adjustRest(15)">+15s</button>
+  </div>
+  <div class="flex gap-8 mt-16">
+    <button class="pill" onclick="startRest(90)">1:30</button>
+    <button class="pill" onclick="startRest(120)">2:00</button>
+    <button class="pill" onclick="startRest(180)">3:00</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════════════════════ -->
+<script>
+/* ─────────────────────────────────────────────────────────────────────────
+   GLOBAL STATE
+   ───────────────────────────────────────────────────────────────────────── */
+const API = '';
+const S = {
+  compounds: [],
+  compoundsById: {},
+  cycles: [],
+  activeCycle: null,
+  cycleCompounds: [],
+  doses: [],
+  bloodPanels: [],
+  measurements: [],
+  sideEffects: [],
+  workouts: [],
+  templates: [],
+  wellness: [],
+  wellnessToday: null,
+  photos: [],
+  exercises: [],
+  activeWorkout: null,
+  workoutTimer: null,
+  workoutStart: null,
+  restInterval: null,
+  restSeconds: 0,
+  dietDate: new Date().toISOString().slice(0,10),
+  dietData: {},   // localStorage-based diet tracking keyed by date
+  currentTab: 'home',
+  journalFilter: null,
+  libCategory: null,
+};
+
+/* ─────────────────────────────────────────────────────────────────────────
+   API HELPER
+   ───────────────────────────────────────────────────────────────────────── */
+async function api(path, opts = {}) {
+  const o = { headers: { 'Content-Type': 'application/json' }, ...opts };
+  if (o.body && typeof o.body === 'object') o.body = JSON.stringify(o.body);
+  const r = await fetch(API + path, o);
+  if (r.status === 204) return null;
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error || 'API error');
+  return data;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   MODAL
+   ───────────────────────────────────────────────────────────────────────── */
+function openModal(html) {
+  const bg = document.getElementById('modal-bg');
+  const box = document.getElementById('modal-box');
+  box.innerHTML = '<div class="modal-handle"></div>' + html;
+  bg.style.display = 'block';
+  box.style.display = 'block';
+  // Focus first input
+  setTimeout(() => {
+    const inp = box.querySelector('input,select,textarea');
+    if (inp) inp.focus();
+  }, 100);
+}
+function closeModal() {
+  document.getElementById('modal-bg').style.display = 'none';
+  document.getElementById('modal-box').style.display = 'none';
+  document.getElementById('modal-box').innerHTML = '';
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   TAB NAVIGATION
+   ───────────────────────────────────────────────────────────────────────── */
+function switchTab(tab) {
+  // Close more menu if open
+  if (tab !== 'more') closeModal();
+
+  S.currentTab = tab;
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+  const page = document.getElementById('page-' + tab);
+  if (page) {
+    page.classList.add('active');
+    page.scrollTop = 0;
+  }
+
+  const btn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+  if (btn) btn.classList.add('active');
+
+  // Load tab data
+  if (tab === 'home') loadHome();
+  else if (tab === 'cycle') loadCycles();
+  else if (tab === 'train') loadTraining();
+  else if (tab === 'blood') loadBlood();
+  else if (tab === 'body') loadBody();
+  else if (tab === 'diet') loadDiet();
+  else if (tab === 'wellness') loadWellness();
+  else if (tab === 'journal') loadJournal();
+  else if (tab === 'library') loadLibrary();
+}
+
+function openMoreMenu() {
+  openModal(`
+    <div class="modal-title">More</div>
+    <div class="flex flex-col gap-8">
+      <button class="list-item" onclick="closeModal();switchTab('body')">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--accent)" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <div><div style="font-weight:600">Body</div><div class="text-xs text-muted">Weight, measurements, photos</div></div>
+      </button>
+      <button class="list-item" onclick="closeModal();switchTab('diet')">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--teal)" stroke-width="1.8"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        <div><div style="font-weight:600">Diet</div><div class="text-xs text-muted">Macros, meals, water</div></div>
+      </button>
+      <button class="list-item" onclick="closeModal();switchTab('wellness')">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--amber)" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <div><div style="font-weight:600">Wellness</div><div class="text-xs text-muted">Daily check-in, trends</div></div>
+      </button>
+      <button class="list-item" onclick="closeModal();switchTab('journal')">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--red)" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div><div style="font-weight:600">Journal</div><div class="text-xs text-muted">Side effects timeline</div></div>
+      </button>
+      <button class="list-item" onclick="closeModal();switchTab('library')">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--text2)" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+        <div><div style="font-weight:600">Library</div><div class="text-xs text-muted">103 compounds database</div></div>
+      </button>
+      <div class="divider"></div>
+      <button class="list-item" onclick="exportData()">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--text2)" stroke-width="1.8"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <div><div style="font-weight:600">Export Data</div><div class="text-xs text-muted">Download all data as JSON</div></div>
+      </button>
+    </div>
+  `);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   INIT
+   ───────────────────────────────────────────────────────────────────────── */
+async function init() {
+  try {
+    S.compounds = await api('/api/compounds');
+    S.compoundsById = {};
+    S.compounds.forEach(c => S.compoundsById[c.id] = c);
+  } catch(e) { console.error('Failed to load compounds', e); }
+
+  // Load diet data from localStorage
+  try { S.dietData = JSON.parse(localStorage.getItem('protocol_diet') || '{}'); } catch(e) { S.dietData = {}; }
+
+  loadHome();
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   HOME TAB
+   ───────────────────────────────────────────────────────────────────────── */
+async function loadHome() {
+  try {
+    // Load cycles
+    S.cycles = await api('/api/cycles');
+    S.activeCycle = S.cycles.find(c => !c.end_date) || null;
+
+    if (S.activeCycle) {
+      document.getElementById('home-cycle-card').style.display = 'block';
+      document.getElementById('home-no-cycle').style.display = 'none';
+      document.getElementById('home-cycle-name').textContent = S.activeCycle.name;
+
+      const start = new Date(S.activeCycle.start_date);
+      const days = Math.floor((Date.now() - start.getTime()) / 86400000) + 1;
+      document.getElementById('home-cycle-day').textContent = `Day ${days}`;
+      document.getElementById('kpi-days').textContent = days;
+
+      // Load cycle compounds
+      S.cycleCompounds = await api(`/api/cycles/${S.activeCycle.id}/compounds`);
+      const pillsEl = document.getElementById('home-cycle-compounds');
+      pillsEl.innerHTML = S.cycleCompounds.map(cc => {
+        const c = S.compoundsById[cc.compound_id];
+        const name = c ? c.name.split(' ')[0] : cc.compound_id;
+        return `<span class="pill pill-accent">${name} ${cc.dose_mg}mg</span>`;
+      }).join('');
+
+      // Interaction check
+      if (S.cycleCompounds.length > 1) {
+        const ids = S.cycleCompounds.map(cc => cc.compound_id);
+        try {
+          const warnings = await api('/api/interactions/check', { method: 'POST', body: { compound_ids: ids } });
+          const wEl = document.getElementById('home-warnings');
+          wEl.innerHTML = warnings.map(w => `
+            <div class="card" style="border-color:${w.severity === 'danger' ? 'var(--red)' : 'var(--amber)'};margin-bottom:8px">
+              <div class="flex items-center gap-8">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="${w.severity === 'danger' ? 'var(--red)' : 'var(--amber)'}" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <div class="text-sm">${w.message}</div>
+              </div>
+            </div>
+          `).join('');
+        } catch(e) {}
+      }
+    } else {
+      document.getElementById('home-cycle-card').style.display = 'none';
+      document.getElementById('home-no-cycle').style.display = 'block';
+      document.getElementById('kpi-days').textContent = '--';
+    }
+
+    // Doses
+    S.doses = await api('/api/doses');
+    document.getElementById('kpi-doses').textContent = S.doses.length;
+
+    // Weight / BF
+    S.measurements = await api('/api/measurements');
+    if (S.measurements.length > 0) {
+      const last = S.measurements[0];
+      document.getElementById('kpi-weight').textContent = last.weight ? last.weight : '--';
+      document.getElementById('kpi-bf').textContent = last.body_fat ? last.body_fat + '%' : '--';
+    }
+
+    // Today's wellness
+    try {
+      S.wellnessToday = await api('/api/wellness/today');
+      if (S.wellnessToday) {
+        document.getElementById('home-wellness').style.display = 'block';
+        const metrics = ['energy','mood','sleep_quality','libido','stress','appetite','joint_pain'];
+        const labels = ['Energy','Mood','Sleep','Libido','Stress','Appetite','Joints'];
+        const colors = ['var(--teal)','var(--accent)','var(--amber)','var(--accent2)','var(--red)','var(--teal)','var(--amber)'];
+        document.getElementById('home-wellness-scores').innerHTML = metrics.map((m,i) => {
+          const v = S.wellnessToday[m];
+          if (v == null) return '';
+          return `<div style="text-align:center"><div style="font-family:var(--font-display);font-size:22px;color:${colors[i]}">${v}</div><div class="text-xs text-muted">${labels[i]}</div></div>`;
+        }).join('');
+      } else {
+        document.getElementById('home-wellness').style.display = 'none';
+      }
+    } catch(e) {}
+
+    // Recent activity
+    const activity = [];
+    S.doses.slice(0, 3).forEach(d => {
+      const c = S.compoundsById[d.compound_id];
+      activity.push({ date: d.taken_at, icon: '💉', text: `${c ? c.name : d.compound_id} ${d.dose_mg}mg`, type: 'dose' });
+    });
+
+    try {
+      S.workouts = await api('/api/workouts');
+      S.workouts.slice(0, 2).forEach(w => {
+        activity.push({ date: w.date, icon: '🏋️', text: w.name || 'Workout', type: 'workout' });
+      });
+    } catch(e) {}
+
+    activity.sort((a,b) => new Date(b.date) - new Date(a.date));
+    const actEl = document.getElementById('home-activity');
+    if (activity.length === 0) {
+      actEl.innerHTML = '<div class="empty-state text-sm">No recent activity</div>';
+    } else {
+      actEl.innerHTML = activity.slice(0,5).map(a => `
+        <div class="flex items-center gap-12" style="padding:6px 0">
+          <div style="font-size:18px">${a.icon}</div>
+          <div class="flex-1">
+            <div class="text-sm" style="font-weight:500">${a.text}</div>
+            <div class="text-xs text-muted">${formatDate(a.date)}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+  } catch(e) { console.error('Home load error', e); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   CYCLE TAB
+   ───────────────────────────────────────────────────────────────────────── */
+async function loadCycles() {
+  try {
+    S.cycles = await api('/api/cycles');
+    S.activeCycle = S.cycles.find(c => !c.end_date) || null;
+
+    const listEl = document.getElementById('cycle-list');
+    if (S.cycles.length === 0) {
+      listEl.innerHTML = '<div class="empty-state"><p class="text-muted">No cycles yet</p></div>';
+      document.getElementById('cycle-detail').style.display = 'none';
+      return;
+    }
+
+    listEl.innerHTML = S.cycles.map(c => {
+      const active = !c.end_date;
+      const days = Math.floor((Date.now() - new Date(c.start_date).getTime()) / 86400000) + 1;
+      return `
+        <div class="card" style="cursor:pointer;${active ? 'border-color:var(--accent)' : ''}" onclick="viewCycle(${c.id})">
+          <div class="flex items-center justify-between">
+            <div>
+              <div style="font-weight:600">${c.name}</div>
+              <div class="text-xs text-muted">${c.start_date}${c.end_date ? ' — ' + c.end_date : ''}</div>
+            </div>
+            <div>
+              ${active ? `<span class="pill pill-accent">Day ${days}</span>` : `<span class="pill">${c.type}</span>`}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+    // Auto-show active cycle detail
+    if (S.activeCycle) viewCycle(S.activeCycle.id);
+    else document.getElementById('cycle-detail').style.display = 'none';
+  } catch(e) { console.error('Cycle load error', e); }
+}
+
+async function viewCycle(id) {
+  const cycle = S.cycles.find(c => c.id === id);
+  if (!cycle) return;
+
+  S.activeCycle = cycle;
+  document.getElementById('cycle-detail').style.display = 'block';
+  document.getElementById('cycle-detail-name').textContent = cycle.name;
+  document.getElementById('cycle-detail-type').textContent = cycle.type;
+  document.getElementById('cycle-detail-dates').textContent = cycle.start_date + (cycle.end_date ? ' — ' + cycle.end_date : ' — present');
+
+  // Load compounds
+  S.cycleCompounds = await api(`/api/cycles/${id}/compounds`);
+  renderCycleCompounds();
+
+  // Load doses
+  S.doses = await api('/api/doses');
+  renderDoseLog();
+
+  // Load concentration chart
+  loadConcentrationChart();
+}
+
+function renderCycleCompounds() {
+  const el = document.getElementById('cycle-compounds-list');
+  if (S.cycleCompounds.length === 0) {
+    el.innerHTML = '<div class="text-sm text-muted" style="padding:8px">No compounds added</div>';
+    return;
+  }
+  el.innerHTML = S.cycleCompounds.map(cc => {
+    const c = S.compoundsById[cc.compound_id];
+    return `
+      <div class="card" style="padding:12px">
+        <div class="flex items-center justify-between">
+          <div>
+            <div style="font-weight:600">${c ? c.name : cc.compound_id}</div>
+            <div class="text-xs text-muted">${cc.dose_mg}mg ${cc.frequency} via ${cc.route}</div>
+          </div>
+          <button class="text-red text-xs" onclick="removeCycleCompound(${cc.id})">Remove</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderDoseLog() {
+  const el = document.getElementById('dose-log-list');
+  const cycleDoses = S.activeCycle ? S.doses.filter(d => {
+    const cc = S.cycleCompounds.find(c => c.compound_id === d.compound_id);
+    return cc != null;
+  }) : S.doses;
+
+  if (cycleDoses.length === 0) {
+    el.innerHTML = '<div class="text-sm text-muted" style="padding:8px">No doses logged</div>';
+    return;
+  }
+
+  el.innerHTML = cycleDoses.slice(0, 20).map(d => {
+    const c = S.compoundsById[d.compound_id];
+    return `
+      <div class="flex items-center justify-between" style="padding:8px 0;border-bottom:1px solid var(--card-border)">
+        <div>
+          <div class="text-sm" style="font-weight:500">${c ? c.name : d.compound_id}</div>
+          <div class="text-xs text-muted">${formatDate(d.taken_at)}${d.injection_site ? ' — ' + d.injection_site : ''}</div>
+        </div>
+        <div class="flex items-center gap-8">
+          <span class="pill pill-accent">${d.dose_mg}mg</span>
+          <button class="text-red text-xs" onclick="deleteDose(${d.id})">x</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function loadConcentrationChart() {
+  if (!S.activeCycle || S.doses.length === 0) return;
+
+  const cycleDoses = S.doses.filter(d => {
+    return S.cycleCompounds.some(cc => cc.compound_id === d.compound_id);
+  }).map(d => {
+    const c = S.compoundsById[d.compound_id];
+    return {
+      compound_id: d.compound_id,
+      dose_mg: d.dose_mg,
+      taken_at: d.taken_at,
+      half_life_hours: c ? c.halfLifeHours : 24
+    };
+  });
+
+  if (cycleDoses.length === 0) return;
+
+  try {
+    const result = await api('/api/pharma/curve', { method: 'POST', body: { doses: cycleDoses } });
+    const canvas = document.getElementById('conc-chart');
+    const points = result.curve;
+    if (points.length > 0) {
+      const times = points.map(p => p.hours_from_start);
+      const concs = points.map(p => p.concentration);
+      drawChart(canvas, [{
+        data: concs,
+        color: '#e94e1b',
+        fill: true
+      }], {
+        labels: times.map(t => Math.round(t/24) + 'd'),
+        labelInterval: Math.max(1, Math.floor(times.length / 8)),
+        yLabel: 'mg',
+        height: 200
+      });
+    }
+  } catch(e) { console.error('Concentration chart error', e); }
+}
+
+function openNewCycleModal() {
+  openModal(`
+    <div class="modal-title">New Cycle</div>
+    <div class="flex flex-col gap-12">
+      <div><label>Cycle Name</label><input type="text" id="nc-name" placeholder="e.g. Blast #3"></div>
+      <div><label>Type</label>
+        <select id="nc-type">
+          <option value="blast">Blast</option>
+          <option value="cruise">Cruise</option>
+          <option value="cut">Cut</option>
+          <option value="pct">PCT</option>
+        </select>
+      </div>
+      <div><label>Start Date</label><input type="date" id="nc-start" value="${todayStr()}"></div>
+      <div><label>Notes</label><textarea id="nc-notes" placeholder="Optional"></textarea></div>
+      <button class="btn btn-primary btn-block" onclick="createCycle()">Create Cycle</button>
+    </div>
+  `);
+}
+
+async function createCycle() {
+  const name = document.getElementById('nc-name').value.trim();
+  const type = document.getElementById('nc-type').value;
+  const start = document.getElementById('nc-start').value;
+  const notes = document.getElementById('nc-notes').value.trim();
+  if (!name || !start) return alert('Name and start date required');
+
+  try {
+    await api('/api/cycles', { method: 'POST', body: { name, type, start_date: start, notes: notes || null } });
+    closeModal();
+    loadCycles();
+  } catch(e) { alert(e.message); }
+}
+
+async function endCycle() {
+  if (!S.activeCycle || !confirm('End this cycle?')) return;
+  try {
+    await api(`/api/cycles/${S.activeCycle.id}`, { method: 'PUT', body: { end_date: todayStr() } });
+    loadCycles();
+  } catch(e) { alert(e.message); }
+}
+
+function openAddCompoundModal() {
+  if (!S.activeCycle) return;
+  const options = S.compounds.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  openModal(`
+    <div class="modal-title">Add Compound</div>
+    <div class="flex flex-col gap-12">
+      <div><label>Compound</label>
+        <input type="text" id="ac-search" placeholder="Search compounds..." oninput="filterCompoundSelect()">
+        <select id="ac-compound" size="6" style="height:180px;margin-top:4px">${options}</select>
+      </div>
+      <div class="grid-2 gap-8">
+        <div><label>Dose (mg)</label><input type="number" id="ac-dose" placeholder="250"></div>
+        <div><label>Frequency</label>
+          <select id="ac-freq">
+            <option value="ed">Every Day</option>
+            <option value="eod">Every Other Day</option>
+            <option value="e3d">Every 3 Days</option>
+            <option value="e3.5d" selected>2x Week</option>
+            <option value="ew">Weekly</option>
+            <option value="e2w">Biweekly</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-2 gap-8">
+        <div><label>Route</label>
+          <select id="ac-route">
+            <option value="im">IM Injection</option>
+            <option value="subq">SubQ Injection</option>
+            <option value="oral">Oral</option>
+            <option value="topical">Topical</option>
+          </select>
+        </div>
+        <div><label>Start Date</label><input type="date" id="ac-start" value="${todayStr()}"></div>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="addCompoundToCycle()">Add to Cycle</button>
+    </div>
+  `);
+}
+
+function filterCompoundSelect() {
+  const q = document.getElementById('ac-search').value.toLowerCase();
+  const sel = document.getElementById('ac-compound');
+  Array.from(sel.options).forEach(opt => {
+    opt.style.display = opt.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+async function addCompoundToCycle() {
+  const sel = document.getElementById('ac-compound');
+  const compound_id = sel.value;
+  const dose_mg = parseFloat(document.getElementById('ac-dose').value);
+  const frequency = document.getElementById('ac-freq').value;
+  const route = document.getElementById('ac-route').value;
+  const start_date = document.getElementById('ac-start').value;
+
+  if (!compound_id || !dose_mg || !start_date) return alert('Fill all fields');
+
+  try {
+    await api(`/api/cycles/${S.activeCycle.id}/compounds`, {
+      method: 'POST',
+      body: { compound_id, dose_mg, frequency, route, start_date }
+    });
+    closeModal();
+    viewCycle(S.activeCycle.id);
+  } catch(e) { alert(e.message); }
+}
+
+async function removeCycleCompound(id) {
+  if (!confirm('Remove compound?')) return;
+  try {
+    await api(`/api/cycle-compounds/${id}`, { method: 'DELETE' });
+    viewCycle(S.activeCycle.id);
+  } catch(e) { alert(e.message); }
+}
+
+/* Pinning Calculator */
+function calcPin() {
+  const dose = parseFloat(document.getElementById('pin-dose').value);
+  const conc = parseFloat(document.getElementById('pin-conc').value);
+  const el = document.getElementById('pin-result');
+  if (dose > 0 && conc > 0) {
+    const vol = (dose / conc).toFixed(2);
+    el.textContent = vol + ' mL';
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+/* Log Dose */
+function openLogDoseModal() {
+  const compOptions = S.cycleCompounds.map(cc => {
+    const c = S.compoundsById[cc.compound_id];
+    return `<option value="${cc.compound_id}" data-dose="${cc.dose_mg}">${c ? c.name : cc.compound_id} (${cc.dose_mg}mg)</option>`;
+  }).join('');
+
+  openModal(`
+    <div class="modal-title">Log Dose</div>
+    <div class="flex flex-col gap-12">
+      <div><label>Compound</label><select id="ld-compound" onchange="prefillDose()">${compOptions}</select></div>
+      <div class="grid-2 gap-8">
+        <div><label>Dose (mg)</label><input type="number" id="ld-dose"></div>
+        <div><label>Date/Time</label><input type="datetime-local" id="ld-time" value="${nowLocal()}"></div>
+      </div>
+      <div><label>Injection Site</label>
+        <div id="ld-site-name" class="text-sm text-accent mb-8" style="min-height:18px"></div>
+        ${buildBodyMapHTML('ld')}
+      </div>
+      <div><label>Notes</label><textarea id="ld-notes" placeholder="Optional"></textarea></div>
+      <button class="btn btn-primary btn-block" onclick="logDose()">Log Dose</button>
+    </div>
+  `);
+  prefillDose();
+}
+
+function prefillDose() {
+  const sel = document.getElementById('ld-compound');
+  if (sel && sel.selectedOptions[0]) {
+    document.getElementById('ld-dose').value = sel.selectedOptions[0].dataset.dose || '';
+  }
+}
+
+function selectSite(prefix, site) {
+  document.querySelectorAll(`#${prefix}-bodymap .site`).forEach(el => el.classList.remove('sel'));
+  const el = document.querySelector(`#${prefix}-bodymap .site[data-site="${site}"]`);
+  if (el) el.classList.add('sel');
+  const nameEl = document.getElementById(`${prefix}-site-name`);
+  if (nameEl) nameEl.textContent = site;
+}
+
+async function logDose() {
+  const compound_id = document.getElementById('ld-compound').value;
+  const dose_mg = parseFloat(document.getElementById('ld-dose').value);
+  const taken_at = document.getElementById('ld-time').value;
+  const siteEl = document.getElementById('ld-site-name');
+  const injection_site = siteEl ? siteEl.textContent : '';
+  const notes = document.getElementById('ld-notes').value.trim();
+
+  if (!compound_id || !dose_mg || !taken_at) return alert('Fill compound, dose, and time');
+
+  try {
+    await api('/api/doses', {
+      method: 'POST',
+      body: { compound_id, dose_mg, taken_at: new Date(taken_at).toISOString(), injection_site: injection_site || null, notes: notes || null }
+    });
+    closeModal();
+    if (S.currentTab === 'cycle') viewCycle(S.activeCycle.id);
+    else loadHome();
+  } catch(e) { alert(e.message); }
+}
+
+async function deleteDose(id) {
+  if (!confirm('Delete dose?')) return;
+  try {
+    await api(`/api/doses/${id}`, { method: 'DELETE' });
+    viewCycle(S.activeCycle.id);
+  } catch(e) { alert(e.message); }
+}
+
+function quickLogDose() {
+  if (!S.activeCycle || !S.cycleCompounds || S.cycleCompounds.length === 0) {
+    return alert('Start a cycle and add compounds first');
+  }
+  openLogDoseModal();
+}
+
+function quickLogWeight() {
+  openModal(`
+    <div class="modal-title">Log Weight</div>
+    <div class="flex flex-col gap-12">
+      <div class="grid-2 gap-8">
+        <div><label>Weight</label><input type="number" id="qw-weight" step="0.1" placeholder="185"></div>
+        <div><label>Body Fat %</label><input type="number" id="qw-bf" step="0.1" placeholder="15"></div>
+      </div>
+      <div><label>Date</label><input type="date" id="qw-date" value="${todayStr()}"></div>
+      <button class="btn btn-primary btn-block" onclick="saveQuickWeight()">Save</button>
+    </div>
+  `);
+}
+
+async function saveQuickWeight() {
+  const weight = parseFloat(document.getElementById('qw-weight').value);
+  const body_fat = parseFloat(document.getElementById('qw-bf').value) || null;
+  const date = document.getElementById('qw-date').value;
+  if (!weight || !date) return alert('Weight and date required');
+  try {
+    await api('/api/measurements', { method: 'POST', body: { date, weight, body_fat } });
+    closeModal();
+    loadHome();
+  } catch(e) { alert(e.message); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   TRAINING TAB
+   ───────────────────────────────────────────────────────────────────────── */
+const TEMPLATES = [
+  { id:'push', name:'Push (Chest/Shoulders/Triceps)', exercises:[
+    {exerciseId:'flat-barbell-bench-press',sets:4,repsMin:6,repsMax:8},{exerciseId:'incline-dumbbell-bench-press',sets:3,repsMin:8,repsMax:10},{exerciseId:'cable-crossover',sets:3,repsMin:10,repsMax:12},{exerciseId:'overhead-press',sets:4,repsMin:6,repsMax:8},{exerciseId:'lateral-raise',sets:4,repsMin:12,repsMax:15},{exerciseId:'tricep-pushdown',sets:3,repsMin:10,repsMax:12},{exerciseId:'overhead-tricep-extension',sets:3,repsMin:10,repsMax:12}
+  ]},
+  { id:'pull', name:'Pull (Back/Biceps)', exercises:[
+    {exerciseId:'barbell-row',sets:4,repsMin:6,repsMax:8},{exerciseId:'lat-pulldown',sets:3,repsMin:8,repsMax:10},{exerciseId:'seated-cable-row',sets:3,repsMin:10,repsMax:12},{exerciseId:'dumbbell-row',sets:3,repsMin:8,repsMax:10},{exerciseId:'face-pulls',sets:3,repsMin:15,repsMax:20},{exerciseId:'barbell-curl',sets:3,repsMin:8,repsMax:10},{exerciseId:'hammer-curl',sets:3,repsMin:10,repsMax:12}
+  ]},
+  { id:'legs', name:'Legs', exercises:[
+    {exerciseId:'barbell-back-squat',sets:4,repsMin:6,repsMax:8},{exerciseId:'romanian-deadlift',sets:4,repsMin:8,repsMax:10},{exerciseId:'leg-press',sets:3,repsMin:10,repsMax:12},{exerciseId:'lying-leg-curl',sets:3,repsMin:10,repsMax:12},{exerciseId:'leg-extension',sets:3,repsMin:12,repsMax:15},{exerciseId:'barbell-hip-thrust',sets:3,repsMin:8,repsMax:10},{exerciseId:'standing-calf-raise',sets:4,repsMin:12,repsMax:15},{exerciseId:'seated-calf-raise',sets:3,repsMin:15,repsMax:20}
+  ]},
+  { id:'upper-body', name:'Upper Body', exercises:[
+    {exerciseId:'flat-barbell-bench-press',sets:4,repsMin:6,repsMax:8},{exerciseId:'barbell-row',sets:4,repsMin:6,repsMax:8},{exerciseId:'dumbbell-shoulder-press',sets:3,repsMin:8,repsMax:10},{exerciseId:'lat-pulldown',sets:3,repsMin:8,repsMax:10},{exerciseId:'incline-dumbbell-bench-press',sets:3,repsMin:8,repsMax:10},{exerciseId:'lateral-raise',sets:3,repsMin:12,repsMax:15},{exerciseId:'barbell-curl',sets:3,repsMin:10,repsMax:12},{exerciseId:'tricep-pushdown',sets:3,repsMin:10,repsMax:12}
+  ]},
+  { id:'lower-body', name:'Lower Body', exercises:[
+    {exerciseId:'barbell-back-squat',sets:4,repsMin:6,repsMax:8},{exerciseId:'romanian-deadlift',sets:4,repsMin:8,repsMax:10},{exerciseId:'bulgarian-split-squat',sets:3,repsMin:8,repsMax:10},{exerciseId:'lying-leg-curl',sets:3,repsMin:10,repsMax:12},{exerciseId:'hack-squat',sets:3,repsMin:10,repsMax:12},{exerciseId:'barbell-hip-thrust',sets:3,repsMin:8,repsMax:10},{exerciseId:'standing-calf-raise',sets:4,repsMin:12,repsMax:15},{exerciseId:'seated-calf-raise',sets:3,repsMin:15,repsMax:20}
+  ]},
+  { id:'chest-and-back', name:'Chest & Back', exercises:[
+    {exerciseId:'flat-barbell-bench-press',sets:4,repsMin:6,repsMax:8},{exerciseId:'barbell-row',sets:4,repsMin:6,repsMax:8},{exerciseId:'incline-dumbbell-bench-press',sets:3,repsMin:8,repsMax:10},{exerciseId:'lat-pulldown',sets:3,repsMin:8,repsMax:10},{exerciseId:'cable-crossover',sets:3,repsMin:10,repsMax:12},{exerciseId:'seated-cable-row',sets:3,repsMin:10,repsMax:12},{exerciseId:'pec-deck',sets:3,repsMin:12,repsMax:15},{exerciseId:'face-pulls',sets:3,repsMin:15,repsMax:20}
+  ]},
+  { id:'arms', name:'Arms', exercises:[
+    {exerciseId:'barbell-curl',sets:4,repsMin:8,repsMax:10},{exerciseId:'close-grip-bench-press',sets:4,repsMin:8,repsMax:10},{exerciseId:'hammer-curl',sets:3,repsMin:10,repsMax:12},{exerciseId:'skull-crusher',sets:3,repsMin:8,repsMax:10},{exerciseId:'incline-dumbbell-curl',sets:3,repsMin:10,repsMax:12},{exerciseId:'tricep-pushdown',sets:3,repsMin:10,repsMax:12},{exerciseId:'concentration-curl',sets:3,repsMin:12,repsMax:15},{exerciseId:'overhead-tricep-extension',sets:3,repsMin:10,repsMax:12}
+  ]},
+  { id:'full-body', name:'Full Body', exercises:[
+    {exerciseId:'barbell-back-squat',sets:4,repsMin:6,repsMax:8},{exerciseId:'flat-barbell-bench-press',sets:4,repsMin:6,repsMax:8},{exerciseId:'barbell-row',sets:4,repsMin:6,repsMax:8},{exerciseId:'overhead-press',sets:3,repsMin:8,repsMax:10},{exerciseId:'romanian-deadlift',sets:3,repsMin:8,repsMax:10},{exerciseId:'barbell-curl',sets:2,repsMin:10,repsMax:12},{exerciseId:'tricep-pushdown',sets:2,repsMin:10,repsMax:12},{exerciseId:'standing-calf-raise',sets:3,repsMin:12,repsMax:15}
+  ]}
+];
+
+// Exercise name map (id -> display name)
+const EXERCISE_NAMES = {
+  'flat-barbell-bench-press':'Flat Barbell Bench Press','incline-barbell-bench-press':'Incline Barbell Bench','decline-barbell-bench-press':'Decline Barbell Bench','flat-dumbbell-bench-press':'Flat DB Bench Press','incline-dumbbell-bench-press':'Incline DB Bench','decline-dumbbell-bench-press':'Decline DB Bench','cable-crossover':'Cable Crossover','pec-deck':'Pec Deck Fly','chest-dips':'Dips (Chest)','dumbbell-flye':'Dumbbell Flye','machine-chest-press':'Machine Chest Press','svend-press':'Svend Press',
+  'barbell-row':'Barbell Row','dumbbell-row':'Dumbbell Row','lat-pulldown':'Lat Pulldown','seated-cable-row':'Seated Cable Row','t-bar-row':'T-Bar Row','pull-up':'Pull-Up','chin-up':'Chin-Up','face-pulls':'Face Pulls','straight-arm-pulldown':'Straight-Arm Pulldown','chest-supported-row':'Chest Supported Row','meadows-row':'Meadows Row','pendlay-row':'Pendlay Row','rack-pull':'Rack Pull','cable-pullover':'Cable Pullover',
+  'overhead-press':'Overhead Press','dumbbell-shoulder-press':'DB Shoulder Press','arnold-press':'Arnold Press','lateral-raise':'Lateral Raise','front-raise':'Front Raise','cable-lateral-raise':'Cable Lateral Raise','reverse-pec-deck':'Reverse Pec Deck','bent-over-lateral-raise':'Bent-Over Lateral Raise','upright-row':'Upright Row','machine-shoulder-press':'Machine Shoulder Press','lu-raise':'Lu Raise','bus-driver':'Bus Driver',
+  'barbell-curl':'Barbell Curl','dumbbell-curl':'Dumbbell Curl','hammer-curl':'Hammer Curl','preacher-curl':'Preacher Curl','incline-dumbbell-curl':'Incline DB Curl','cable-curl':'Cable Curl','concentration-curl':'Concentration Curl','ez-bar-curl':'EZ Bar Curl','spider-curl':'Spider Curl','reverse-curl':'Reverse Curl','bayesian-curl':'Bayesian Curl',
+  'tricep-pushdown':'Tricep Pushdown','skull-crusher':'Skull Crusher','close-grip-bench-press':'Close-Grip Bench','overhead-tricep-extension':'OH Tricep Extension','dumbbell-kickback':'DB Kickback','dips-triceps':'Dips (Triceps)','cable-overhead-extension':'Cable OH Extension','jm-press':'JM Press',
+  'barbell-back-squat':'Barbell Back Squat','barbell-front-squat':'Front Squat','hack-squat':'Hack Squat','leg-press':'Leg Press','leg-extension':'Leg Extension','walking-lunge':'Walking Lunge','bulgarian-split-squat':'Bulgarian Split Squat','goblet-squat':'Goblet Squat','sissy-squat':'Sissy Squat','smith-machine-squat':'Smith Squat','step-up':'Step-Up','pistol-squat':'Pistol Squat','pendulum-squat':'Pendulum Squat',
+  'romanian-deadlift':'Romanian Deadlift','lying-leg-curl':'Lying Leg Curl','seated-leg-curl':'Seated Leg Curl','stiff-leg-deadlift':'Stiff-Leg Deadlift','good-morning':'Good Morning','nordic-curl':'Nordic Curl','dumbbell-romanian-deadlift':'DB Romanian Deadlift',
+  'barbell-hip-thrust':'Barbell Hip Thrust','glute-bridge':'Glute Bridge','cable-kickback':'Cable Kickback','sumo-deadlift':'Sumo Deadlift','glute-ham-raise':'Glute Ham Raise','single-leg-hip-thrust':'Single-Leg Hip Thrust','cable-pull-through':'Cable Pull-Through',
+  'standing-calf-raise':'Standing Calf Raise','seated-calf-raise':'Seated Calf Raise','leg-press-calf-raise':'Leg Press Calf Raise','donkey-calf-raise':'Donkey Calf Raise','smith-machine-calf-raise':'Smith Calf Raise',
+  'crunch':'Crunch','cable-crunch':'Cable Crunch','hanging-leg-raise':'Hanging Leg Raise','ab-wheel-rollout':'Ab Wheel Rollout','plank':'Plank','side-plank':'Side Plank','russian-twist':'Russian Twist','decline-sit-up':'Decline Sit-Up','dragon-flag':'Dragon Flag','pallof-press':'Pallof Press','woodchop':'Woodchop',
+  'barbell-shrug':'Barbell Shrug','dumbbell-shrug':'Dumbbell Shrug','farmers-walk':'Farmers Walk','face-pull-shrug':'Face Pull Shrug',
+  'wrist-curl':'Wrist Curl','reverse-wrist-curl':'Reverse Wrist Curl','dead-hang':'Dead Hang',
+  'conventional-deadlift':'Conventional Deadlift','clean-and-press':'Clean and Press','power-clean':'Power Clean','thruster':'Thruster','kettlebell-swing':'Kettlebell Swing','turkish-get-up':'Turkish Get-Up','burpees':'Burpees',
+  'treadmill':'Treadmill','stairmaster':'Stairmaster','stationary-bike':'Stationary Bike','elliptical':'Elliptical','rowing-machine':'Rowing Machine','incline-walk':'Incline Walk','jump-rope':'Jump Rope','battle-ropes':'Battle Ropes'
+};
+
+function getExName(id) { return EXERCISE_NAMES[id] || id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()); }
+
+async function loadTraining() {
+  if (S.activeWorkout) return; // Don't reload if workout active
+
+  // Templates
+  const tmplEl = document.getElementById('template-list');
+  tmplEl.innerHTML = TEMPLATES.map(t => `
+    <div class="card" style="padding:12px;cursor:pointer" onclick="startWorkoutFromTemplate('${t.id}')">
+      <div class="flex items-center justify-between">
+        <div style="font-weight:600;font-size:13px">${t.name}</div>
+        <div class="text-xs text-muted">${t.exercises.length} exercises</div>
+      </div>
+    </div>
+  `).join('');
+
+  // History
+  try {
+    S.workouts = await api('/api/workouts');
+    const histEl = document.getElementById('workout-history');
+    if (S.workouts.length === 0) {
+      histEl.innerHTML = '<div class="text-sm text-muted" style="padding:8px">No workouts yet</div>';
+    } else {
+      histEl.innerHTML = S.workouts.slice(0, 10).map(w => `
+        <div class="card" style="padding:12px;cursor:pointer" onclick="viewWorkout(${w.id})">
+          <div class="flex items-center justify-between">
+            <div>
+              <div style="font-weight:500">${w.name || 'Workout'}</div>
+              <div class="text-xs text-muted">${formatDate(w.date)}${w.duration_min ? ' — ' + w.duration_min + ' min' : ''}</div>
+            </div>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--text3)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Volume chart
+    if (S.workouts.length > 0) {
+      const to = todayStr();
+      const fromDate = new Date(); fromDate.setDate(fromDate.getDate() - 7);
+      const from = fromDate.toISOString().slice(0,10);
+      try {
+        const volume = await api(`/api/exercises/volume?from=${from}&to=${to}`);
+        if (volume.length > 0) {
+          // Aggregate by date
+          const byDate = {};
+          volume.forEach(v => { byDate[v.date] = (byDate[v.date] || 0) + (v.total_sets || 0); });
+          const dates = Object.keys(byDate).sort();
+          const sets = dates.map(d => byDate[d]);
+          drawChart(document.getElementById('volume-chart'), [{
+            data: sets, color: '#2dd4a8', fill: true, type: 'bar'
+          }], { labels: dates.map(d => d.slice(5)), height: 180, yLabel: 'sets' });
+        }
+      } catch(e) {}
+    }
+  } catch(e) { console.error('Training load error', e); }
+}
+
+function startWorkout() {
+  openModal(`
+    <div class="modal-title">Start Workout</div>
+    <div class="flex flex-col gap-8">
+      <button class="card" style="padding:14px;text-align:center;cursor:pointer" onclick="beginBlankWorkout()">
+        <div style="font-weight:600">Blank Workout</div>
+        <div class="text-xs text-muted">Start from scratch</div>
+      </button>
+      <div class="divider"></div>
+      <div class="section-hdr" style="font-size:14px">Or choose a template</div>
+      ${TEMPLATES.map(t => `
+        <button class="card" style="padding:12px;cursor:pointer" onclick="startWorkoutFromTemplate('${t.id}')">
+          <div style="font-weight:500;text-align:left">${t.name}</div>
+        </button>
+      `).join('')}
+    </div>
+  `);
+}
+
+function beginBlankWorkout() {
+  closeModal();
+  S.activeWorkout = { name: 'Workout', exercises: [], startTime: Date.now() };
+  showActiveWorkout();
+}
+
+function startWorkoutFromTemplate(templateId) {
+  closeModal();
+  const tmpl = TEMPLATES.find(t => t.id === templateId);
+  if (!tmpl) return;
+
+  S.activeWorkout = {
+    name: tmpl.name,
+    exercises: tmpl.exercises.map(e => ({
+      exerciseId: e.exerciseId,
+      name: getExName(e.exerciseId),
+      sets: Array.from({length: e.sets}, (_, i) => ({
+        setNum: i + 1, weight: '', reps: e.repsMin + '-' + e.repsMax, rpe: '', type: 'working', completed: false
+      }))
+    })),
+    startTime: Date.now()
+  };
+  showActiveWorkout();
+}
+
+function showActiveWorkout() {
+  document.getElementById('train-start').style.display = 'none';
+  document.getElementById('train-active').style.display = 'block';
+  document.getElementById('active-workout-name').textContent = S.activeWorkout.name;
+
+  // Start timer
+  if (S.workoutTimer) clearInterval(S.workoutTimer);
+  S.workoutTimer = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - S.activeWorkout.startTime) / 1000);
+    const m = Math.floor(elapsed / 60);
+    const s = elapsed % 60;
+    document.getElementById('active-workout-timer').textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  }, 1000);
+
+  renderActiveExercises();
+}
+
+function renderActiveExercises() {
+  const el = document.getElementById('active-exercises');
+  if (S.activeWorkout.exercises.length === 0) {
+    el.innerHTML = '<div class="empty-state text-sm">Add an exercise to begin</div>';
+    return;
+  }
+
+  el.innerHTML = S.activeWorkout.exercises.map((ex, ei) => `
+    <div class="card mb-12">
+      <div class="flex items-center justify-between mb-8">
+        <div style="font-weight:600;color:var(--accent)">${ex.name}</div>
+        <button class="text-xs text-red" onclick="removeExercise(${ei})">Remove</button>
+      </div>
+
+      <!-- Sets table -->
+      <div style="font-size:11px;color:var(--text2);display:grid;grid-template-columns:30px 1fr 1fr 60px 40px;gap:4px;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">
+        <div>Set</div><div>Weight</div><div>Reps</div><div>RPE</div><div></div>
+      </div>
+
+      ${ex.sets.map((s, si) => `
+        <div style="display:grid;grid-template-columns:30px 1fr 1fr 60px 40px;gap:4px;align-items:center;margin-bottom:4px" class="${s.completed ? 'text-teal' : ''}">
+          <div class="text-xs text-muted">${s.setNum}</div>
+          <input type="number" style="padding:8px 6px;font-size:13px" placeholder="lbs" value="${s.weight}" onchange="updateSet(${ei},${si},'weight',this.value)">
+          <input type="number" style="padding:8px 6px;font-size:13px" placeholder="reps" value="${typeof s.reps === 'string' && s.reps.includes('-') ? '' : s.reps}" onchange="updateSet(${ei},${si},'reps',this.value)" ${typeof s.reps === 'string' && s.reps.includes('-') ? `placeholder="${s.reps}"` : ''}>
+          <select style="padding:8px 4px;font-size:11px" onchange="updateSet(${ei},${si},'rpe',this.value)">
+            <option value="">RPE</option>
+            ${[6,6.5,7,7.5,8,8.5,9,9.5,10].map(v => `<option value="${v}" ${s.rpe == v ? 'selected' : ''}>${v}</option>`).join('')}
+          </select>
+          <button style="width:32px;height:32px;border-radius:50%;border:2px solid ${s.completed ? 'var(--teal)' : 'var(--text3)'};background:${s.completed ? 'var(--teal-glow)' : 'transparent'};display:flex;align-items:center;justify-content:center" onclick="toggleSet(${ei},${si})">
+            ${s.completed ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--teal)" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+          </button>
+        </div>
+      `).join('')}
+
+      <div class="flex gap-8 mt-8">
+        <button class="btn btn-sm btn-secondary" onclick="addSet(${ei})">+ Set</button>
+        <button class="btn btn-sm btn-secondary" onclick="startRest(90)">Rest Timer</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateSet(ei, si, field, value) {
+  if (!S.activeWorkout) return;
+  S.activeWorkout.exercises[ei].sets[si][field] = value;
+}
+
+function toggleSet(ei, si) {
+  if (!S.activeWorkout) return;
+  const set = S.activeWorkout.exercises[ei].sets[si];
+  set.completed = !set.completed;
+  renderActiveExercises();
+  if (set.completed) startRest(90);
+}
+
+function addSet(ei) {
+  if (!S.activeWorkout) return;
+  const ex = S.activeWorkout.exercises[ei];
+  const lastSet = ex.sets[ex.sets.length - 1];
+  ex.sets.push({
+    setNum: ex.sets.length + 1,
+    weight: lastSet ? lastSet.weight : '',
+    reps: '',
+    rpe: '',
+    type: 'working',
+    completed: false
+  });
+  renderActiveExercises();
+}
+
+function removeExercise(ei) {
+  if (!S.activeWorkout) return;
+  S.activeWorkout.exercises.splice(ei, 1);
+  renderActiveExercises();
+}
+
+function openAddExerciseModal() {
+  const allExIds = Object.keys(EXERCISE_NAMES);
+  openModal(`
+    <div class="modal-title">Add Exercise</div>
+    <input type="text" id="ex-search" placeholder="Search exercises..." oninput="filterExerciseList()">
+    <div id="ex-list" style="max-height:50vh;overflow-y:auto;margin-top:12px">
+      ${allExIds.map(id => `
+        <div class="list-item" data-name="${getExName(id).toLowerCase()}" onclick="addExerciseToWorkout('${id}')">
+          <div style="font-weight:500;font-size:13px">${getExName(id)}</div>
+        </div>
+      `).join('')}
+    </div>
+  `);
+}
+
+function filterExerciseList() {
+  const q = document.getElementById('ex-search').value.toLowerCase();
+  document.querySelectorAll('#ex-list .list-item').forEach(el => {
+    el.style.display = el.dataset.name.includes(q) ? '' : 'none';
+  });
+}
+
+function addExerciseToWorkout(exerciseId) {
+  if (!S.activeWorkout) return;
+  S.activeWorkout.exercises.push({
+    exerciseId,
+    name: getExName(exerciseId),
+    sets: [{setNum:1, weight:'', reps:'', rpe:'', type:'working', completed:false}]
+  });
+  closeModal();
+  renderActiveExercises();
+}
+
+async function finishWorkout() {
+  if (!S.activeWorkout) return;
+  const elapsed = Math.floor((Date.now() - S.activeWorkout.startTime) / 60000);
+
+  // Build sets array for API
+  const sets = [];
+  S.activeWorkout.exercises.forEach(ex => {
+    ex.sets.forEach(s => {
+      if (s.weight || s.reps) {
+        sets.push({
+          exercise: ex.exerciseId,
+          set_number: s.setNum,
+          weight: parseFloat(s.weight) || null,
+          reps: parseInt(s.reps) || null,
+          rpe: parseFloat(s.rpe) || null,
+          set_type: s.type
+        });
+      }
+    });
+  });
+
+  if (sets.length === 0) return alert('Log at least one set before finishing');
+
+  try {
+    const result = await api('/api/workouts', {
+      method: 'POST',
+      body: {
+        date: todayStr(),
+        name: S.activeWorkout.name,
+        duration_min: elapsed,
+        sets
+      }
+    });
+
+    // Show summary
+    const totalVol = sets.reduce((sum, s) => sum + ((s.weight || 0) * (s.reps || 0)), 0);
+    openModal(`
+      <div class="modal-title">Workout Complete!</div>
+      <div class="grid-3 gap-8 mb-12">
+        <div style="text-align:center"><div class="kpi-val">${elapsed}</div><div class="kpi-label">Minutes</div></div>
+        <div style="text-align:center"><div class="kpi-val">${sets.length}</div><div class="kpi-label">Sets</div></div>
+        <div style="text-align:center"><div class="kpi-val">${(totalVol/1000).toFixed(1)}k</div><div class="kpi-label">Volume</div></div>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="closeModal()">Done</button>
+    `);
+
+    endWorkoutState();
+  } catch(e) { alert(e.message); }
+}
+
+function cancelWorkout() {
+  if (!confirm('Discard this workout?')) return;
+  endWorkoutState();
+}
+
+function endWorkoutState() {
+  if (S.workoutTimer) clearInterval(S.workoutTimer);
+  S.activeWorkout = null;
+  S.workoutTimer = null;
+  document.getElementById('train-start').style.display = 'block';
+  document.getElementById('train-active').style.display = 'none';
+  loadTraining();
+}
+
+async function viewWorkout(id) {
+  try {
+    const w = await api(`/api/workouts/${id}`);
+    if (!w) return;
+
+    // Group sets by exercise
+    const groups = {};
+    (w.sets || []).forEach(s => {
+      if (!groups[s.exercise]) groups[s.exercise] = [];
+      groups[s.exercise].push(s);
+    });
+
+    openModal(`
+      <div class="modal-title">${w.name || 'Workout'}</div>
+      <div class="flex items-center gap-8 mb-12">
+        <span class="pill">${formatDate(w.date)}</span>
+        ${w.duration_min ? `<span class="pill">${w.duration_min} min</span>` : ''}
+      </div>
+      ${Object.entries(groups).map(([ex, sets]) => `
+        <div class="mb-12">
+          <div style="font-weight:600;color:var(--accent);margin-bottom:6px">${getExName(ex)}</div>
+          ${sets.map(s => `
+            <div class="flex items-center gap-8 text-sm" style="padding:4px 0">
+              <span class="text-muted" style="width:24px">S${s.set_number}</span>
+              <span>${s.weight || 0} lbs x ${s.reps || 0}</span>
+              ${s.rpe ? `<span class="text-muted">RPE ${s.rpe}</span>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      `).join('')}
+      <button class="btn btn-red btn-block mt-12" onclick="deleteWorkout(${w.id})">Delete Workout</button>
+    `);
+  } catch(e) { alert(e.message); }
+}
+
+async function deleteWorkout(id) {
+  if (!confirm('Delete workout?')) return;
+  try {
+    await api(`/api/workouts/${id}`, { method: 'DELETE' });
+    closeModal();
+    loadTraining();
+  } catch(e) { alert(e.message); }
+}
+
+/* Rest Timer */
+function startRest(seconds) {
+  S.restSeconds = seconds;
+  document.getElementById('rest-timer').style.display = 'flex';
+  updateRestDisplay();
+
+  if (S.restInterval) clearInterval(S.restInterval);
+  S.restInterval = setInterval(() => {
+    S.restSeconds--;
+    if (S.restSeconds <= 0) {
+      stopRest();
+      // Vibrate if available
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+      return;
+    }
+    updateRestDisplay();
+  }, 1000);
+}
+
+function adjustRest(delta) {
+  S.restSeconds = Math.max(0, S.restSeconds + delta);
+  updateRestDisplay();
+}
+
+function stopRest() {
+  if (S.restInterval) clearInterval(S.restInterval);
+  S.restInterval = null;
+  document.getElementById('rest-timer').style.display = 'none';
+}
+
+function updateRestDisplay() {
+  const m = Math.floor(S.restSeconds / 60);
+  const s = S.restSeconds % 60;
+  document.getElementById('rest-time-display').textContent = m + ':' + String(s).padStart(2,'0');
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BLOOD TAB
+   ───────────────────────────────────────────────────────────────────────── */
+const BLOOD_MARKERS = {
+  'Hormones': ['Total Testosterone','Free Testosterone','Estradiol (E2)','LH','FSH','SHBG','Prolactin','Progesterone','DHEA-S','IGF-1','TSH','Free T3','Free T4'],
+  'Lipids': ['Total Cholesterol','LDL','HDL','Triglycerides','VLDL','ApoB','Lp(a)'],
+  'Liver': ['AST','ALT','GGT','Alkaline Phosphatase','Total Bilirubin','Albumin'],
+  'Kidney': ['Creatinine','BUN','eGFR','Uric Acid','Cystatin C'],
+  'CBC': ['Hematocrit','Hemoglobin','RBC','WBC','Platelets','MCV','MCH','MCHC','RDW'],
+  'Metabolic': ['Fasting Glucose','HbA1c','Fasting Insulin','HOMA-IR','C-Peptide','Ferritin','Iron','TIBC'],
+  'Inflammation': ['CRP (hs)','ESR','Homocysteine','Fibrinogen','IL-6']
+};
+
+const MARKER_RANGES = {
+  'Total Testosterone':{unit:'ng/dL',low:264,high:916},'Free Testosterone':{unit:'pg/mL',low:8.7,high:25.1},'Estradiol (E2)':{unit:'pg/mL',low:11,high:44},'LH':{unit:'mIU/mL',low:1.7,high:8.6},'FSH':{unit:'mIU/mL',low:1.5,high:12.4},'SHBG':{unit:'nmol/L',low:16,high:55},'Prolactin':{unit:'ng/mL',low:4,high:15.2},'IGF-1':{unit:'ng/mL',low:115,high:355},'TSH':{unit:'mIU/L',low:0.4,high:4.0},'Free T3':{unit:'pg/mL',low:2.0,high:4.4},'Free T4':{unit:'ng/dL',low:0.82,high:1.77},
+  'Total Cholesterol':{unit:'mg/dL',low:0,high:200},'LDL':{unit:'mg/dL',low:0,high:100},'HDL':{unit:'mg/dL',low:40,high:999},'Triglycerides':{unit:'mg/dL',low:0,high:150},
+  'AST':{unit:'U/L',low:0,high:40},'ALT':{unit:'U/L',low:0,high:56},'GGT':{unit:'U/L',low:0,high:65},'Total Bilirubin':{unit:'mg/dL',low:0.1,high:1.2},
+  'Creatinine':{unit:'mg/dL',low:0.7,high:1.3},'BUN':{unit:'mg/dL',low:6,high:20},'eGFR':{unit:'mL/min',low:90,high:999},
+  'Hematocrit':{unit:'%',low:38.3,high:48.6},'Hemoglobin':{unit:'g/dL',low:13.2,high:16.6},'RBC':{unit:'M/uL',low:4.35,high:5.65},'WBC':{unit:'K/uL',low:4.5,high:11.0},'Platelets':{unit:'K/uL',low:135,high:317},
+  'Fasting Glucose':{unit:'mg/dL',low:70,high:100},'HbA1c':{unit:'%',low:0,high:5.7},'Fasting Insulin':{unit:'uIU/mL',low:2.6,high:24.9},'Ferritin':{unit:'ng/mL',low:20,high:250},
+  'CRP (hs)':{unit:'mg/L',low:0,high:1.0},'Homocysteine':{unit:'umol/L',low:5,high:15}
+};
+
+async function loadBlood() {
+  try {
+    S.bloodPanels = await api('/api/bloodwork');
+    const listEl = document.getElementById('blood-panel-list');
+
+    if (S.bloodPanels.length === 0) {
+      listEl.innerHTML = '<div class="empty-state"><p class="text-muted">No blood panels yet</p></div>';
+      document.getElementById('blood-trend-section').style.display = 'none';
+      return;
+    }
+
+    listEl.innerHTML = S.bloodPanels.map(p => `
+      <div class="card" style="cursor:pointer" onclick="viewBloodPanel(${p.id})">
+        <div class="flex items-center justify-between">
+          <div>
+            <div style="font-weight:600">${formatDate(p.date)}</div>
+            <div class="text-xs text-muted">${p.lab_name || 'Lab results'}</div>
+          </div>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--text3)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+    `).join('');
+
+    // Populate trend marker dropdown
+    document.getElementById('blood-trend-section').style.display = 'block';
+    const sel = document.getElementById('blood-trend-marker');
+    if (sel.options.length <= 1) {
+      Object.entries(BLOOD_MARKERS).forEach(([group, markers]) => {
+        const og = document.createElement('optgroup');
+        og.label = group;
+        markers.forEach(m => { const o = document.createElement('option'); o.value = m; o.textContent = m; og.appendChild(o); });
+        sel.appendChild(og);
+      });
+    }
+  } catch(e) { console.error('Blood load error', e); }
+}
+
+async function viewBloodPanel(id) {
+  try {
+    const panel = await api(`/api/bloodwork/${id}`);
+    if (!panel) return;
+
+    openModal(`
+      <div class="modal-title">${formatDate(panel.date)}</div>
+      ${panel.lab_name ? `<div class="text-sm text-muted mb-12">${panel.lab_name}</div>` : ''}
+      <div class="flex flex-col gap-8">
+        ${(panel.markers || []).map(m => {
+          const range = MARKER_RANGES[m.marker];
+          let flagColor = 'var(--teal)';
+          let flagText = 'Normal';
+          if (range) {
+            if (m.value < range.low) { flagColor = 'var(--amber)'; flagText = 'Low'; }
+            else if (m.value > range.high) { flagColor = 'var(--red)'; flagText = 'High'; }
+          }
+          if (m.flag === 'high' || m.flag === 'H') { flagColor = 'var(--red)'; flagText = 'High'; }
+          if (m.flag === 'low' || m.flag === 'L') { flagColor = 'var(--amber)'; flagText = 'Low'; }
+          return `
+            <div class="flex items-center justify-between" style="padding:6px 0;border-bottom:1px solid var(--card-border)">
+              <div>
+                <div class="text-sm" style="font-weight:500">${m.marker}</div>
+                <div class="text-xs text-muted">${range ? range.unit : m.unit || ''}</div>
+              </div>
+              <div class="flex items-center gap-8">
+                <span style="font-weight:600">${m.value}</span>
+                <span style="color:${flagColor};font-size:11px;font-weight:600">${flagText}</span>
+              </div>
+            </div>`;
+        }).join('')}
+      </div>
+      <button class="btn btn-red btn-block mt-16" onclick="deleteBloodPanel(${panel.id})">Delete Panel</button>
+    `);
+  } catch(e) { alert(e.message); }
+}
+
+async function deleteBloodPanel(id) {
+  if (!confirm('Delete panel?')) return;
+  try {
+    await api(`/api/bloodwork/${id}`, { method: 'DELETE' });
+    closeModal();
+    loadBlood();
+  } catch(e) { alert(e.message); }
+}
+
+function openAddBloodPanel() {
+  openModal(`
+    <div class="modal-title">Add Blood Panel</div>
+    <div class="flex flex-col gap-12">
+      <div class="grid-2 gap-8">
+        <div><label>Date</label><input type="date" id="bp-date" value="${todayStr()}"></div>
+        <div><label>Lab Name</label><input type="text" id="bp-lab" placeholder="Quest, LabCorp..."></div>
+      </div>
+      <div class="section-hdr" style="font-size:14px">Markers</div>
+      <div id="bp-marker-groups" style="max-height:50vh;overflow-y:auto">
+        ${Object.entries(BLOOD_MARKERS).map(([group, markers]) => `
+          <details style="margin-bottom:8px">
+            <summary style="font-weight:600;padding:8px;background:var(--bg3);border-radius:var(--radius-sm);cursor:pointer">${group} <span class="text-xs text-muted">(${markers.length})</span></summary>
+            <div style="padding:8px 0">
+              ${markers.map(m => {
+                const r = MARKER_RANGES[m];
+                return `<div class="flex items-center gap-8" style="padding:4px 0">
+                  <div style="flex:1;font-size:12px">${m} ${r ? '<span class="text-xs text-muted">(' + r.unit + ')</span>' : ''}</div>
+                  <input type="number" step="0.01" style="width:80px;padding:6px 8px;font-size:12px" data-marker="${m}" data-unit="${r ? r.unit : ''}" placeholder="—">
+                </div>`;
+              }).join('')}
+            </div>
+          </details>
+        `).join('')}
+      </div>
+      <button class="btn btn-primary btn-block" onclick="saveBloodPanel()">Save Panel</button>
+    </div>
+  `);
+}
+
+async function saveBloodPanel() {
+  const date = document.getElementById('bp-date').value;
+  const lab_name = document.getElementById('bp-lab').value.trim();
+  if (!date) return alert('Date required');
+
+  const markers = [];
+  document.querySelectorAll('#bp-marker-groups input[data-marker]').forEach(inp => {
+    if (inp.value) {
+      const r = MARKER_RANGES[inp.dataset.marker];
+      let flag = null;
+      if (r) {
+        if (parseFloat(inp.value) < r.low) flag = 'low';
+        else if (parseFloat(inp.value) > r.high) flag = 'high';
+      }
+      markers.push({ marker: inp.dataset.marker, value: parseFloat(inp.value), unit: inp.dataset.unit || null, flag });
+    }
+  });
+
+  if (markers.length === 0) return alert('Enter at least one marker value');
+
+  try {
+    await api('/api/bloodwork', { method: 'POST', body: { date, lab_name: lab_name || null, markers } });
+    closeModal();
+    loadBlood();
+  } catch(e) { alert(e.message); }
+}
+
+async function loadMarkerTrend() {
+  const marker = document.getElementById('blood-trend-marker').value;
+  if (!marker) return;
+
+  try {
+    const data = await api(`/api/markers/${encodeURIComponent(marker)}/trend`);
+    if (data.length === 0) return;
+
+    const range = MARKER_RANGES[marker];
+    const labels = data.map(d => d.panel_date ? d.panel_date.slice(5) : '');
+    const values = data.map(d => d.value);
+
+    const bands = range ? [{ low: range.low, high: range.high, color: 'rgba(45,212,168,.08)' }] : [];
+
+    drawChart(document.getElementById('blood-trend-chart'), [{
+      data: values, color: '#e94e1b', fill: false
+    }], { labels, height: 180, yLabel: range ? range.unit : '', bands });
+  } catch(e) { console.error('Trend error', e); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BODY TAB
+   ───────────────────────────────────────────────────────────────────────── */
+async function loadBody() {
+  try {
+    S.measurements = await api('/api/measurements');
+
+    // Weight chart
+    if (S.measurements.length > 0) {
+      const sorted = [...S.measurements].reverse();
+      const weights = sorted.filter(m => m.weight).map(m => m.weight);
+      const dates = sorted.filter(m => m.weight).map(m => m.date.slice(5));
+
+      if (weights.length > 1) {
+        // Moving average
+        const ma = [];
+        for (let i = 0; i < weights.length; i++) {
+          const start = Math.max(0, i - 6);
+          const slice = weights.slice(start, i + 1);
+          ma.push(slice.reduce((a,b) => a+b, 0) / slice.length);
+        }
+
+        drawChart(document.getElementById('weight-chart'), [
+          { data: weights, color: 'rgba(233,78,27,.3)', fill: false },
+          { data: ma, color: '#e94e1b', fill: true }
+        ], { labels: dates, height: 180, yLabel: 'lbs', labelInterval: Math.max(1, Math.floor(dates.length / 6)) });
+      }
+    }
+
+    // Measurements list
+    const measEl = document.getElementById('measurement-list');
+    if (S.measurements.length === 0) {
+      measEl.innerHTML = '<div class="text-sm text-muted">No measurements yet</div>';
+    } else {
+      measEl.innerHTML = S.measurements.slice(0, 10).map(m => {
+        const parts = [];
+        if (m.weight) parts.push(`${m.weight} lbs`);
+        if (m.body_fat) parts.push(`${m.body_fat}% BF`);
+        if (m.chest) parts.push(`Chest ${m.chest}"`);
+        if (m.waist) parts.push(`Waist ${m.waist}"`);
+        if (m.left_arm) parts.push(`Arms ${m.left_arm}"`);
+        return `
+          <div class="card" style="padding:12px">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-xs text-muted">${formatDate(m.date)}</div>
+                <div class="text-sm" style="margin-top:2px">${parts.join(' / ') || 'No data'}</div>
+              </div>
+              <button class="text-red text-xs" onclick="deleteMeasurement(${m.id})">x</button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    // Photos
+    S.photos = await api('/api/photos');
+    const photoEl = document.getElementById('photo-grid');
+    if (S.photos.length === 0) {
+      photoEl.innerHTML = '<div class="text-sm text-muted" style="grid-column:span 3;text-align:center;padding:20px">No photos yet</div>';
+    } else {
+      photoEl.innerHTML = S.photos.slice(0, 9).map(p => `
+        <div style="aspect-ratio:3/4;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg3);cursor:pointer;position:relative" onclick="viewPhoto(${p.id})">
+          <div style="position:absolute;bottom:0;left:0;right:0;padding:4px 6px;background:rgba(0,0,0,.6);font-size:10px">${p.date.slice(5)}</div>
+        </div>
+      `).join('');
+    }
+  } catch(e) { console.error('Body load error', e); }
+}
+
+function openAddMeasurement() {
+  openModal(`
+    <div class="modal-title">Add Measurement</div>
+    <div class="flex flex-col gap-12">
+      <div><label>Date</label><input type="date" id="am-date" value="${todayStr()}"></div>
+      <div class="grid-2 gap-8">
+        <div><label>Weight (lbs)</label><input type="number" id="am-weight" step="0.1"></div>
+        <div><label>Body Fat %</label><input type="number" id="am-bf" step="0.1"></div>
+      </div>
+      <div class="section-hdr" style="font-size:14px">Tape Measurements (inches)</div>
+      <div class="grid-2 gap-8">
+        <div><label>Neck</label><input type="number" id="am-neck" step="0.1"></div>
+        <div><label>Shoulders</label><input type="number" id="am-shoulders" step="0.1"></div>
+        <div><label>Chest</label><input type="number" id="am-chest" step="0.1"></div>
+        <div><label>Waist</label><input type="number" id="am-waist" step="0.1"></div>
+        <div><label>Hips</label><input type="number" id="am-hips" step="0.1"></div>
+        <div><label>Left Arm</label><input type="number" id="am-left_arm" step="0.1"></div>
+        <div><label>Right Arm</label><input type="number" id="am-right_arm" step="0.1"></div>
+        <div><label>Left Quad</label><input type="number" id="am-left_quad" step="0.1"></div>
+        <div><label>Right Quad</label><input type="number" id="am-right_quad" step="0.1"></div>
+        <div><label>Left Calf</label><input type="number" id="am-left_calf" step="0.1"></div>
+        <div><label>Right Calf</label><input type="number" id="am-right_calf" step="0.1"></div>
+      </div>
+      <div><label>Notes</label><textarea id="am-notes" placeholder="Optional"></textarea></div>
+      <button class="btn btn-primary btn-block" onclick="saveMeasurement()">Save</button>
+    </div>
+  `);
+}
+
+async function saveMeasurement() {
+  const fields = {};
+  fields.date = document.getElementById('am-date').value;
+  if (!fields.date) return alert('Date required');
+
+  ['weight','body_fat','neck','shoulders','chest','waist','hips','left_arm','right_arm','left_quad','right_quad','left_calf','right_calf'].forEach(f => {
+    const el = document.getElementById('am-' + f);
+    if (el && el.value) fields[f] = parseFloat(el.value);
+  });
+  const notes = document.getElementById('am-notes').value.trim();
+  if (notes) fields.notes = notes;
+
+  try {
+    await api('/api/measurements', { method: 'POST', body: fields });
+    closeModal();
+    loadBody();
+  } catch(e) { alert(e.message); }
+}
+
+async function deleteMeasurement(id) {
+  if (!confirm('Delete?')) return;
+  try {
+    await api(`/api/measurements/${id}`, { method: 'DELETE' });
+    loadBody();
+  } catch(e) { alert(e.message); }
+}
+
+function openAddPhoto() {
+  openModal(`
+    <div class="modal-title">Progress Photo</div>
+    <div class="flex flex-col gap-12">
+      <div><label>Date</label><input type="date" id="ph-date" value="${todayStr()}"></div>
+      <div><label>Pose</label>
+        <select id="ph-pose">
+          <option value="front-relaxed">Front Relaxed</option>
+          <option value="front-flex">Front Double Bicep</option>
+          <option value="side-relaxed">Side Relaxed</option>
+          <option value="side-chest">Side Chest</option>
+          <option value="back-relaxed">Back Relaxed</option>
+          <option value="back-lat-spread">Back Lat Spread</option>
+          <option value="most-muscular">Most Muscular</option>
+        </select>
+      </div>
+      <div>
+        <label>Photo</label>
+        <input type="file" id="ph-file" accept="image/*" capture="environment" style="padding:8px">
+      </div>
+      <div class="grid-2 gap-8">
+        <div><label>Weight</label><input type="number" id="ph-weight" step="0.1"></div>
+        <div><label>Body Fat %</label><input type="number" id="ph-bf" step="0.1"></div>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="savePhoto()">Save Photo</button>
+    </div>
+  `);
+}
+
+async function savePhoto() {
+  const date = document.getElementById('ph-date').value;
+  const pose = document.getElementById('ph-pose').value;
+  const fileInput = document.getElementById('ph-file');
+  const weight = parseFloat(document.getElementById('ph-weight').value) || null;
+  const body_fat = parseFloat(document.getElementById('ph-bf').value) || null;
+
+  if (!date) return alert('Date required');
+  if (!fileInput.files[0]) return alert('Select a photo');
+
+  // Convert to base64
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    try {
+      await api('/api/photos', {
+        method: 'POST',
+        body: { date, pose, photo_data: e.target.result, weight, body_fat }
+      });
+      closeModal();
+      loadBody();
+    } catch(err) { alert(err.message); }
+  };
+  reader.readAsDataURL(fileInput.files[0]);
+}
+
+async function viewPhoto(id) {
+  try {
+    const p = await api(`/api/photos/${id}`);
+    if (!p) return;
+    openModal(`
+      <div class="modal-title">${formatDate(p.date)}</div>
+      <div class="mb-8">
+        ${p.pose ? `<span class="pill">${p.pose}</span>` : ''}
+        ${p.weight ? `<span class="pill">${p.weight} lbs</span>` : ''}
+        ${p.body_fat ? `<span class="pill">${p.body_fat}% BF</span>` : ''}
+      </div>
+      <img src="${p.photo_data}" style="width:100%;border-radius:var(--radius);max-height:60vh;object-fit:contain">
+      <button class="btn btn-red btn-block mt-12" onclick="deletePhoto(${p.id})">Delete Photo</button>
+    `);
+  } catch(e) { alert(e.message); }
+}
+
+async function deletePhoto(id) {
+  if (!confirm('Delete photo?')) return;
+  try {
+    await api(`/api/photos/${id}`, { method: 'DELETE' });
+    closeModal();
+    loadBody();
+  } catch(e) { alert(e.message); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   DIET TAB (localStorage-based)
+   ───────────────────────────────────────────────────────────────────────── */
+function getDietDay(date) {
+  if (!S.dietData[date]) {
+    S.dietData[date] = {
+      targets: S.dietData._targets || { calories: 2800, protein: 220, carbs: 300, fat: 80 },
+      meals: [],
+      water: 0
+    };
+  }
+  return S.dietData[date];
+}
+
+function saveDietData() {
+  localStorage.setItem('protocol_diet', JSON.stringify(S.dietData));
+}
+
+function loadDiet() {
+  document.getElementById('diet-date').textContent = formatDate(S.dietDate);
+  const day = getDietDay(S.dietDate);
+
+  // Macro bars
+  const totals = { calories: 0, protein: 0, carbs: 0, fat: 0 };
+  day.meals.forEach(m => {
+    totals.calories += m.calories || 0;
+    totals.protein += m.protein || 0;
+    totals.carbs += m.carbs || 0;
+    totals.fat += m.fat || 0;
+  });
+
+  const macros = [
+    { label: 'Calories', current: totals.calories, target: day.targets.calories, color: 'var(--accent)', unit: 'kcal' },
+    { label: 'Protein', current: totals.protein, target: day.targets.protein, color: 'var(--teal)', unit: 'g' },
+    { label: 'Carbs', current: totals.carbs, target: day.targets.carbs, color: 'var(--amber)', unit: 'g' },
+    { label: 'Fat', current: totals.fat, target: day.targets.fat, color: 'var(--red)', unit: 'g' },
+  ];
+
+  document.getElementById('diet-macro-bars').innerHTML = macros.map(m => {
+    const pct = Math.min(100, Math.round(m.current / m.target * 100));
+    return `
+      <div class="flex items-center justify-between mb-8">
+        <div style="width:60px" class="text-xs text-muted">${m.label}</div>
+        <div style="flex:1;margin:0 8px">
+          <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%;background:${m.color}"></div></div>
+        </div>
+        <div class="text-xs" style="width:80px;text-align:right">${m.current} / ${m.target} ${m.unit}</div>
+      </div>`;
+  }).join('');
+
+  // Water
+  document.getElementById('diet-water-count').innerHTML = `${day.water} <span style="font-size:14px;color:var(--text2)">/ 8 glasses</span>`;
+  const dotsEl = document.getElementById('diet-water-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < 8; i++) {
+    dotsEl.innerHTML += `<div style="width:28px;height:28px;border-radius:50%;background:${i < day.water ? 'var(--teal)' : 'var(--bg3)'};border:1px solid ${i < day.water ? 'var(--teal)' : 'var(--card-border)'};transition:all .2s"></div>`;
+  }
+
+  // Meals
+  const mealsEl = document.getElementById('diet-meals');
+  if (day.meals.length === 0) {
+    mealsEl.innerHTML = '<div class="text-sm text-muted" style="padding:8px">No meals logged</div>';
+  } else {
+    mealsEl.innerHTML = day.meals.map((m, i) => `
+      <div class="card" style="padding:12px">
+        <div class="flex items-center justify-between">
+          <div>
+            <div style="font-weight:500">${m.name}</div>
+            <div class="text-xs text-muted">${m.calories || 0} kcal | P:${m.protein || 0}g C:${m.carbs || 0}g F:${m.fat || 0}g</div>
+          </div>
+          <button class="text-red text-xs" onclick="deleteMeal(${i})">x</button>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+function dietPrevDay() {
+  const d = new Date(S.dietDate); d.setDate(d.getDate() - 1);
+  S.dietDate = d.toISOString().slice(0,10);
+  loadDiet();
+}
+
+function dietNextDay() {
+  const d = new Date(S.dietDate); d.setDate(d.getDate() + 1);
+  S.dietDate = d.toISOString().slice(0,10);
+  loadDiet();
+}
+
+function addWater() {
+  const day = getDietDay(S.dietDate);
+  if (day.water < 20) { day.water++; saveDietData(); loadDiet(); }
+}
+
+function openAddMeal() {
+  openModal(`
+    <div class="modal-title">Add Meal</div>
+    <div class="flex flex-col gap-12">
+      <div><label>Meal Name</label><input type="text" id="meal-name" placeholder="e.g. Chicken & Rice"></div>
+      <div class="grid-2 gap-8">
+        <div><label>Calories</label><input type="number" id="meal-cal" placeholder="500"></div>
+        <div><label>Protein (g)</label><input type="number" id="meal-prot" placeholder="40"></div>
+        <div><label>Carbs (g)</label><input type="number" id="meal-carb" placeholder="60"></div>
+        <div><label>Fat (g)</label><input type="number" id="meal-fat" placeholder="15"></div>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="saveMeal()">Add Meal</button>
+    </div>
+  `);
+}
+
+function saveMeal() {
+  const name = document.getElementById('meal-name').value.trim();
+  if (!name) return alert('Meal name required');
+  const day = getDietDay(S.dietDate);
+  day.meals.push({
+    name,
+    calories: parseInt(document.getElementById('meal-cal').value) || 0,
+    protein: parseInt(document.getElementById('meal-prot').value) || 0,
+    carbs: parseInt(document.getElementById('meal-carb').value) || 0,
+    fat: parseInt(document.getElementById('meal-fat').value) || 0
+  });
+  saveDietData();
+  closeModal();
+  loadDiet();
+}
+
+function deleteMeal(i) {
+  const day = getDietDay(S.dietDate);
+  day.meals.splice(i, 1);
+  saveDietData();
+  loadDiet();
+}
+
+function openDietTargets() {
+  const targets = S.dietData._targets || { calories: 2800, protein: 220, carbs: 300, fat: 80 };
+  openModal(`
+    <div class="modal-title">Macro Targets</div>
+    <div class="flex flex-col gap-12">
+      <div><label>Calories</label><input type="number" id="dt-cal" value="${targets.calories}"></div>
+      <div><label>Protein (g)</label><input type="number" id="dt-prot" value="${targets.protein}"></div>
+      <div><label>Carbs (g)</label><input type="number" id="dt-carb" value="${targets.carbs}"></div>
+      <div><label>Fat (g)</label><input type="number" id="dt-fat" value="${targets.fat}"></div>
+      <button class="btn btn-primary btn-block" onclick="saveDietTargets()">Save Targets</button>
+    </div>
+  `);
+}
+
+function saveDietTargets() {
+  S.dietData._targets = {
+    calories: parseInt(document.getElementById('dt-cal').value) || 2800,
+    protein: parseInt(document.getElementById('dt-prot').value) || 220,
+    carbs: parseInt(document.getElementById('dt-carb').value) || 300,
+    fat: parseInt(document.getElementById('dt-fat').value) || 80
+  };
+  saveDietData();
+  closeModal();
+  loadDiet();
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   WELLNESS TAB
+   ───────────────────────────────────────────────────────────────────────── */
+const WELLNESS_METRICS = [
+  { key: 'sleep_hours', label: 'Sleep Hours', min: 0, max: 12, step: 0.5, icon: '🌙' },
+  { key: 'sleep_quality', label: 'Sleep Quality', min: 1, max: 10, step: 1, icon: '💤' },
+  { key: 'energy', label: 'Energy', min: 1, max: 10, step: 1, icon: '⚡' },
+  { key: 'mood', label: 'Mood', min: 1, max: 10, step: 1, icon: '😊' },
+  { key: 'libido', label: 'Libido', min: 1, max: 10, step: 1, icon: '🔥' },
+  { key: 'joint_pain', label: 'Joint Pain', min: 0, max: 10, step: 1, icon: '🦴' },
+  { key: 'appetite', label: 'Appetite', min: 1, max: 10, step: 1, icon: '🍽️' },
+  { key: 'stress', label: 'Stress', min: 0, max: 10, step: 1, icon: '😰' },
+];
+
+async function loadWellness() {
+  // Build sliders
+  const slidersEl = document.getElementById('wellness-sliders');
+  if (slidersEl.children.length === 0) {
+    slidersEl.innerHTML = WELLNESS_METRICS.map(m => `
+      <div class="mb-12">
+        <div class="flex items-center justify-between mb-4">
+          <div class="text-sm" style="font-weight:500">${m.icon} ${m.label}</div>
+          <div id="wv-${m.key}" style="font-family:var(--font-display);font-size:20px;letter-spacing:1px;min-width:32px;text-align:right">${m.key === 'sleep_hours' ? '7' : '5'}</div>
+        </div>
+        <input type="range" id="ws-${m.key}" min="${m.min}" max="${m.max}" step="${m.step}" value="${m.key === 'sleep_hours' ? 7 : 5}" oninput="document.getElementById('wv-${m.key}').textContent=this.value">
+      </div>
+    `).join('');
+  }
+
+  // Load today
+  try {
+    S.wellnessToday = await api('/api/wellness/today');
+    if (S.wellnessToday) {
+      document.getElementById('wellness-today').style.display = 'block';
+      WELLNESS_METRICS.forEach(m => {
+        const v = S.wellnessToday[m.key];
+        if (v != null) {
+          const slider = document.getElementById('ws-' + m.key);
+          if (slider) slider.value = v;
+          const display = document.getElementById('wv-' + m.key);
+          if (display) display.textContent = v;
+        }
+      });
+
+      // Today scores display
+      const scoresEl = document.getElementById('wellness-today-scores');
+      scoresEl.innerHTML = WELLNESS_METRICS.map(m => {
+        const v = S.wellnessToday[m.key];
+        if (v == null) return '';
+        const isGood = (m.key === 'joint_pain' || m.key === 'stress') ? v <= 3 : v >= 7;
+        return `<div style="text-align:center"><div style="font-family:var(--font-display);font-size:20px;color:${isGood ? 'var(--teal)' : v >= 5 ? 'var(--amber)' : 'var(--red)'}">${v}</div><div class="text-xs text-muted">${m.label.split(' ')[0]}</div></div>`;
+      }).join('');
+    }
+  } catch(e) {}
+
+  // 7-day trends
+  try {
+    const fromDate = new Date(); fromDate.setDate(fromDate.getDate() - 7);
+    const from = fromDate.toISOString().slice(0,10);
+    const to = todayStr();
+    S.wellness = await api(`/api/wellness?from=${from}&to=${to}`);
+
+    const trendsEl = document.getElementById('wellness-trends');
+    if (S.wellness.length > 1) {
+      trendsEl.innerHTML = WELLNESS_METRICS.map(m => {
+        const values = S.wellness.filter(w => w[m.key] != null).map(w => w[m.key]).reverse();
+        if (values.length < 2) return '';
+        const svg = buildSparkline(values, 80, 24, m.key === 'joint_pain' || m.key === 'stress' ? '#ef4444' : '#2dd4a8');
+        const avg = (values.reduce((a,b) => a+b, 0) / values.length).toFixed(1);
+        return `
+          <div class="flex items-center justify-between" style="padding:4px 0">
+            <div class="text-sm" style="width:80px">${m.icon} ${m.label.split(' ')[0]}</div>
+            ${svg}
+            <div style="font-family:var(--font-display);font-size:16px;width:32px;text-align:right">${avg}</div>
+          </div>`;
+      }).join('');
+    } else {
+      trendsEl.innerHTML = '<div class="text-sm text-muted">Need at least 2 days of data</div>';
+    }
+
+    // Insights
+    if (S.wellness.length >= 3 && S.activeCycle && S.cycleCompounds.length > 0) {
+      const insightsEl = document.getElementById('wellness-insight-cards');
+      const insights = [];
+
+      // Check for energy dips
+      const energyVals = S.wellness.filter(w => w.energy != null).map(w => w.energy);
+      if (energyVals.length >= 3) {
+        const avg = energyVals.reduce((a,b) => a+b, 0) / energyVals.length;
+        if (avg < 5) {
+          const compNames = S.cycleCompounds.map(cc => S.compoundsById[cc.compound_id]?.name || cc.compound_id);
+          insights.push(`Low average energy (${avg.toFixed(1)}/10) while running ${compNames.join(', ')}. Consider checking estradiol levels.`);
+        }
+      }
+
+      // Check joint pain with 19-nors
+      const jointVals = S.wellness.filter(w => w.joint_pain != null).map(w => w.joint_pain);
+      if (jointVals.length >= 2) {
+        const avgJoint = jointVals.reduce((a,b) => a+b, 0) / jointVals.length;
+        const has19nor = S.cycleCompounds.some(cc => {
+          const c = S.compoundsById[cc.compound_id];
+          return c && (c.progestogenic || (c.class || '').includes('19-nortestosterone'));
+        });
+        if (avgJoint >= 5 && has19nor) {
+          insights.push('Elevated joint pain while running a 19-nor compound. This could indicate elevated prolactin.');
+        }
+      }
+
+      if (insights.length > 0) {
+        document.getElementById('wellness-insights').style.display = 'block';
+        insightsEl.innerHTML = insights.map(i => `
+          <div class="card" style="border-color:var(--amber);margin-bottom:8px">
+            <div class="flex items-center gap-8">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--amber)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <div class="text-sm">${i}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+  } catch(e) { console.error('Wellness error', e); }
+}
+
+async function saveWellness() {
+  const data = { date: todayStr() };
+  WELLNESS_METRICS.forEach(m => {
+    const el = document.getElementById('ws-' + m.key);
+    if (el) data[m.key] = parseFloat(el.value);
+  });
+  const notes = document.getElementById('wellness-notes').value.trim();
+  if (notes) data.notes = notes;
+
+  try {
+    await api('/api/wellness', { method: 'POST', body: data });
+    loadWellness();
+  } catch(e) { alert(e.message); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   JOURNAL TAB (Side Effects)
+   ───────────────────────────────────────────────────────────────────────── */
+const SYMPTOMS = [
+  'Acne','Hair Loss','Water Retention','Gynecomastia','Oily Skin','Mood Swings','Insomnia','Night Sweats','High Blood Pressure','Low Libido','Erectile Dysfunction','Lethargy','Anxiety','Aggression','Appetite Loss','Headache','Nausea','Joint Pain','Back Pumps','Injection Site Pain'
+];
+
+async function loadJournal() {
+  try {
+    S.sideEffects = await api('/api/side-effects');
+
+    // Filter pills
+    const filtersEl = document.getElementById('journal-filters');
+    const uniqueSymptoms = [...new Set(S.sideEffects.map(s => s.symptom))];
+    filtersEl.innerHTML = `<button class="pill ${!S.journalFilter ? 'pill-accent' : ''}" onclick="setJournalFilter(null)">All</button>` +
+      uniqueSymptoms.map(s => `<button class="pill ${S.journalFilter === s ? 'pill-accent' : ''}" onclick="setJournalFilter('${s}')">${s}</button>`).join('');
+
+    // Timeline
+    const filtered = S.journalFilter ? S.sideEffects.filter(s => s.symptom === S.journalFilter) : S.sideEffects;
+    const timelineEl = document.getElementById('journal-timeline');
+
+    if (filtered.length === 0) {
+      timelineEl.innerHTML = '<div class="empty-state"><p class="text-muted">No side effects logged</p></div>';
+      return;
+    }
+
+    timelineEl.innerHTML = filtered.map(s => {
+      const sevColor = s.severity <= 3 ? 'var(--teal)' : s.severity <= 6 ? 'var(--amber)' : 'var(--red)';
+      return `
+        <div class="card" style="padding:12px;border-left:3px solid ${sevColor}">
+          <div class="flex items-center justify-between">
+            <div>
+              <div style="font-weight:600">${s.symptom}</div>
+              <div class="text-xs text-muted">${formatDate(s.date)}${s.suspected_compound ? ' — ' + (S.compoundsById[s.suspected_compound]?.name || s.suspected_compound) : ''}</div>
+              ${s.notes ? `<div class="text-xs" style="margin-top:4px;color:var(--text2)">${s.notes}</div>` : ''}
+            </div>
+            <div class="flex items-center gap-8">
+              <div style="background:${sevColor};width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#000">${s.severity}</div>
+              <button class="text-red text-xs" onclick="deleteSideEffect(${s.id})">x</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) { console.error('Journal load error', e); }
+}
+
+function setJournalFilter(symptom) {
+  S.journalFilter = symptom;
+  loadJournal();
+}
+
+function openAddSideEffect() {
+  const compOptions = S.cycleCompounds.map(cc => {
+    const c = S.compoundsById[cc.compound_id];
+    return `<option value="${cc.compound_id}">${c ? c.name : cc.compound_id}</option>`;
+  }).join('');
+
+  openModal(`
+    <div class="modal-title">Log Side Effect</div>
+    <div class="flex flex-col gap-12">
+      <div><label>Symptom</label>
+        <div class="flex gap-8" style="flex-wrap:wrap;margin-top:4px" id="se-chips">
+          ${SYMPTOMS.map(s => `<button class="pill" onclick="selectSymptom(this,'${s}')">${s}</button>`).join('')}
+        </div>
+        <input type="hidden" id="se-symptom">
+      </div>
+      <div><label>Severity (1-10)</label>
+        <div class="flex items-center gap-8">
+          <input type="range" id="se-severity" min="1" max="10" value="5" oninput="document.getElementById('se-sev-val').textContent=this.value">
+          <span id="se-sev-val" style="font-family:var(--font-display);font-size:20px;width:28px;text-align:center">5</span>
+        </div>
+      </div>
+      <div><label>Suspected Compound</label>
+        <select id="se-compound"><option value="">Unknown</option>${compOptions}</select>
+      </div>
+      <div><label>Date</label><input type="date" id="se-date" value="${todayStr()}"></div>
+      <div><label>Notes</label><textarea id="se-notes" placeholder="Describe..."></textarea></div>
+      <button class="btn btn-primary btn-block" onclick="saveSideEffect()">Log Side Effect</button>
+    </div>
+  `);
+}
+
+function selectSymptom(el, symptom) {
+  document.querySelectorAll('#se-chips .pill').forEach(p => p.classList.remove('pill-accent'));
+  el.classList.add('pill-accent');
+  document.getElementById('se-symptom').value = symptom;
+}
+
+async function saveSideEffect() {
+  const symptom = document.getElementById('se-symptom').value;
+  if (!symptom) return alert('Select a symptom');
+  const severity = parseInt(document.getElementById('se-severity').value);
+  const suspected_compound = document.getElementById('se-compound').value || null;
+  const date = document.getElementById('se-date').value;
+  const notes = document.getElementById('se-notes').value.trim();
+
+  try {
+    await api('/api/side-effects', {
+      method: 'POST',
+      body: { date, symptom, severity, suspected_compound, notes: notes || null }
+    });
+    closeModal();
+    loadJournal();
+  } catch(e) { alert(e.message); }
+}
+
+async function deleteSideEffect(id) {
+  if (!confirm('Delete?')) return;
+  try {
+    await api(`/api/side-effects/${id}`, { method: 'DELETE' });
+    loadJournal();
+  } catch(e) { alert(e.message); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   LIBRARY TAB
+   ───────────────────────────────────────────────────────────────────────── */
+const CATEGORY_LABELS = {
+  'injectable-aas':'Injectable AAS','oral-aas':'Oral AAS','hgh':'HGH','growth-factor':'Growth Factors','peptide':'Peptides','glp1':'GLP-1','ai':'Aromatase Inhibitors','serm':'SERMs','prolactin-control':'Prolactin Control','liver-support':'Liver Support','cardio-support':'Cardio Support','thyroid':'Thyroid','insulin':'Insulin','fat-burner':'Fat Burners','hair-loss':'Hair Loss','sexual-health':'Sexual Health','diuretic':'Diuretics','other':'Other'
+};
+
+function loadLibrary() {
+  // Category pills
+  const catsEl = document.getElementById('lib-categories');
+  const cats = [...new Set(S.compounds.map(c => c.category))];
+  catsEl.innerHTML = `<button class="pill ${!S.libCategory ? 'pill-accent' : ''}" onclick="setLibCategory(null)">All</button>` +
+    cats.map(c => `<button class="pill ${S.libCategory === c ? 'pill-accent' : ''}" onclick="setLibCategory('${c}')">${CATEGORY_LABELS[c] || c}</button>`).join('');
+
+  filterLibrary();
+}
+
+function setLibCategory(cat) {
+  S.libCategory = cat;
+  loadLibrary();
+}
+
+function filterLibrary() {
+  const q = (document.getElementById('lib-search')?.value || '').toLowerCase();
+  let filtered = S.compounds;
+
+  if (S.libCategory) filtered = filtered.filter(c => c.category === S.libCategory);
+  if (q) filtered = filtered.filter(c => c.name.toLowerCase().includes(q) || (c.aliases || []).some(a => a.toLowerCase().includes(q)));
+
+  const listEl = document.getElementById('lib-list');
+  if (filtered.length === 0) {
+    listEl.innerHTML = '<div class="text-sm text-muted" style="padding:20px;text-align:center">No compounds match</div>';
+    return;
+  }
+
+  listEl.innerHTML = filtered.map(c => `
+    <div class="card" style="padding:12px;cursor:pointer" onclick="viewCompound('${c.id}')">
+      <div class="flex items-center justify-between">
+        <div>
+          <div style="font-weight:600">${c.name}</div>
+          <div class="text-xs text-muted">${CATEGORY_LABELS[c.category] || c.category}${c.halfLifeDisplay ? ' — t½ ' + c.halfLifeDisplay : ''}</div>
+        </div>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--text3)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+  `).join('');
+}
+
+function viewCompound(id) {
+  const c = S.compoundsById[id];
+  if (!c) return;
+
+  const infoRows = [];
+  if (c.halfLifeDisplay) infoRows.push(['Half-Life', c.halfLifeDisplay]);
+  if (c.route) infoRows.push(['Route', c.route.toUpperCase()]);
+  if (c.frequencyDisplay) infoRows.push(['Frequency', c.frequencyDisplay]);
+  if (c.doseMaleMin || c.doseMaleMax) infoRows.push(['Dose (Male)', `${c.doseMaleMin || '?'}–${c.doseMaleMax || '?'} mg`]);
+  if (c.typicalCycleWeeks) infoRows.push(['Cycle Length', c.typicalCycleWeeks.join('–') + ' weeks']);
+  if (c.androgenicRating != null) infoRows.push(['Androgenic Rating', c.androgenicRating]);
+  if (c.anabolicRating != null) infoRows.push(['Anabolic Rating', c.anabolicRating]);
+  if (c.aromatization) infoRows.push(['Aromatization', c.aromatization]);
+  if (c.liverToxicity != null) infoRows.push(['Liver Toxicity', c.liverToxicity + '/5']);
+  if (c.waterRetention) infoRows.push(['Water Retention', c.waterRetention]);
+  if (c.detectionTimeDays) infoRows.push(['Detection Time', c.detectionTimeDays + ' days']);
+  if (c.pctRequired != null) infoRows.push(['PCT Required', c.pctRequired ? 'Yes' : 'No']);
+
+  openModal(`
+    <div class="modal-title">${c.name}</div>
+    ${c.aliases && c.aliases.length ? `<div class="text-xs text-muted mb-8">Also: ${c.aliases.join(', ')}</div>` : ''}
+    ${c.brandNames && c.brandNames.length ? `<div class="text-xs text-muted mb-8">Brands: ${c.brandNames.join(', ')}</div>` : ''}
+
+    <div class="flex gap-8 mb-12" style="flex-wrap:wrap">
+      <span class="pill">${CATEGORY_LABELS[c.category] || c.category}</span>
+      ${c.bestFor ? c.bestFor.map(b => `<span class="pill pill-teal">${b}</span>`).join('') : ''}
+    </div>
+
+    ${c.description ? `<div class="text-sm mb-12" style="color:var(--text2)">${c.description}</div>` : ''}
+
+    <div class="section-hdr" style="font-size:14px">Details</div>
+    <div class="mb-12">
+      ${infoRows.map(([label, val]) => `
+        <div class="flex items-center justify-between" style="padding:5px 0;border-bottom:1px solid var(--card-border)">
+          <span class="text-xs text-muted">${label}</span>
+          <span class="text-sm" style="font-weight:500">${val}</span>
+        </div>
+      `).join('')}
+    </div>
+
+    ${c.commonSideEffects && c.commonSideEffects.length ? `
+      <div class="section-hdr" style="font-size:14px">Common Side Effects</div>
+      <div class="flex gap-8 mb-12" style="flex-wrap:wrap">${c.commonSideEffects.map(s => `<span class="pill pill-amber">${s}</span>`).join('')}</div>
+    ` : ''}
+
+    ${c.seriousSideEffects && c.seriousSideEffects.length ? `
+      <div class="section-hdr" style="font-size:14px">Serious Risks</div>
+      <div class="flex gap-8 mb-12" style="flex-wrap:wrap">${c.seriousSideEffects.map(s => `<span class="pill pill-red">${s}</span>`).join('')}</div>
+    ` : ''}
+
+    ${c.stacksWith && c.stacksWith.length ? `
+      <div class="section-hdr" style="font-size:14px">Stacks Well With</div>
+      <div class="flex gap-8 mb-12" style="flex-wrap:wrap">${c.stacksWith.map(id => {
+        const sc = S.compoundsById[id];
+        return `<span class="pill pill-teal" style="cursor:pointer" onclick="viewCompound('${id}')">${sc ? sc.name : id}</span>`;
+      }).join('')}</div>
+    ` : ''}
+
+    ${c.mechanism ? `
+      <div class="section-hdr" style="font-size:14px">Mechanism</div>
+      <div class="text-sm mb-12" style="color:var(--text2)">${c.mechanism}</div>
+    ` : ''}
+
+    ${c.notes ? `
+      <div class="section-hdr" style="font-size:14px">Notes</div>
+      <div class="text-sm" style="color:var(--text2)">${c.notes}</div>
+    ` : ''}
+  `);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   EXPORT
+   ───────────────────────────────────────────────────────────────────────── */
+async function exportData() {
+  closeModal();
+  try {
+    const response = await fetch(API + '/api/export/json');
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'protocol-export.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch(e) { alert('Export failed: ' + e.message); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BODY MAP SVG
+   ───────────────────────────────────────────────────────────────────────── */
+function buildBodyMapHTML(prefix) {
+  return `
+  <div class="body-map-wrap grid-2" style="max-width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <!-- FRONT -->
+    <svg id="${prefix}-bodymap" viewBox="0 0 200 420" style="width:100%">
+      <defs>
+        <radialGradient id="bm-skin"><stop offset="0%" stop-color="rgba(200,200,200,.08)"/><stop offset="100%" stop-color="rgba(200,200,200,.02)"/></radialGradient>
+      </defs>
+      <!-- Body outline (front) -->
+      <ellipse cx="100" cy="38" rx="28" ry="34" fill="url(#bm-skin)" stroke="var(--text3)" stroke-width="0.5"/>
+      <path d="M72 68 C60 80,48 120,46 165 L64 165 L68 120 L80 100 L100 95 L120 100 L132 120 L136 165 L154 165 C152 120,140 80,128 68 Z" fill="url(#bm-skin)" stroke="var(--text3)" stroke-width="0.5"/>
+      <path d="M46 165 C42 200,44 260,50 300 L70 300 L80 250 L100 250 L120 250 L130 300 L150 300 C156 260,158 200,154 165" fill="url(#bm-skin)" stroke="var(--text3)" stroke-width="0.5"/>
+      <path d="M50 300 L45 370 L70 370 L70 300" fill="url(#bm-skin)" stroke="var(--text3)" stroke-width="0.5"/>
+      <path d="M130 300 L155 370 L130 370 L130 300" fill="url(#bm-skin)" stroke="var(--text3)" stroke-width="0.5"/>
+      <!-- Arm outlines -->
+      <path d="M46 165 L22 230 L38 235 L54 170" fill="url(#bm-skin)" stroke="var(--text3)" stroke-width="0.5"/>
+      <path d="M154 165 L178 230 L162 235 L146 170" fill="url(#bm-skin)" stroke="var(--text3)" stroke-width="0.5"/>
+
+      <!-- Injection sites (front) -->
+      <ellipse class="site" data-site="Left Delt" cx="56" cy="100" rx="14" ry="10" fill="transparent" stroke="var(--text3)" stroke-dasharray="2,2" onclick="selectSite('${prefix}','Left Delt')"/>
+      <ellipse class="site" data-site="Right Delt" cx="144" cy="100" rx="14" ry="10" fill="transparent" stroke="var(--text3)" stroke-dasharray="2,2" onclick="selectSite('${prefix}','Right Delt')"/>
+      <ellipse class="site" data-site="Left Pec" cx="78" cy="118" rx="14" ry="10" fill="transparent" stroke="var(--text3)" stroke-dasharray="2,2" onclick="selectSite('${prefix}','Left Pec')"/>
+      <ellipse class="site" data-site="Right Pec" cx="122" cy="118" rx="14" ry="10" fill="transparent" stroke="var(--text3)" stroke-dasharray="2,2" onclick="selectSite('${prefix}','Right Pec')"/>
+      <ellipse class="site" data-site="Left Quad" cx="75" cy="275" rx="16" ry="18" fill="transparent" stroke="var(--text3)" stroke-dasharray="2,2" onclick="selectSite('${prefix}','Left Quad')"/>
+      <ellipse class="site" data-site="Right Quad" cx="125" cy="275" rx="16" ry="18" fill="transparent" stroke="var(--text3)" stroke-dasharray="2,2" onclick="selectSite('${prefix}','Right Quad')"/>
+      <ellipse class="site" data-site="Abdomen Left" cx="82" cy="170" rx="12" ry="10" fill="transparent" stroke="var(--text3)" stroke-dasharray="2,2" onclick="selectSite('${prefix}','Abdomen Left')"/>
+      <ellipse class="site" data-site="Abdomen Right" cx="118" cy="170" rx="12" ry="10" fill="transparent" stroke="var(--text3)" stroke-dasharray="2,2" onclick="selectSite('${prefix}','Abdomen Right')"/>
+      <text x="100" y="415" text-anchor="middle" fill="var(--text3)" font-size="10" font-family="var(--font-body)">FRONT</text>
+    </svg>
+
+    <!-- BACK -->
+    <svg viewBox="0 0 200 420" style="width:100%">
+      <!-- Body outline (back) -->
+      <ellipse cx="100" cy="38" rx="28" ry="34" fill="url(#bm-skin)" stroke="var(--text3)" stroke-width="0.5"/>
+      <path d="M72 68 C60 80,48 120,46 165 L64 165 L68 120 L80 100 L100 95 L120 100 L132 120 L136 165 L154 165 C152 120,140 80,128 68 Z" fill="url(#bm-skin)" stroke="var(--text3)" stroke-width="0.5"/>
+      <path d="M46 165 C42 200,44 260,50 300 L70 300 L80 250 L100 250 L120 250 L130 300 L150 300 C156 260,158 200,154 165" fill="url(#bm-skin)" stroke="var(--text3)" stroke-width="0.5"/>
+      <path d="M50 300 L45 370 L70 370 L70 300" fill="url(#bm-skin)" stroke="var(--text3)" stroke-width="0.5"/>
+      <path d="M130 300 L155 370 L130 370 L130 300" fill="url(#bm-skin)" stroke="var(--text3)" stroke-width="0.5"/>
+      <path d="M46 165 L22 230 L38 235 L54 170" fill="url(#bm-skin)" stroke="var(--text3)" stroke-width="0.5"/>
+      <path d="M154 165 L178 230 L162 235 L146 170" fill="url(#bm-skin)" stroke="var(--text3)" stroke-width="0.5"/>
+
+      <!-- Injection sites (back) -->
+      <ellipse class="site" data-site="Left Glute" cx="78" cy="220" rx="18" ry="16" fill="transparent" stroke="var(--text3)" stroke-dasharray="2,2" onclick="selectSite('${prefix}','Left Glute')"/>
+      <ellipse class="site" data-site="Right Glute" cx="122" cy="220" rx="18" ry="16" fill="transparent" stroke="var(--text3)" stroke-dasharray="2,2" onclick="selectSite('${prefix}','Right Glute')"/>
+      <ellipse class="site" data-site="Left VG" cx="58" cy="200" rx="14" ry="12" fill="transparent" stroke="var(--text3)" stroke-dasharray="2,2" onclick="selectSite('${prefix}','Left VG')"/>
+      <ellipse class="site" data-site="Right VG" cx="142" cy="200" rx="14" ry="12" fill="transparent" stroke="var(--text3)" stroke-dasharray="2,2" onclick="selectSite('${prefix}','Right VG')"/>
+      <ellipse class="site" data-site="Left Lat" cx="72" cy="140" rx="12" ry="16" fill="transparent" stroke="var(--text3)" stroke-dasharray="2,2" onclick="selectSite('${prefix}','Left Lat')"/>
+      <ellipse class="site" data-site="Right Lat" cx="128" cy="140" rx="12" ry="16" fill="transparent" stroke="var(--text3)" stroke-dasharray="2,2" onclick="selectSite('${prefix}','Right Lat')"/>
+      <ellipse class="site" data-site="Left Trap" cx="82" cy="88" rx="12" ry="8" fill="transparent" stroke="var(--text3)" stroke-dasharray="2,2" onclick="selectSite('${prefix}','Left Trap')"/>
+      <ellipse class="site" data-site="Right Trap" cx="118" cy="88" rx="12" ry="8" fill="transparent" stroke="var(--text3)" stroke-dasharray="2,2" onclick="selectSite('${prefix}','Right Trap')"/>
+      <ellipse class="site" data-site="Left Calf" cx="60" cy="340" rx="10" ry="14" fill="transparent" stroke="var(--text3)" stroke-dasharray="2,2" onclick="selectSite('${prefix}','Left Calf')"/>
+      <text x="100" y="415" text-anchor="middle" fill="var(--text3)" font-size="10" font-family="var(--font-body)">BACK</text>
+    </svg>
+  </div>`;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   CHART ENGINE
+   ───────────────────────────────────────────────────────────────────────── */
+function drawChart(canvas, datasets, opts = {}) {
+  if (!canvas) return;
+  const parent = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  const w = parent.clientWidth;
+  const h = opts.height || parent.clientHeight || 180;
+
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, w, h);
+
+  const pad = { top: 12, right: 12, bottom: 28, left: 36 };
+  const cw = w - pad.left - pad.right;
+  const ch = h - pad.top - pad.bottom;
+
+  // Find global min/max
+  let allVals = [];
+  datasets.forEach(ds => allVals = allVals.concat(ds.data));
+  let minVal = Math.min(...allVals);
+  let maxVal = Math.max(...allVals);
+  if (minVal === maxVal) { minVal -= 1; maxVal += 1; }
+  const range = maxVal - minVal;
+  minVal -= range * 0.05;
+  maxVal += range * 0.05;
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,.04)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (ch / 4) * i;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(pad.left + cw, y);
+    ctx.stroke();
+
+    // Y labels
+    const val = maxVal - (i / 4) * (maxVal - minVal);
+    ctx.fillStyle = 'rgba(255,255,255,.2)';
+    ctx.font = '10px var(--font-body)';
+    ctx.textAlign = 'right';
+    ctx.fillText(val.toFixed(val >= 100 ? 0 : 1), pad.left - 4, y + 3);
+  }
+
+  // Reference bands
+  if (opts.bands) {
+    opts.bands.forEach(b => {
+      const y1 = pad.top + ch - ((b.high - minVal) / (maxVal - minVal)) * ch;
+      const y2 = pad.top + ch - ((b.low - minVal) / (maxVal - minVal)) * ch;
+      ctx.fillStyle = b.color || 'rgba(45,212,168,.05)';
+      ctx.fillRect(pad.left, Math.max(pad.top, y1), cw, Math.min(ch, y2 - y1));
+    });
+  }
+
+  // Draw datasets
+  datasets.forEach(ds => {
+    const n = ds.data.length;
+    if (n === 0) return;
+
+    const isBar = ds.type === 'bar';
+    const color = ds.color || '#e94e1b';
+
+    if (isBar) {
+      const barW = Math.max(4, (cw / n) * 0.6);
+      ds.data.forEach((val, i) => {
+        const x = pad.left + (i / (n - 1 || 1)) * cw - barW / 2;
+        const barH = ((val - minVal) / (maxVal - minVal)) * ch;
+        const y = pad.top + ch - barH;
+        ctx.fillStyle = color;
+        ctx.globalAlpha = 0.8;
+        ctx.beginPath();
+        ctx.roundRect(x, y, barW, barH, 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      });
+    } else {
+      // Line
+      ctx.beginPath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.lineJoin = 'round';
+      ds.data.forEach((val, i) => {
+        const x = pad.left + (i / (n - 1 || 1)) * cw;
+        const y = pad.top + ch - ((val - minVal) / (maxVal - minVal)) * ch;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      // Fill
+      if (ds.fill) {
+        ctx.lineTo(pad.left + cw, pad.top + ch);
+        ctx.lineTo(pad.left, pad.top + ch);
+        ctx.closePath();
+        const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
+        grad.addColorStop(0, color.replace(')', ',.2)').replace('rgb', 'rgba'));
+        grad.addColorStop(1, 'transparent');
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+    }
+  });
+
+  // X labels
+  if (opts.labels) {
+    ctx.fillStyle = 'rgba(255,255,255,.2)';
+    ctx.font = '10px var(--font-body)';
+    ctx.textAlign = 'center';
+    const interval = opts.labelInterval || Math.max(1, Math.floor(opts.labels.length / 6));
+    opts.labels.forEach((label, i) => {
+      if (i % interval !== 0 && i !== opts.labels.length - 1) return;
+      const x = pad.left + (i / (opts.labels.length - 1 || 1)) * cw;
+      ctx.fillText(label, x, h - 4);
+    });
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SPARKLINE
+   ───────────────────────────────────────────────────────────────────────── */
+function buildSparkline(values, w, h, color) {
+  if (values.length < 2) return '';
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || 1;
+  const pad = 2;
+  const points = values.map((v, i) => {
+    const x = pad + (i / (values.length - 1)) * (w - pad * 2);
+    const y = pad + (1 - (v - min) / range) * (h - pad * 2);
+    return `${x},${y}`;
+  }).join(' ');
+
+  return `<svg class="sparkline" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+    <polyline points="${points}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   UTILITIES
+   ───────────────────────────────────────────────────────────────────────── */
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+
+function nowLocal() {
+  const d = new Date();
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0, 16);
+}
+
+function formatDate(str) {
+  if (!str) return '';
+  try {
+    const d = new Date(str);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch(e) { return str; }
+}
+
+// roundRect polyfill
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (typeof r === 'number') r = [r,r,r,r];
+    this.moveTo(x + r[0], y);
+    this.lineTo(x + w - r[1], y);
+    this.quadraticCurveTo(x + w, y, x + w, y + r[1]);
+    this.lineTo(x + w, y + h - r[2]);
+    this.quadraticCurveTo(x + w, y + h, x + w - r[2], y + h);
+    this.lineTo(x + r[3], y + h);
+    this.quadraticCurveTo(x, y + h, x, y + h - r[3]);
+    this.lineTo(x, y + r[0]);
+    this.quadraticCurveTo(x, y, x + r[0], y);
+    this.closePath();
+  };
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BOOT
+   ───────────────────────────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

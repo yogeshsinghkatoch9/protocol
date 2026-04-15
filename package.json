@@ -1,0 +1,16 @@
+{
+  "name": "protocol",
+  "version": "1.0.0",
+  "description": "All-in-one tracker for enhanced bodybuilders. Compounds, blood work, body composition, competition prep.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "keywords": ["bodybuilding", "tracking", "health", "fitness", "harm-reduction"],
+  "author": "Yogesh Singh Katoch",
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^11.0.0"
+  }
+}
