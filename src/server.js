@@ -7,6 +7,7 @@ const url  = require('url');
 
 const db        = require('./db');
 const compoundsModule = require('./data/compounds');
+const competitionsData = require('./data/competitions');
 
 // Normalize compound access — agents exported different shapes
 const compounds = {
@@ -284,6 +285,82 @@ function calculatePCTStart(doses) {
     limiting_compound: details[0]?.compound_id,
     per_compound: details,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Strength sport calculators
+// ---------------------------------------------------------------------------
+
+/**
+ * Calculate Wilks score.
+ * Formula: wilks = total * 500 / (a + b*x + c*x^2 + d*x^3 + e*x^4 + f*x^5)
+ * where x = bodyweight in kg.
+ *
+ * Standard Wilks coefficients (2020 revision not used — classic coefficients).
+ */
+function calculateWilks(totalKg, bodyweightKg, gender = 'male') {
+  const x = bodyweightKg;
+
+  // Male coefficients
+  let a = -216.0475144;
+  let b = 16.2606339;
+  let c = -0.002388645;
+  let d = -0.00113732;
+  let e = 7.01863e-6;
+  let f = -1.291e-8;
+
+  if (gender === 'female') {
+    a = 594.31747775582;
+    b = -27.23842536447;
+    c = 0.82112226871;
+    d = -0.00930733913;
+    e = 4.731582e-5;
+    f = -9.054e-8;
+  }
+
+  const denom = a + b * x + c * Math.pow(x, 2) + d * Math.pow(x, 3) + e * Math.pow(x, 4) + f * Math.pow(x, 5);
+  if (denom <= 0) return 0;
+  const wilks = totalKg * 500 / denom;
+  return Math.round(wilks * 100) / 100;
+}
+
+/**
+ * Calculate DOTS score.
+ * Formula: dots = total * 500 / (A + B*bw + C*bw^2 + D*bw^3 + E*bw^4)
+ */
+function calculateDOTS(totalKg, bodyweightKg, gender = 'male') {
+  const bw = bodyweightKg;
+
+  // Male coefficients
+  let A = -307.75076;
+  let B = 24.0900756;
+  let C = -0.1918759221;
+  let D = 0.0007391293;
+  let E = -0.000001093;
+
+  if (gender === 'female') {
+    A = -57.96288;
+    B = 13.6175032;
+    C = -0.1126655495;
+    D = 0.0005158568;
+    E = -0.0000010706;
+  }
+
+  const denom = A + B * bw + C * Math.pow(bw, 2) + D * Math.pow(bw, 3) + E * Math.pow(bw, 4);
+  if (denom <= 0) return 0;
+  const dots = totalKg * 500 / denom;
+  return Math.round(dots * 100) / 100;
+}
+
+/**
+ * Calculate estimated 1RM using the Epley formula.
+ * 1RM = weight * (1 + reps / 30)
+ * For reps = 1, returns the weight itself.
+ */
+function calculate1RM(weight, reps) {
+  if (reps <= 1) return weight;
+  const estimated = weight * (1 + reps / 30);
+  return Math.round(estimated * 10) / 10;
 }
 
 // ---------------------------------------------------------------------------
@@ -790,6 +867,179 @@ async function handleRequest(req, res) {
       }
       const volume_ml = Math.round((dose_mg / concentration) * 1000) / 1000;
       return json(res, { dose_mg, concentration, volume_ml });
+    }
+
+    // ── Competitions ────────────────────────────────────────────────
+    if (method === 'GET' && pathname === '/api/competitions') {
+      return json(res, db.competitions.list());
+    }
+
+    if (method === 'POST' && pathname === '/api/competitions') {
+      const body = await parseBody(req);
+      if (!body.name || !body.show_date) return error(res, 'name and show_date required');
+      return json(res, db.competitions.create(body), 201);
+    }
+
+    if (method === 'PUT' && (params = matchRoute('/api/competitions/:id', pathname))) {
+      const existing = db.competitions.getById(Number(params.id));
+      if (!existing) return error(res, 'Competition not found', 404);
+      const body = await parseBody(req);
+      return json(res, db.competitions.update(Number(params.id), body));
+    }
+
+    if (method === 'DELETE' && (params = matchRoute('/api/competitions/:id', pathname))) {
+      const existing = db.competitions.getById(Number(params.id));
+      if (!existing) return error(res, 'Competition not found', 404);
+      db.competitions.delete(Number(params.id));
+      return json(res, { deleted: true });
+    }
+
+    // ── Peak Week Log ───────────────────────────────────────────────
+    if (method === 'GET' && (params = matchRoute('/api/competitions/:id/peak-week', pathname))) {
+      const existing = db.competitions.getById(Number(params.id));
+      if (!existing) return error(res, 'Competition not found', 404);
+      return json(res, db.peakWeekLog.listByCompetition(Number(params.id)));
+    }
+
+    if (method === 'POST' && (params = matchRoute('/api/competitions/:id/peak-week', pathname))) {
+      const existing = db.competitions.getById(Number(params.id));
+      if (!existing) return error(res, 'Competition not found', 404);
+      const body = await parseBody(req);
+      if (body.day_out == null) return error(res, 'day_out required');
+      body.competition_id = Number(params.id);
+      return json(res, db.peakWeekLog.create(body), 201);
+    }
+
+    // ── Posing Log ──────────────────────────────────────────────────
+    if (method === 'GET' && pathname === '/api/posing') {
+      return json(res, db.posingLog.list());
+    }
+
+    if (method === 'POST' && pathname === '/api/posing') {
+      const body = await parseBody(req);
+      if (!body.date) return error(res, 'date required');
+      return json(res, db.posingLog.create(body), 201);
+    }
+
+    // ── Powerlifting Meets ──────────────────────────────────────────
+    if (method === 'GET' && pathname === '/api/pl-meets') {
+      return json(res, db.plMeets.list());
+    }
+
+    if (method === 'POST' && pathname === '/api/pl-meets') {
+      const body = await parseBody(req);
+      if (!body.name || !body.date) return error(res, 'name and date required');
+      return json(res, db.plMeets.create(body), 201);
+    }
+
+    // ── 1RM Log ─────────────────────────────────────────────────────
+    if (method === 'GET' && pathname === '/api/one-rm') {
+      return json(res, db.oneRmLog.list());
+    }
+
+    if (method === 'POST' && pathname === '/api/one-rm') {
+      const body = await parseBody(req);
+      if (!body.date || !body.exercise || body.weight == null) {
+        return error(res, 'date, exercise, and weight required');
+      }
+      return json(res, db.oneRmLog.create(body), 201);
+    }
+
+    if (method === 'GET' && (params = matchRoute('/api/one-rm/:exercise/history', pathname))) {
+      return json(res, db.oneRmLog.historyByExercise(params.exercise));
+    }
+
+    // ── Strongman Events ────────────────────────────────────────────
+    if (method === 'GET' && pathname === '/api/strongman-events') {
+      return json(res, db.strongmanEvents.list());
+    }
+
+    if (method === 'POST' && pathname === '/api/strongman-events') {
+      const body = await parseBody(req);
+      if (!body.date || !body.event_name) return error(res, 'date and event_name required');
+      return json(res, db.strongmanEvents.create(body), 201);
+    }
+
+    // ── Sport Profile ───────────────────────────────────────────────
+    if (method === 'GET' && pathname === '/api/sport-profile') {
+      return json(res, db.sportProfile.get());
+    }
+
+    if (method === 'PUT' && pathname === '/api/sport-profile') {
+      const body = await parseBody(req);
+      return json(res, db.sportProfile.update(body));
+    }
+
+    // ── Competition Static Data ─────────────────────────────────────
+    if (method === 'GET' && pathname === '/api/federations') {
+      return json(res, competitionsData.getFederations());
+    }
+
+    if (method === 'GET' && (params = matchRoute('/api/divisions/:sport', pathname))) {
+      return json(res, competitionsData.getDivisions(params.sport));
+    }
+
+    if (method === 'GET' && (params = matchRoute('/api/poses/:division', pathname))) {
+      const poses = competitionsData.getMandatoryPoses(params.division);
+      if (!poses) return error(res, 'Unknown division', 404);
+      return json(res, poses);
+    }
+
+    if (method === 'GET' && pathname === '/api/peak-week-template') {
+      return json(res, competitionsData.PEAK_WEEK);
+    }
+
+    if (method === 'GET' && pathname === '/api/classic-limit') {
+      const q = query(req.url);
+      const height = parseFloat(q.height);
+      if (isNaN(height)) return error(res, 'height query param required (inches)');
+      const limit = competitionsData.getClassicPhysiqueLimit(height);
+      if (!limit) return error(res, 'Invalid height');
+      return json(res, limit);
+    }
+
+    if (method === 'GET' && pathname === '/api/strongman-event-types') {
+      return json(res, competitionsData.STRONGMAN_EVENTS);
+    }
+
+    // ── Strength Calculators ────────────────────────────────────────
+
+    // Wilks Score
+    if (method === 'GET' && pathname === '/api/calc/wilks') {
+      const q = query(req.url);
+      const total = parseFloat(q.total);
+      const bodyweight = parseFloat(q.bodyweight);
+      const gender = q.gender || 'male';
+      if (isNaN(total) || isNaN(bodyweight) || bodyweight <= 0) {
+        return error(res, 'total and bodyweight required as positive numbers');
+      }
+      const wilks = calculateWilks(total, bodyweight, gender);
+      return json(res, { total, bodyweight, gender, wilks });
+    }
+
+    // DOTS Score
+    if (method === 'GET' && pathname === '/api/calc/dots') {
+      const q = query(req.url);
+      const total = parseFloat(q.total);
+      const bodyweight = parseFloat(q.bodyweight);
+      const gender = q.gender || 'male';
+      if (isNaN(total) || isNaN(bodyweight) || bodyweight <= 0) {
+        return error(res, 'total and bodyweight required as positive numbers');
+      }
+      const dots = calculateDOTS(total, bodyweight, gender);
+      return json(res, { total, bodyweight, gender, dots });
+    }
+
+    // Estimated 1RM (Epley)
+    if (method === 'GET' && pathname === '/api/calc/1rm') {
+      const q = query(req.url);
+      const weight = parseFloat(q.weight);
+      const reps = parseInt(q.reps, 10);
+      if (isNaN(weight) || isNaN(reps) || reps < 1) {
+        return error(res, 'weight and reps required (reps >= 1)');
+      }
+      const estimated = calculate1RM(weight, reps);
+      return json(res, { weight, reps, estimated_1rm: estimated });
     }
 
     // ── 404 ─────────────────────────────────────────────────────────

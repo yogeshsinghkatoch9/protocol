@@ -159,12 +159,119 @@ function initDb() {
       notes TEXT,
       created_at TEXT DEFAULT (datetime('now'))
     );
+
+    -- Competition tracking
+    CREATE TABLE IF NOT EXISTS competitions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      federation TEXT,
+      division TEXT,
+      show_date TEXT NOT NULL,
+      location TEXT,
+      prep_start_date TEXT,
+      prep_weeks INTEGER DEFAULT 16,
+      status TEXT DEFAULT 'prep',
+      placement INTEGER,
+      notes TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- Peak week daily log
+    CREATE TABLE IF NOT EXISTS peak_week_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      competition_id INTEGER REFERENCES competitions(id) ON DELETE CASCADE,
+      day_out INTEGER NOT NULL,
+      water_oz REAL,
+      sodium_mg REAL,
+      carbs_g REAL,
+      protein_g REAL,
+      fat_g REAL,
+      weight REAL,
+      visual_notes TEXT,
+      photo_data TEXT,
+      notes TEXT
+    );
+
+    -- Posing practice log
+    CREATE TABLE IF NOT EXISTS posing_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      date TEXT NOT NULL,
+      duration_min INTEGER,
+      poses_practiced TEXT,
+      coach_session INTEGER DEFAULT 0,
+      video_notes TEXT,
+      notes TEXT
+    );
+
+    -- Powerlifting meet tracking
+    CREATE TABLE IF NOT EXISTS pl_meets (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      federation TEXT,
+      date TEXT NOT NULL,
+      weight_class TEXT,
+      body_weight REAL,
+      squat_1 REAL, squat_2 REAL, squat_3 REAL,
+      bench_1 REAL, bench_2 REAL, bench_3 REAL,
+      deadlift_1 REAL, deadlift_2 REAL, deadlift_3 REAL,
+      squat_best REAL, bench_best REAL, deadlift_best REAL,
+      total REAL,
+      wilks REAL,
+      dots REAL,
+      placement INTEGER,
+      notes TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- 1RM tracking
+    CREATE TABLE IF NOT EXISTS one_rm_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      date TEXT NOT NULL,
+      exercise TEXT NOT NULL,
+      weight REAL NOT NULL,
+      reps INTEGER DEFAULT 1,
+      estimated_1rm REAL,
+      notes TEXT
+    );
+
+    -- Strongman event log
+    CREATE TABLE IF NOT EXISTS strongman_events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      date TEXT NOT NULL,
+      event_name TEXT NOT NULL,
+      result TEXT,
+      result_unit TEXT,
+      competition_id INTEGER,
+      notes TEXT
+    );
+
+    -- User sport profile
+    CREATE TABLE IF NOT EXISTS sport_profile (
+      id INTEGER PRIMARY KEY DEFAULT 1,
+      sport TEXT DEFAULT 'bodybuilding',
+      division TEXT,
+      federation TEXT,
+      height_inches REAL,
+      competition_weight REAL,
+      off_season_weight REAL,
+      years_training INTEGER,
+      years_enhanced INTEGER,
+      coach_name TEXT,
+      coach_contact TEXT,
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
   `);
 
   // Seed default profile row if missing
   const row = db.prepare('SELECT id FROM profile WHERE id = 1').get();
   if (!row) {
     db.prepare('INSERT INTO profile (id) VALUES (1)').run();
+  }
+
+  // Seed default sport profile row if missing
+  const spRow = db.prepare('SELECT id FROM sport_profile WHERE id = 1').get();
+  if (!spRow) {
+    db.prepare('INSERT INTO sport_profile (id) VALUES (1)').run();
   }
 
   return db;
@@ -580,6 +687,209 @@ const progressPhotos = {
 };
 
 // ---------------------------------------------------------------------------
+// Competitions
+// ---------------------------------------------------------------------------
+const competitions = {
+  list() {
+    return getDb().prepare('SELECT * FROM competitions ORDER BY show_date DESC').all();
+  },
+  getById(id) {
+    return getDb().prepare('SELECT * FROM competitions WHERE id = ?').get(id);
+  },
+  create({ name, federation = null, division = null, show_date, location = null, prep_start_date = null, prep_weeks = 16, status = 'prep', notes = null }) {
+    const info = getDb().prepare(
+      `INSERT INTO competitions (name, federation, division, show_date, location, prep_start_date, prep_weeks, status, notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(name, federation, division, show_date, location, prep_start_date, prep_weeks, status, notes);
+    return this.getById(info.lastInsertRowid);
+  },
+  update(id, fields) {
+    const allowed = ['name', 'federation', 'division', 'show_date', 'location', 'prep_start_date', 'prep_weeks', 'status', 'placement', 'notes'];
+    const sets = [];
+    const vals = {};
+    for (const key of allowed) {
+      if (fields[key] !== undefined) {
+        sets.push(`${key} = @${key}`);
+        vals[key] = fields[key];
+      }
+    }
+    if (sets.length === 0) return this.getById(id);
+    vals.id = id;
+    getDb().prepare(`UPDATE competitions SET ${sets.join(', ')} WHERE id = @id`).run(vals);
+    return this.getById(id);
+  },
+  delete(id) {
+    return getDb().prepare('DELETE FROM competitions WHERE id = ?').run(id);
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Peak Week Log
+// ---------------------------------------------------------------------------
+const peakWeekLog = {
+  listByCompetition(competitionId) {
+    return getDb().prepare(
+      'SELECT * FROM peak_week_log WHERE competition_id = ? ORDER BY day_out DESC'
+    ).all(competitionId);
+  },
+  getById(id) {
+    return getDb().prepare('SELECT * FROM peak_week_log WHERE id = ?').get(id);
+  },
+  create({ competition_id, day_out, water_oz = null, sodium_mg = null, carbs_g = null, protein_g = null, fat_g = null, weight = null, visual_notes = null, photo_data = null, notes = null }) {
+    const info = getDb().prepare(
+      `INSERT INTO peak_week_log (competition_id, day_out, water_oz, sodium_mg, carbs_g, protein_g, fat_g, weight, visual_notes, photo_data, notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(competition_id, day_out, water_oz, sodium_mg, carbs_g, protein_g, fat_g, weight, visual_notes, photo_data, notes);
+    return this.getById(info.lastInsertRowid);
+  },
+  delete(id) {
+    return getDb().prepare('DELETE FROM peak_week_log WHERE id = ?').run(id);
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Posing Log
+// ---------------------------------------------------------------------------
+const posingLog = {
+  list() {
+    return getDb().prepare('SELECT * FROM posing_log ORDER BY date DESC').all();
+  },
+  getById(id) {
+    return getDb().prepare('SELECT * FROM posing_log WHERE id = ?').get(id);
+  },
+  create({ date, duration_min = null, poses_practiced = null, coach_session = 0, video_notes = null, notes = null }) {
+    const posesJson = poses_practiced && typeof poses_practiced !== 'string'
+      ? JSON.stringify(poses_practiced)
+      : poses_practiced;
+    const info = getDb().prepare(
+      `INSERT INTO posing_log (date, duration_min, poses_practiced, coach_session, video_notes, notes)
+       VALUES (?, ?, ?, ?, ?, ?)`
+    ).run(date, duration_min, posesJson, coach_session ? 1 : 0, video_notes, notes);
+    return this.getById(info.lastInsertRowid);
+  },
+  delete(id) {
+    return getDb().prepare('DELETE FROM posing_log WHERE id = ?').run(id);
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Powerlifting Meets
+// ---------------------------------------------------------------------------
+const plMeets = {
+  list() {
+    return getDb().prepare('SELECT * FROM pl_meets ORDER BY date DESC').all();
+  },
+  getById(id) {
+    return getDb().prepare('SELECT * FROM pl_meets WHERE id = ?').get(id);
+  },
+  create(fields) {
+    const cols = [
+      'name', 'federation', 'date', 'weight_class', 'body_weight',
+      'squat_1', 'squat_2', 'squat_3',
+      'bench_1', 'bench_2', 'bench_3',
+      'deadlift_1', 'deadlift_2', 'deadlift_3',
+      'squat_best', 'bench_best', 'deadlift_best',
+      'total', 'wilks', 'dots', 'placement', 'notes'
+    ];
+    const present = cols.filter(c => fields[c] !== undefined);
+    const placeholders = present.map(c => `@${c}`).join(', ');
+    const vals = {};
+    for (const c of present) vals[c] = fields[c];
+
+    const info = getDb().prepare(
+      `INSERT INTO pl_meets (${present.join(', ')}) VALUES (${placeholders})`
+    ).run(vals);
+    return this.getById(info.lastInsertRowid);
+  },
+  delete(id) {
+    return getDb().prepare('DELETE FROM pl_meets WHERE id = ?').run(id);
+  }
+};
+
+// ---------------------------------------------------------------------------
+// 1RM Log
+// ---------------------------------------------------------------------------
+const oneRmLog = {
+  list() {
+    return getDb().prepare('SELECT * FROM one_rm_log ORDER BY date DESC').all();
+  },
+  getById(id) {
+    return getDb().prepare('SELECT * FROM one_rm_log WHERE id = ?').get(id);
+  },
+  historyByExercise(exercise) {
+    return getDb().prepare(
+      'SELECT * FROM one_rm_log WHERE exercise = ? ORDER BY date ASC'
+    ).all(exercise);
+  },
+  create({ date, exercise, weight, reps = 1, estimated_1rm = null, notes = null }) {
+    // Auto-calculate estimated 1RM with Epley formula if not provided
+    if (estimated_1rm == null && reps > 1) {
+      estimated_1rm = Math.round(weight * (1 + reps / 30) * 10) / 10;
+    } else if (estimated_1rm == null && reps === 1) {
+      estimated_1rm = weight;
+    }
+    const info = getDb().prepare(
+      `INSERT INTO one_rm_log (date, exercise, weight, reps, estimated_1rm, notes)
+       VALUES (?, ?, ?, ?, ?, ?)`
+    ).run(date, exercise, weight, reps, estimated_1rm, notes);
+    return this.getById(info.lastInsertRowid);
+  },
+  delete(id) {
+    return getDb().prepare('DELETE FROM one_rm_log WHERE id = ?').run(id);
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Strongman Events
+// ---------------------------------------------------------------------------
+const strongmanEvents = {
+  list() {
+    return getDb().prepare('SELECT * FROM strongman_events ORDER BY date DESC').all();
+  },
+  getById(id) {
+    return getDb().prepare('SELECT * FROM strongman_events WHERE id = ?').get(id);
+  },
+  create({ date, event_name, result = null, result_unit = null, competition_id = null, notes = null }) {
+    const info = getDb().prepare(
+      `INSERT INTO strongman_events (date, event_name, result, result_unit, competition_id, notes)
+       VALUES (?, ?, ?, ?, ?, ?)`
+    ).run(date, event_name, result, result_unit, competition_id, notes);
+    return this.getById(info.lastInsertRowid);
+  },
+  delete(id) {
+    return getDb().prepare('DELETE FROM strongman_events WHERE id = ?').run(id);
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Sport Profile
+// ---------------------------------------------------------------------------
+const sportProfile = {
+  get() {
+    return getDb().prepare('SELECT * FROM sport_profile WHERE id = 1').get();
+  },
+  update(fields) {
+    const allowed = [
+      'sport', 'division', 'federation', 'height_inches',
+      'competition_weight', 'off_season_weight', 'years_training',
+      'years_enhanced', 'coach_name', 'coach_contact'
+    ];
+    const sets = [];
+    const vals = {};
+    for (const key of allowed) {
+      if (fields[key] !== undefined) {
+        sets.push(`${key} = @${key}`);
+        vals[key] = fields[key];
+      }
+    }
+    if (sets.length === 0) return this.get();
+    sets.push("updated_at = datetime('now')");
+    getDb().prepare(`UPDATE sport_profile SET ${sets.join(', ')} WHERE id = 1`).run(vals);
+    return this.get();
+  }
+};
+
+// ---------------------------------------------------------------------------
 // Exports
 // ---------------------------------------------------------------------------
 module.exports = {
@@ -597,5 +907,12 @@ module.exports = {
   workoutSets,
   workoutTemplates,
   wellness,
-  progressPhotos
+  progressPhotos,
+  competitions,
+  peakWeekLog,
+  posingLog,
+  plMeets,
+  oneRmLog,
+  strongmanEvents,
+  sportProfile
 };
