@@ -1,19 +1,7 @@
-const CACHE_NAME = 'protocol-v2';
-
-self.addEventListener('install', event => {
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.map(k => caches.delete(k)))
-    )
-  );
+// Service worker disabled for development — always fetch from network
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(k => Promise.all(k.map(c => caches.delete(c)))));
   self.clients.claim();
 });
-
-self.addEventListener('fetch', event => {
-  // Always go to network, never cache HTML during development
-  return;
-});
+self.addEventListener('fetch', () => {});
