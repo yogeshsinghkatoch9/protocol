@@ -4,36 +4,36 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Protocol</title>
-<meta name="theme-color" content="#f5f0ea">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#09090b">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
-  --bg:#f5f0ea;
-  --bg-card:#ffffff;
-  --bg-input:#f8f6f3;
-  --border:#e8e2da;
-  --border-focus:#c9835b;
-  --accent:#c9835b;
-  --accent-hover:#b5724d;
-  --accent-glow:rgba(201,131,91,.12);
-  --text:#2d2a26;
-  --text2:#6b665e;
-  --text3:#9e9890;
-  --red:#c0392b;
-  --red-bg:#fdf2f2;
-  --green:#27ae60;
-  --green-bg:#f2fdf5;
-  --amber:#d4880f;
-  --amber-bg:#fdf8f0;
-  --font-display:'Fraunces',Georgia,serif;
-  --font-body:'DM Sans',system-ui,sans-serif;
-  --radius:12px;
-  --radius-sm:8px;
-  --shadow-sm:0 1px 3px rgba(0,0,0,.04);
-  --shadow-md:0 4px 24px rgba(0,0,0,.06);
-  --shadow-lg:0 12px 48px rgba(0,0,0,.08);
+  --bg:#09090b;
+  --bg-card:#111113;
+  --bg-input:#09090b;
+  --border:#27272a;
+  --border-focus:#3b82f6;
+  --accent:#3b82f6;
+  --accent-hover:#2563eb;
+  --accent-glow:rgba(59,130,246,.15);
+  --text:#fafafa;
+  --text2:#a1a1aa;
+  --text3:#52525b;
+  --red:#ef4444;
+  --red-bg:rgba(239,68,68,.08);
+  --green:#10b981;
+  --green-bg:rgba(16,185,129,.08);
+  --amber:#f59e0b;
+  --amber-bg:rgba(245,158,11,.08);
+  --font-display:'JetBrains Mono',monospace;
+  --font-body:'Outfit',system-ui,sans-serif;
+  --radius:8px;
+  --radius-sm:6px;
+  --shadow-sm:0 0 0 1px var(--border);
+  --shadow-md:0 4px 24px rgba(0,0,0,.3);
+  --shadow-lg:0 12px 48px rgba(0,0,0,.4);
 }
 
 html{height:100%}
@@ -52,13 +52,14 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 
-/* Subtle grain texture */
+/* Background grid */
 body::before{
   content:'';
   position:fixed;
   inset:0;
-  opacity:.35;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity:.4;
+  background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,.03) 1px, transparent 0);
+  background-size:32px 32px;
   pointer-events:none;
   z-index:0;
 }
@@ -77,11 +78,12 @@ body::before{
 }
 .auth-header h1{
   font-family:var(--font-display);
-  font-size:32px;
-  font-weight:400;
+  font-size:22px;
+  font-weight:600;
   color:var(--text);
-  letter-spacing:-.5px;
+  letter-spacing:3px;
   line-height:1.1;
+  text-transform:uppercase;
 }
 .auth-header p{
   font-size:15px;
@@ -98,6 +100,7 @@ body::before{
   padding:32px;
   box-shadow:var(--shadow-md);
   animation:fadeIn .4s ease;
+  backdrop-filter:blur(20px);
 }
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
@@ -121,7 +124,7 @@ body::before{
   transition:all .2s;
 }
 .auth-tab.active{
-  color:var(--text);
+  color:var(--accent);
   border-bottom-color:var(--accent);
 }
 .auth-tab:hover:not(.active){
