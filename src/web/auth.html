@@ -4,33 +4,33 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Protocol</title>
-<meta name="theme-color" content="#0A0A0A">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#131313">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
-  --bg:#0A0A0A;
-  --bg-card:#111111;
-  --bg-input:#0A0A0A;
-  --border:#222222;
-  --border-focus:#0066FF;
-  --accent:#0066FF;
-  --accent-hover:#0052cc;
-  --accent-glow:rgba(0,102,255,.15);
-  --text:#F5F5F5;
-  --text2:#a0a0a0;
-  --text3:#555555;
+  --bg:#131313;
+  --bg-card:#201F1F;
+  --bg-input:#0E0E0E;
+  --border:rgba(65,71,85,.2);
+  --border-focus:#ADC6FF;
+  --accent:#ADC6FF;
+  --accent-hover:#4B8EFF;
+  --accent-glow:rgba(173,198,255,.12);
+  --text:#E5E2E1;
+  --text2:#C1C6D7;
+  --text3:#8B90A0;
   --red:#FF4500;
   --red-bg:rgba(255,69,0,.08);
   --green:#10b981;
   --green-bg:rgba(16,185,129,.08);
   --amber:#f59e0b;
   --amber-bg:rgba(245,158,11,.08);
-  --font-display:'JetBrains Mono',monospace;
-  --font-body:'Outfit',system-ui,sans-serif;
-  --radius:8px;
-  --radius-sm:6px;
+  --font-display:'Inter',system-ui,sans-serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --radius:16px;
+  --radius-sm:12px;
   --shadow-sm:0 0 0 1px var(--border);
   --shadow-md:0 4px 24px rgba(0,0,0,.3);
   --shadow-lg:0 12px 48px rgba(0,0,0,.4);
@@ -188,13 +188,13 @@ body::before{
 /* Submit button */
 .auth-btn{
   width:100%;
-  padding:12px;
+  padding:14px;
   border:none;
-  border-radius:var(--radius-sm);
-  background:var(--accent);
-  color:#fff;
+  border-radius:999px;
+  background:linear-gradient(145deg, #ADC6FF, #4B8EFF);
+  color:#001a41;
   font-family:var(--font-body);
-  font-size:15px;
+  font-size:14px;
   font-weight:600;
   cursor:pointer;
   transition:all .15s;
